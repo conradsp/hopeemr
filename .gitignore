@@ -29,6 +29,12 @@ CLAUDE.md
 coverage/
 .nyc_output/
 
+# Docker files
+docker-compose-emr.yml
+docker-compose-emr-https.yml
+docker-compose-emr-production.yml
+docker-compose-full-stack.yml
+
 # Vitest
 .vitest/
 
