@@ -5,8 +5,12 @@ node_modules/
 dist/
 build/
 
-# Environment files
+# Environment files (contain configuration - use .env.example as template)
+.env
 .env.local
+.env.default
+.env.defaults
+.env.production
 .env.production.local
 .env.development.local
 
