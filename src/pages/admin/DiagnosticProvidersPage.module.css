@@ -1,0 +1,20 @@
+/* DiagnosticProvidersPage Styles */
+
+.container {
+  padding-top: 1.25rem;
+  padding-bottom: 2.5rem;
+}
+
+.actionsColumn {
+  width: 5rem;
+}
+
+.websiteLink {
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.websiteLink:hover {
+  text-decoration: underline;
+}
+

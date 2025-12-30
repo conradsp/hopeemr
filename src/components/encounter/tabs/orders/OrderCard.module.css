@@ -1,0 +1,14 @@
+/* OrderCard Styles */
+
+.thumbnail {
+  max-width: 120px;
+  max-height: 120px;
+  border-radius: var(--radius-sm);
+  object-fit: contain;
+  width: auto;
+  height: auto;
+}
+
+.resultLabel {
+  min-width: 120px;
+}

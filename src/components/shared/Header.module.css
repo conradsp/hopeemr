@@ -1,0 +1,15 @@
+/* Header Styles */
+
+.headerContainer {
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-white);
+}
+
+.logoGroup {
+  cursor: pointer;
+}
+
+.searchInput {
+  min-width: 350px;
+}
+

@@ -1,0 +1,31 @@
+/* EditLabTestModal Styles */
+
+.fieldLabel {
+  font-weight: 500;
+}
+
+.fieldHint {
+  color: var(--color-secondary);
+  font-size: 0.9em;
+}
+
+.fieldName {
+  width: 120px;
+}
+
+.fieldLabelInput {
+  width: 140px;
+}
+
+.fieldType {
+  width: 100px;
+}
+
+.fieldUnit {
+  width: 100px;
+}
+
+.fieldOptions {
+  width: 160px;
+}
+

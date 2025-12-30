@@ -1,0 +1,26 @@
+/**
+ * Styles for the CriticalAlertModal component
+ */
+
+.modalContent {
+  border: 2px solid var(--mantine-color-red-6);
+}
+
+.alertCard {
+  border-color: var(--mantine-color-red-3);
+  background-color: var(--mantine-color-red-0);
+}
+
+.alertCard:hover {
+  border-color: var(--mantine-color-red-5);
+}
+
+/* Dark mode support */
+[data-mantine-color-scheme="dark"] .alertCard {
+  background-color: var(--mantine-color-red-9);
+  border-color: var(--mantine-color-red-7);
+}
+
+[data-mantine-color-scheme="dark"] .alertCard:hover {
+  border-color: var(--mantine-color-red-5);
+}

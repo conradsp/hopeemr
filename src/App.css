@@ -1,0 +1,35 @@
+/* Override Mantine Container default margins and width */
+.mantine-Container-root {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Override Mantine Paper default top margins */
+.mantine-Paper-root {
+  margin-top: 0 !important;
+}
+
+/* Override Document component margins if needed */
+.medplum-document {
+  margin: 0 !important;
+}
+
+/* Remove any default padding from body and root */
+body, #root {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure flex containers don't add extra spacing */
+.mantine-Tabs-root {
+  margin-top: 0 !important;
+}
+
+.mantine-Tabs-panel {
+  padding-top: 0 !important;
+}
+

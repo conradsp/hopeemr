@@ -1,0 +1,13 @@
+.headerContainer {
+  border-bottom: 1px solid #eee;
+  background: #fff;
+}
+
+.logoGroup {
+  cursor: pointer;
+}
+
+.searchInput {
+  min-width: 350px;
+}
+

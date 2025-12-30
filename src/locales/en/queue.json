@@ -1,0 +1,190 @@
+{
+  "queue": {
+    "queue": "Queue",
+    "patientQueue": "Patient Queue",
+    "dashboard": "Queue Dashboard",
+    "queueDashboard": "Queue Dashboard",
+    "myQueue": "My Queue",
+    "allPatientsQueue": "All Patients Queue",
+    "checkIn": "Check In Patient",
+    "checkInPatient": "Check In Patient",
+    "nextPatient": "Next Patient",
+    "quickRegister": "Quick Register",
+
+    "priority": "Priority",
+    "triage": "Triage",
+    "patient": "Patient",
+    "chiefComplaint": "Chief Complaint",
+    "waitTime": "Wait Time",
+    "checkInMethod": "Type",
+
+    "noPatients": "No patients in queue",
+    "noWaitingPatients": "No patients are currently waiting",
+    "patientConfidential": "Patient ***",
+    "confidential": "Confidential",
+    "privateConsultation": "Private consultation",
+    "noComplaint": "Not specified",
+    "notTriaged": "Not Triaged",
+    "inProgress": "In Progress",
+
+    "claimPatient": "Claim Patient",
+    "updateTriage": "Update Triage",
+    "cancelEntry": "Cancel Entry",
+    "confirmCancel": "Are you sure you want to cancel this queue entry?",
+    "patientClaimed": "Patient Claimed",
+    "patientClaimedSuccess": "Patient has been assigned to you",
+    "triageUpdated": "Triage Updated",
+    "triageUpdatedSuccess": "Triage level has been updated",
+    "entryCancelled": "Entry Cancelled",
+    "entryCancelledSuccess": "Queue entry has been cancelled",
+
+    "checkInSuccess": "Patient Checked In",
+    "checkInSuccessMessage": "{{patientName}} has been added to the queue",
+    "searchPatient": "Search Patient",
+    "searchPlaceholder": "Enter patient name or MRN",
+    "selectPatient": "Select Patient",
+    "selectedPatient": "Selected Patient",
+    "appointment": "Appointment",
+    "selectAppointment": "Select appointment (optional)",
+    "noAppointment": "Walk-in (no appointment)",
+    "location": "Location/Department",
+    "selectLocation": "Select location",
+    "chiefComplaintPlaceholder": "Brief description of patient concern...",
+    "complaintSensitivity": "Complaint Sensitivity",
+    "complaintSensitivityHelp": "Sensitive complaints will be hidden from queue display",
+    "initialTriage": "Initial Triage Level (ESI)",
+    "triageHelp": "Can be updated by nurse during triage",
+    "triageLevel": "Triage Level (ESI)",
+    "triageNotes": "Triage Notes",
+    "triageNotesPlaceholder": "Additional notes...",
+
+    "sensitivity": {
+      "public": "Public (visible in queue)",
+      "private": "Private (shown as \"Private consultation\")",
+      "sensitive": "Sensitive (completely hidden)"
+    },
+
+    "checkInMethod": {
+      "label": "Check-In Method",
+      "scheduled": "Scheduled Appointment",
+      "walkIn": "Walk-In",
+      "referral": "Referral",
+      "emergency": "Emergency"
+    },
+
+    "error": {
+      "selectPatient": "Please select a patient",
+      "selectLocation": "Please select a location",
+      "chiefComplaintRequired": "Chief complaint is required",
+      "chiefComplaintTooLong": "Chief complaint must be 500 characters or less",
+      "invalidCharacters": "Chief complaint contains invalid characters",
+      "checkInFailed": "Failed to check in patient",
+      "loadFailed": "Failed to load queue",
+      "claimFailed": "Failed to Claim Patient",
+      "triageUpdateFailed": "Failed to Update Triage",
+      "cancelFailed": "Failed to Cancel Entry"
+    },
+
+    "noCheckInPermission": "You do not have permission to check in patients.",
+    "noViewPermission": "You do not have permission to view the queue.",
+    "noClaimPermission": "You do not have permission to claim patients",
+
+    "metrics": {
+      "totalWaiting": "Waiting",
+      "inProgress": "In Progress",
+      "avgWait": "Avg Wait",
+      "longestWait": "Longest Wait",
+      "byPriority": "By Priority",
+      "byTriageLevel": "By Triage Level"
+    },
+
+    "priority": {
+      "stat": "STAT",
+      "asap": "ASAP",
+      "urgent": "Urgent",
+      "routine": "Routine"
+    },
+
+    "triage": {
+      "esi1": "ESI 1 - Resuscitation",
+      "esi1Full": "ESI 1 - Resuscitation (Immediate)",
+      "esi2": "ESI 2 - Emergent",
+      "esi2Full": "ESI 2 - Emergent (< 10 min)",
+      "esi3": "ESI 3 - Urgent",
+      "esi3Full": "ESI 3 - Urgent (< 30 min)",
+      "esi4": "ESI 4 - Less Urgent",
+      "esi4Full": "ESI 4 - Less Urgent (< 60 min)",
+      "esi5": "ESI 5 - Non-Urgent",
+      "esi5Full": "ESI 5 - Non-Urgent (< 120 min)"
+    }
+  },
+  "workQueue": {
+    "title": "My Work Queue",
+    "subtitle": "Your patients for today",
+    "scheduled": "Scheduled",
+    "inQueue": "In Queue",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "claimed": "Claimed",
+    "scheduledAppointments": "Scheduled Appointments",
+    "myQueuePatients": "My Queue Patients",
+    "currentlySeeing": "Currently Seeing",
+    "completedToday": "Completed Today",
+    "appointment": "Appointment",
+    "encounter": "Encounter",
+    "continueEncounter": "Continue",
+    "finished": "Finished",
+    "andMore": "And {{count}} more...",
+    "noPatientsToday": "No patients scheduled for today",
+    "checkBackLater": "Check back later or check the main queue for walk-ins",
+    "viewMainQueue": "View Main Queue",
+    "noProvider": "Provider profile not found",
+    "loadError": "Failed to load work queue"
+  },
+  "quickRegister": {
+    "title": "Quick Registration",
+    "info": "Capture essential information only. Full demographics can be completed later.",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "John",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Doe",
+    "gender": "Gender",
+    "selectGender": "Select",
+    "age": "Age (years)",
+    "phoneNumber": "Phone Number",
+    "idNumber": "ID Number",
+    "contactInfo": "Contact Information (at least one)",
+    "markIncomplete": "Mark as incomplete (complete full demographics later)",
+    "mrnWillBeGenerated": "Medical Record Number will be auto-generated",
+    "register": "Register",
+    "registerAndCheckIn": "Register & Check In",
+    "timeSaver": "Target: 30 seconds from start to finish",
+    "success": "Patient Registered",
+    "successMessage": "{{name}} registered with MRN: {{mrn}}",
+    "error": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "genderRequired": "Gender is required",
+      "ageRequired": "Age is required",
+      "invalidAge": "Age must be between 0 and 150",
+      "contactRequired": "Either phone number or ID number is required",
+      "failed": "Failed to register patient"
+    }
+  },
+  "gender": {
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "unknown": "Unknown"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "change": "Change",
+    "refresh": "Refresh",
+    "save": "Save",
+    "unknown": "Unknown",
+    "accessDenied": "Access Denied",
+    "actions": "Actions",
+    "mrn": "MRN"
+  }
+}

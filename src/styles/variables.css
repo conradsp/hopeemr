@@ -1,0 +1,62 @@
+/* Global CSS Variables - Integrated with Mantine Theme */
+
+:root {
+  /* Colors from Mantine theme */
+  --color-primary: var(--mantine-color-blue-6);
+  --color-primary-light: var(--mantine-color-blue-1);
+  --color-secondary: var(--mantine-color-gray-6);
+  --color-success: var(--mantine-color-green-6);
+  --color-warning: var(--mantine-color-yellow-6);
+  --color-error: var(--mantine-color-red-6);
+  --color-dimmed: var(--mantine-color-dimmed);
+  --color-text: var(--mantine-color-text);
+
+  /* Spacing scale */
+  --spacing-xs: 0.5rem;   /* 8px */
+  --spacing-sm: 0.75rem;  /* 12px */
+  --spacing-md: 1rem;     /* 16px */
+  --spacing-lg: 1.5rem;   /* 24px */
+  --spacing-xl: 2rem;     /* 32px */
+  --spacing-2xl: 2.5rem;  /* 40px */
+
+  /* Layout dimensions */
+  --page-padding-vertical: 1.25rem;    /* 20px */
+  --page-padding-horizontal: 2.5rem;   /* 40px */
+  --container-max-width: 800px;
+  --container-xl-max-width: 1200px;
+  --table-action-width: 5rem;          /* 80px */
+  --table-action-width-sm: 6.25rem;    /* 100px */
+
+  /* Border radius */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  /* Icon sizes */
+  --icon-sm: 1rem;        /* 16px */
+  --icon-md: 1.5rem;      /* 24px */
+  --icon-lg: 2rem;        /* 32px */
+  --icon-xl: 3rem;        /* 48px */
+
+  /* Typography */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Z-index scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+}
+

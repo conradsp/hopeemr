@@ -1,0 +1,13 @@
+/* EMRApp Styles */
+
+.appContainer {
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
+.pageContainer {
+  padding: 8px 12px;
+  margin: 0;
+  max-width: 100%;
+}
+

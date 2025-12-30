@@ -1,0 +1,28 @@
+.paper {
+  margin-top: 0;
+}
+
+.select {
+  flex: 1;
+  max-width: 300px;
+}
+
+.dateInput {
+  padding: 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.emptyIcon {
+  color: #adb5bd;
+}
+
+.linkText {
+  cursor: pointer;
+}
+
+.freeSlot {
+  background-color: #f0fff4;
+}
+

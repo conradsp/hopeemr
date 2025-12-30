@@ -1,0 +1,28 @@
+/* PatientPage Layout Styles */
+
+.pageContainer {
+  padding: 8px 12px;
+  margin: 0;
+  max-width: 100%;
+}
+
+.layout {
+  display: flex;
+  gap: 8px;
+  min-height: 80vh;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.sidebar {
+  min-width: 300px;
+  max-width: 300px;
+  flex-shrink: 0;
+}
+
+.mainContent {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+

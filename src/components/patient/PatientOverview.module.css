@@ -1,0 +1,11 @@
+/* PatientOverview Styles */
+
+.vitalsTitle {
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.vitalText {
+  line-height: 1.2;
+}
+

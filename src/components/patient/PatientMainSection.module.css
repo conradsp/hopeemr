@@ -1,0 +1,12 @@
+/* PatientMainSection Styles */
+
+.emptyState {
+  text-align: center;
+  padding: 40px;
+  color: var(--color-secondary);
+}
+
+.quickActionsPaper {
+  margin-top: 0;
+}
+

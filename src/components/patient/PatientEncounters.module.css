@@ -1,0 +1,12 @@
+/* PatientEncounters Styles */
+
+.emptyState {
+  text-align: center;
+  padding: 40px;
+  color: var(--color-secondary);
+}
+
+.clickableRow {
+  cursor: pointer;
+}
+

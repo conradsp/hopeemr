@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon-192x192.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#228be6" />
+    <meta name="description" content="Electronic Medical Records for Low-Resource Healthcare Settings" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.svg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="HopeEMR" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+          content="
+            default-src 'self';
+            script-src 'self' 'unsafe-inline' 'unsafe-eval';
+            style-src 'self' 'unsafe-inline';
+            img-src 'self' data: https: blob:;
+            font-src 'self' data:;
+            connect-src 'self' http://localhost:8103 ws://localhost:8103 https://api.medplum.com https://*.medplum.com wss://*.medplum.com https://clinicaltables.nlm.nih.gov;
+            frame-ancestors 'none';
+            base-uri 'self';
+            form-action 'self';
+          ">
+
+    <title>HopeEMR</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

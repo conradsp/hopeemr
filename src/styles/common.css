@@ -1,0 +1,111 @@
+/* Common Component Patterns and Reusable Styles */
+
+/* ===== PAPER/CARD PATTERNS ===== */
+
+.paper-page {
+  margin-top: 0;
+}
+
+.paper-centered {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+}
+
+/* ===== EMPTY STATE PATTERNS ===== */
+
+.empty-state {
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.empty-state-icon {
+  color: #adb5bd;
+  margin-bottom: var(--spacing-md);
+}
+
+/* ===== TABLE PATTERNS ===== */
+
+.table-actions-column {
+  width: var(--table-action-width);
+}
+
+.table-actions-column-sm {
+  width: var(--table-action-width-sm);
+}
+
+.table-inline-actions {
+  display: inline-flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+/* ===== HEADER PATTERNS ===== */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-lg);
+}
+
+.page-header-icon {
+  color: var(--color-primary);
+}
+
+/* ===== MODAL PATTERNS ===== */
+
+.modal-section-title {
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ===== LINK PATTERNS ===== */
+
+.link-blue {
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.link-blue:hover {
+  text-decoration: underline;
+}
+
+/* ===== RESPONSIVE UTILITIES ===== */
+
+@media (max-width: 768px) {
+  .container-page {
+    padding: var(--spacing-md);
+  }
+  
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus visible for keyboard navigation */
+.focus-visible:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+

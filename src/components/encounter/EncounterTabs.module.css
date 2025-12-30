@@ -1,0 +1,33 @@
+/* Encounter Tab Styles */
+
+.tabContainer {
+  margin-top: var(--spacing-md);
+}
+
+.emptyState {
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.emptyStateIcon {
+  color: var(--color-dimmed);
+  margin-bottom: var(--spacing-md);
+}
+
+.sectionTitle {
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-sm);
+}
+
+.detailGroup {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+

@@ -1,0 +1,14 @@
+/* AppointmentTypesPage Styles */
+
+.paper {
+  margin-top: 0;
+}
+
+.emptyStateIcon {
+  color: #adb5bd;
+}
+
+.emptyStateContainer {
+  text-align: center;
+}
+

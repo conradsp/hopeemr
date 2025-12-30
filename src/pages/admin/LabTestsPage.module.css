@@ -1,0 +1,16 @@
+/* LabTestsPage Styles */
+
+.container {
+  padding-top: 1.25rem;
+  padding-bottom: 2.5rem;
+}
+
+.actionsColumn {
+  width: 5rem;
+}
+
+.inlineActions {
+  display: inline-flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}

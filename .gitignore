@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment files
+.env.local
+.env.production.local
+.env.development.local
+
+# Generated reports and artifacts
+audit-report.json
+eslint-report.json
+security-scan-*.json
+*.log
+
+# Claude files
+CLAUDE.md
+.claude/
+.claude/**
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Vitest
+.vitest/
+
+# Local configuration overrides
+medplum.config.local.json
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

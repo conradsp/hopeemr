@@ -1,0 +1,190 @@
+{
+  "queue": {
+    "queue": "Cola",
+    "patientQueue": "Cola de Pacientes",
+    "dashboard": "Panel de Cola",
+    "queueDashboard": "Panel de Cola",
+    "myQueue": "Mi Cola",
+    "allPatientsQueue": "Cola de Todos los Pacientes",
+    "checkIn": "Registrar Paciente",
+    "checkInPatient": "Registrar Paciente",
+    "nextPatient": "Próximo Paciente",
+    "quickRegister": "Registro Rápido",
+
+    "priority": "Prioridad",
+    "triage": "Triaje",
+    "patient": "Paciente",
+    "chiefComplaint": "Motivo Principal de Consulta",
+    "waitTime": "Tiempo de Espera",
+    "checkInMethod": "Tipo",
+
+    "noPatients": "No hay pacientes en la cola",
+    "noWaitingPatients": "No hay pacientes esperando actualmente",
+    "patientConfidential": "Paciente ***",
+    "confidential": "Confidencial",
+    "privateConsultation": "Consulta privada",
+    "noComplaint": "No especificado",
+    "notTriaged": "Sin Triaje",
+    "inProgress": "En Progreso",
+
+    "claimPatient": "Tomar Paciente",
+    "updateTriage": "Actualizar Triaje",
+    "cancelEntry": "Cancelar Entrada",
+    "confirmCancel": "¿Está seguro de que desea cancelar esta entrada de cola?",
+    "patientClaimed": "Paciente Tomado",
+    "patientClaimedSuccess": "El paciente ha sido asignado a usted",
+    "triageUpdated": "Triaje Actualizado",
+    "triageUpdatedSuccess": "El nivel de triaje ha sido actualizado",
+    "entryCancelled": "Entrada Cancelada",
+    "entryCancelledSuccess": "La entrada de cola ha sido cancelada",
+
+    "checkInSuccess": "Paciente Registrado",
+    "checkInSuccessMessage": "{{patientName}} ha sido agregado a la cola",
+    "searchPatient": "Buscar Paciente",
+    "searchPlaceholder": "Ingrese nombre del paciente o número de historia clínica",
+    "selectPatient": "Seleccionar Paciente",
+    "selectedPatient": "Paciente Seleccionado",
+    "appointment": "Cita",
+    "selectAppointment": "Seleccionar cita (opcional)",
+    "noAppointment": "Sin cita (llegada espontánea)",
+    "location": "Ubicación/Departamento",
+    "selectLocation": "Seleccionar ubicación",
+    "chiefComplaintPlaceholder": "Breve descripción de la preocupación del paciente...",
+    "complaintSensitivity": "Sensibilidad del Motivo de Consulta",
+    "complaintSensitivityHelp": "Los motivos sensibles se ocultarán de la pantalla de cola",
+    "initialTriage": "Nivel de Triaje Inicial (ESI)",
+    "triageHelp": "Puede ser actualizado por enfermería durante el triaje",
+    "triageLevel": "Nivel de Triaje (ESI)",
+    "triageNotes": "Notas de Triaje",
+    "triageNotesPlaceholder": "Notas adicionales...",
+
+    "sensitivity": {
+      "public": "Público (visible en la cola)",
+      "private": "Privado (mostrado como \"Consulta privada\")",
+      "sensitive": "Sensible (completamente oculto)"
+    },
+
+    "checkInMethod": {
+      "label": "Método de Registro",
+      "scheduled": "Cita Programada",
+      "walkIn": "Llegada Espontánea",
+      "referral": "Referencia",
+      "emergency": "Emergencia"
+    },
+
+    "error": {
+      "selectPatient": "Por favor seleccione un paciente",
+      "selectLocation": "Por favor seleccione una ubicación",
+      "chiefComplaintRequired": "El motivo de consulta es requerido",
+      "chiefComplaintTooLong": "El motivo de consulta debe tener 500 caracteres o menos",
+      "invalidCharacters": "El motivo de consulta contiene caracteres inválidos",
+      "checkInFailed": "Error al registrar paciente",
+      "loadFailed": "Error al cargar la cola",
+      "claimFailed": "Error al Tomar Paciente",
+      "triageUpdateFailed": "Error al Actualizar Triaje",
+      "cancelFailed": "Error al Cancelar Entrada"
+    },
+
+    "noCheckInPermission": "No tiene permiso para registrar pacientes.",
+    "noViewPermission": "No tiene permiso para ver la cola.",
+    "noClaimPermission": "No tiene permiso para tomar pacientes",
+
+    "metrics": {
+      "totalWaiting": "Esperando",
+      "inProgress": "En Progreso",
+      "avgWait": "Espera Promedio",
+      "longestWait": "Espera Más Larga",
+      "byPriority": "Por Prioridad",
+      "byTriageLevel": "Por Nivel de Triaje"
+    },
+
+    "priority": {
+      "stat": "STAT",
+      "asap": "ASAP",
+      "urgent": "Urgente",
+      "routine": "Rutina"
+    },
+
+    "triage": {
+      "esi1": "ESI 1 - Resucitación",
+      "esi1Full": "ESI 1 - Resucitación (Inmediato)",
+      "esi2": "ESI 2 - Emergente",
+      "esi2Full": "ESI 2 - Emergente (< 10 min)",
+      "esi3": "ESI 3 - Urgente",
+      "esi3Full": "ESI 3 - Urgente (< 30 min)",
+      "esi4": "ESI 4 - Menos Urgente",
+      "esi4Full": "ESI 4 - Menos Urgente (< 60 min)",
+      "esi5": "ESI 5 - No Urgente",
+      "esi5Full": "ESI 5 - No Urgente (< 120 min)"
+    }
+  },
+  "workQueue": {
+    "title": "Mi Cola de Trabajo",
+    "subtitle": "Sus pacientes para hoy",
+    "scheduled": "Programados",
+    "inQueue": "En Cola",
+    "inProgress": "En Progreso",
+    "completed": "Completados",
+    "claimed": "Tomado",
+    "scheduledAppointments": "Citas Programadas",
+    "myQueuePatients": "Mis Pacientes en Cola",
+    "currentlySeeing": "Atendiendo Actualmente",
+    "completedToday": "Completados Hoy",
+    "appointment": "Cita",
+    "encounter": "Encuentro",
+    "continueEncounter": "Continuar",
+    "finished": "Finalizado",
+    "andMore": "Y {{count}} más...",
+    "noPatientsToday": "No hay pacientes programados para hoy",
+    "checkBackLater": "Vuelva más tarde o revise la cola principal para llegadas espontáneas",
+    "viewMainQueue": "Ver Cola Principal",
+    "noProvider": "Perfil de proveedor no encontrado",
+    "loadError": "Error al cargar la cola de trabajo"
+  },
+  "quickRegister": {
+    "title": "Registro Rápido",
+    "info": "Capture solo la información esencial. Los datos demográficos completos se pueden completar más tarde.",
+    "firstName": "Nombre",
+    "firstNamePlaceholder": "Juan",
+    "lastName": "Apellido",
+    "lastNamePlaceholder": "Pérez",
+    "gender": "Género",
+    "selectGender": "Seleccionar",
+    "age": "Edad (años)",
+    "phoneNumber": "Número de Teléfono",
+    "idNumber": "Número de Identificación",
+    "contactInfo": "Información de Contacto (al menos una)",
+    "markIncomplete": "Marcar como incompleto (completar demografía completa más tarde)",
+    "mrnWillBeGenerated": "El número de historia clínica se generará automáticamente",
+    "register": "Registrar",
+    "registerAndCheckIn": "Registrar e Ingresar a Cola",
+    "timeSaver": "Objetivo: 30 segundos de principio a fin",
+    "success": "Paciente Registrado",
+    "successMessage": "{{name}} registrado con historia clínica: {{mrn}}",
+    "error": {
+      "firstNameRequired": "El nombre es requerido",
+      "lastNameRequired": "El apellido es requerido",
+      "genderRequired": "El género es requerido",
+      "ageRequired": "La edad es requerida",
+      "invalidAge": "La edad debe estar entre 0 y 150",
+      "contactRequired": "Se requiere número de teléfono o número de identificación",
+      "failed": "Error al registrar paciente"
+    }
+  },
+  "gender": {
+    "male": "Masculino",
+    "female": "Femenino",
+    "other": "Otro",
+    "unknown": "Desconocido"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "change": "Cambiar",
+    "refresh": "Actualizar",
+    "save": "Guardar",
+    "unknown": "Desconocido",
+    "accessDenied": "Acceso Denegado",
+    "actions": "Acciones",
+    "mrn": "Núm. Historia Clínica"
+  }
+}

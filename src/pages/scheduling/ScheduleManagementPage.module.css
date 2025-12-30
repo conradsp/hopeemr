@@ -1,0 +1,17 @@
+.paper {
+  margin-top: 0;
+}
+
+.select {
+  flex: 1;
+  max-width: 400px;
+}
+
+.emptyIcon {
+  color: #adb5bd;
+}
+
+.emptyContainer {
+  text-align: center;
+}
+

@@ -1,0 +1,11 @@
+/* EncounterPage Styles */
+
+.encounterContainer {
+  padding-top: 1.25rem;
+  padding-bottom: 2.5rem;
+}
+
+.encounterHeader {
+  margin-bottom: var(--spacing-lg);
+}
+

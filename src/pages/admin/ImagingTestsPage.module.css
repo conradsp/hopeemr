@@ -1,0 +1,12 @@
+/* ImagingTestsPage Styles */
+
+.actionsColumn {
+  width: 5rem;
+}
+
+.inlineActions {
+  display: inline-flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
