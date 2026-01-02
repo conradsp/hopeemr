@@ -1,6 +1,6 @@
 import { Paper, Title, Table, Text, Badge, Group, Button, Tabs, ActionIcon, Tooltip } from '@mantine/core';
 import { formatDateTime } from '@medplum/core';
-import { Practitioner } from '@medplum/fhirtypes';
+import { Practitioner, ProjectMembership } from '@medplum/fhirtypes';
 import { Document, Loading, useSearchResources, useMedplum } from '@medplum/react';
 import { IconUser, IconStethoscope, IconPlus, IconShield, IconTrash } from '@tabler/icons-react';
 import { JSX, useState } from 'react';
@@ -64,14 +64,45 @@ export function ManageUsersPage(): JSX.Element {
       return;
     }
     try {
+      // Find and delete ProjectMembership(s) associated with this Practitioner
+      const memberships = await medplum.searchResources('ProjectMembership', {
+        profile: `Practitioner/${practitioner.id}`,
+      }) as ProjectMembership[];
+
+      for (const membership of memberships) {
+        if (membership.id) {
+          // Get the user reference before deleting membership
+          const userRef = membership.user?.reference;
+          
+          // Delete the ProjectMembership
+          await medplum.deleteResource('ProjectMembership', membership.id);
+          
+          // Delete the User if it exists
+          if (userRef) {
+            const userId = userRef.split('/')[1];
+            if (userId) {
+              try {
+                await medplum.deleteResource('User', userId);
+              } catch {
+                // User might not exist or already deleted, continue
+                console.warn(`Could not delete User ${userId}, may not exist`);
+              }
+            }
+          }
+        }
+      }
+
+      // Delete the Practitioner
       await medplum.deleteResource('Practitioner', practitioner.id);
+      
       notifications.show({
         title: t('users.deleteSuccessTitle'),
         message: t('users.deleteSuccessMessage'),
         color: 'green',
       });
       setRefreshKey(prev => prev + 1);
-    } catch {
+    } catch (error) {
+      console.error('Error deleting practitioner:', error);
       notifications.show({
         title: t('users.deleteErrorTitle'),
         message: t('users.deleteErrorMessage'),

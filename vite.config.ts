@@ -41,6 +41,9 @@ export default defineConfig({
       workbox: {
         // Cache static assets
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        // SPA navigation fallback - serve index.html for all navigation requests
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api/, /^\/fhir/],
         // Runtime caching for API calls
         runtimeCaching: [
           {
