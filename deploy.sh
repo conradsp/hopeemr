@@ -18,7 +18,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-COMPOSE_FILE="docker-compose-emr-production.yml"
+COMPOSE_FILE="docker-compose-emr-https.yml"
 SERVICE="emr-app"
 
 # Parse arguments
