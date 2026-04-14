@@ -35,3 +35,11 @@ coverage
 README.md
 docs
 
+# Server/deployment files
+certbot
+backups
+logs
+*.pem
+*.key
+*.crt
+
