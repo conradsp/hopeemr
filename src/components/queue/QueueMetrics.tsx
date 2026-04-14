@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import { Card, Group, Stack, Text, SimpleGrid } from '@mantine/core';
 import { IconClock, IconUsers, IconAlertTriangle, IconActivity } from '@tabler/icons-react';
 import type { Task } from '@medplum/fhirtypes';

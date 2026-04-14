@@ -254,6 +254,151 @@ export async function getQueue(
 }
 
 /**
+ * Internal helper: Execute the claim operation on a validated task
+ * Creates an Encounter and updates Task status atomically
+ *
+ * @param medplum - MedplumClient instance
+ * @param task - The task to claim (must have 'ready' status)
+ * @param provider - Provider reference
+ * @returns Task and Encounter
+ */
+async function executeClaimTask(
+  medplum: MedplumClient,
+  task: Task,
+  provider: Reference<Practitioner>
+): Promise<{ task: Task; encounter: Encounter }> {
+  // Validate task has required fields for claiming
+  if (!task.meta?.versionId) {
+    throw new Error('Task version not available for optimistic locking');
+  }
+
+  const patientRef = task.for;
+  if (!patientRef?.reference) {
+    throw new Error('Task missing patient reference');
+  }
+  const patient = patientRef as Reference<Patient>;
+
+  // Create Encounter resource
+  const encounter: Encounter = {
+    resourceType: 'Encounter',
+    status: 'in-progress',
+    class: {
+      system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
+      code: 'AMB',
+      display: 'ambulatory',
+    },
+    subject: patient,
+    participant: [
+      {
+        type: [
+          {
+            coding: [
+              {
+                system: 'http://terminology.hl7.org/CodeSystem/v3-ParticipationType',
+                code: 'PPRF',
+                display: 'primary performer',
+              },
+            ],
+          },
+        ],
+        individual: provider,
+      },
+    ],
+    period: {
+      start: new Date().toISOString(),
+    },
+    ...(task.location && {
+      location: [{ location: task.location }],
+    }),
+    ...(task.basedOn &&
+      task.basedOn.length > 0 && {
+        basedOn: task.basedOn as Reference<import('@medplum/fhirtypes').ServiceRequest>[],
+      }),
+  };
+
+  // Atomic transaction: Create Encounter + Update Task with optimistic locking
+  const bundle: Bundle = {
+    resourceType: 'Bundle',
+    type: 'transaction',
+    entry: [
+      {
+        request: { method: 'POST', url: 'Encounter' },
+        resource: encounter,
+        fullUrl: 'urn:uuid:encounter-temp',
+      },
+      {
+        request: {
+          method: 'PUT',
+          url: `Task/${task.id}`,
+          ifMatch: `W/"${task.meta.versionId}"`,
+        },
+        resource: {
+          ...task,
+          status: 'in-progress',
+          businessStatus: {
+            coding: [
+              {
+                system: QUEUE_STATUS_SYSTEM,
+                code: 'in-service',
+                display: 'In Service',
+              },
+            ],
+            text: 'In service',
+          },
+          owner: provider,
+          focus: { reference: 'urn:uuid:encounter-temp' },
+          lastModified: new Date().toISOString(),
+        },
+      },
+    ],
+  };
+
+  try {
+    const result = await medplum.executeBatch(bundle);
+
+    const encounterEntry = result.entry?.find((e) => e.resource?.resourceType === 'Encounter');
+    const taskEntry = result.entry?.find((e) => e.resource?.resourceType === 'Task');
+
+    if (!encounterEntry?.resource || !taskEntry?.resource) {
+      throw new Error('Transaction did not return expected resources');
+    }
+
+    const createdEncounter = encounterEntry.resource as Encounter;
+    const updatedTask = taskEntry.resource as Task;
+
+    // Audit logging
+    await logQueueAudit(medplum, {
+      action: 'patient-claimed',
+      taskId: updatedTask.id!,
+      patientId: patient.reference!.split('/')[1],
+      performerId: provider.reference!.split('/')[1],
+      details: {
+        encounterId: createdEncounter.id,
+        priority: task.priority,
+      },
+    });
+
+    logger.info('Patient claimed successfully', {
+      taskId: updatedTask.id,
+      encounterId: createdEncounter.id,
+      providerId: provider.reference,
+    });
+
+    return { task: updatedTask, encounter: createdEncounter };
+  } catch (error: unknown) {
+    // Handle version conflict (race condition detected)
+    const err = error as { outcome?: { issue?: Array<{ code?: string }> } };
+    if (err.outcome?.issue?.[0]?.code === 'conflict') {
+      logger.warn('Optimistic locking conflict - patient already claimed', { taskId: task.id });
+      throw new Error('Patient was just claimed by another provider. Please select a different patient.');
+    }
+
+    logger.error('Failed to claim patient', error);
+    throw error;
+  }
+}
+
+/**
  * Claim next patient from queue (with race condition protection)
  *
  * @param medplum - MedplumClient instance
@@ -287,151 +432,7 @@ export async function claimNextPatient(
     throw new Error('Patient already claimed by another provider');
   }
 
-  if (!task.meta?.versionId) {
-    throw new Error('Task version not available for optimistic locking');
-  }
-
-  // Get patient reference
-  const patientRef = task.for;
-  if (!patientRef?.reference) {
-    throw new Error('Task missing patient reference');
-  }
-  const patient = patientRef as Reference<Patient>;
-
-  // Create Encounter resource
-  const encounter: Encounter = {
-    resourceType: 'Encounter',
-    status: 'in-progress',
-    class: {
-      system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
-      code: 'AMB',
-      display: 'ambulatory',
-    },
-    subject: patient,
-    participant: [
-      {
-        type: [
-          {
-            coding: [
-              {
-                system: 'http://terminology.hl7.org/CodeSystem/v3-ParticipationType',
-                code: 'PPRF',
-                display: 'primary performer',
-              },
-            ],
-          },
-        ],
-        individual: provider,
-      },
-    ],
-    period: {
-      start: new Date().toISOString(),
-    },
-    ...(task.location && {
-      location: [
-        {
-          location: task.location,
-        },
-      ],
-    }),
-    // Link back to appointment if exists
-    ...(task.basedOn &&
-      task.basedOn.length > 0 && {
-        basedOn: task.basedOn,
-      }),
-  };
-
-  // Update Task with new status and link to encounter
-  // Use atomic transaction to ensure both succeed or both fail (Healthcare Agent requirement)
-  const bundle: Bundle = {
-    resourceType: 'Bundle',
-    type: 'transaction',
-    entry: [
-      // Create Encounter
-      {
-        request: {
-          method: 'POST',
-          url: 'Encounter',
-        },
-        resource: encounter,
-        fullUrl: 'urn:uuid:encounter-temp',
-      },
-      // Update Task with optimistic locking (Security Agent requirement)
-      {
-        request: {
-          method: 'PUT',
-          url: `Task/${task.id}`,
-          ifMatch: `W/"${task.meta.versionId}"`, // Optimistic locking
-        },
-        resource: {
-          ...task,
-          status: 'in-progress',
-          businessStatus: {
-            coding: [
-              {
-                system: QUEUE_STATUS_SYSTEM,
-                code: 'in-service',
-                display: 'In Service',
-              },
-            ],
-            text: 'In service',
-          },
-          owner: provider,
-          // Link to encounter (will be resolved after transaction)
-          focus: {
-            reference: 'urn:uuid:encounter-temp',
-          },
-          lastModified: new Date().toISOString(),
-        },
-      },
-    ],
-  };
-
-  try {
-    const result = await medplum.executeBatch(bundle);
-
-    // Extract created encounter and updated task from transaction result
-    const encounterEntry = result.entry?.find((e) => e.resource?.resourceType === 'Encounter');
-    const taskEntry = result.entry?.find((e) => e.resource?.resourceType === 'Task');
-
-    if (!encounterEntry?.resource || !taskEntry?.resource) {
-      throw new Error('Transaction did not return expected resources');
-    }
-
-    const createdEncounter = encounterEntry.resource as Encounter;
-    const updatedTask = taskEntry.resource as Task;
-
-    // Audit logging (Security Agent requirement)
-    await logQueueAudit(medplum, {
-      action: 'patient-claimed',
-      taskId: updatedTask.id!,
-      patientId: patient.reference.split('/')[1],
-      performerId: provider.reference!.split('/')[1],
-      details: {
-        encounterId: createdEncounter.id,
-        priority: task.priority,
-      },
-    });
-
-    logger.info('Patient claimed successfully', {
-      taskId: updatedTask.id,
-      encounterId: createdEncounter.id,
-      providerId: provider.reference,
-    });
-
-    return { task: updatedTask, encounter: createdEncounter };
-  } catch (error: any) {
-    // Handle version conflict (race condition detected)
-    if (error.outcome?.issue?.[0]?.code === 'conflict') {
-      logger.warn('Optimistic locking conflict - patient already claimed', {
-        taskId: task.id,
-      });
-      throw new Error('Patient was just claimed by another provider. Please select a different patient.');
-    }
-
-    logger.error('Failed to claim patient', error);
-    throw error;
-  }
+  return executeClaimTask(medplum, task, provider);
 }
 
 /**
@@ -458,150 +459,7 @@ export async function claimSpecificPatient(
     throw new Error('Patient already claimed by another provider');
   }
 
-  if (!task.meta?.versionId) {
-    throw new Error('Task version not available for optimistic locking');
-  }
-
-  // Get patient reference
-  const patientRef = task.for;
-  if (!patientRef?.reference) {
-    throw new Error('Task missing patient reference');
-  }
-  const patient = patientRef as Reference<Patient>;
-
-  // Create Encounter resource
-  const encounter: Encounter = {
-    resourceType: 'Encounter',
-    status: 'in-progress',
-    class: {
-      system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
-      code: 'AMB',
-      display: 'ambulatory',
-    },
-    subject: patient,
-    participant: [
-      {
-        type: [
-          {
-            coding: [
-              {
-                system: 'http://terminology.hl7.org/CodeSystem/v3-ParticipationType',
-                code: 'PPRF',
-                display: 'primary performer',
-              },
-            ],
-          },
-        ],
-        individual: provider,
-      },
-    ],
-    period: {
-      start: new Date().toISOString(),
-    },
-    ...(task.location && {
-      location: [
-        {
-          location: task.location,
-        },
-      ],
-    }),
-    // Link back to appointment if exists
-    ...(task.basedOn &&
-      task.basedOn.length > 0 && {
-        basedOn: task.basedOn,
-      }),
-  };
-
-  // Update Task with new status and link to encounter
-  // Use atomic transaction to ensure both succeed or both fail
-  const bundle: Bundle = {
-    resourceType: 'Bundle',
-    type: 'transaction',
-    entry: [
-      // Create Encounter
-      {
-        request: {
-          method: 'POST',
-          url: 'Encounter',
-        },
-        resource: encounter,
-        fullUrl: 'urn:uuid:encounter-temp',
-      },
-      // Update Task with optimistic locking
-      {
-        request: {
-          method: 'PUT',
-          url: `Task/${task.id}`,
-          ifMatch: `W/"${task.meta.versionId}"`,
-        },
-        resource: {
-          ...task,
-          status: 'in-progress',
-          businessStatus: {
-            coding: [
-              {
-                system: QUEUE_STATUS_SYSTEM,
-                code: 'in-service',
-                display: 'In Service',
-              },
-            ],
-            text: 'In service',
-          },
-          owner: provider,
-          focus: {
-            reference: 'urn:uuid:encounter-temp',
-          },
-          lastModified: new Date().toISOString(),
-        },
-      },
-    ],
-  };
-
-  try {
-    const result = await medplum.executeBatch(bundle);
-
-    // Extract created encounter and updated task from transaction result
-    const encounterEntry = result.entry?.find((e) => e.resource?.resourceType === 'Encounter');
-    const taskEntry = result.entry?.find((e) => e.resource?.resourceType === 'Task');
-
-    if (!encounterEntry?.resource || !taskEntry?.resource) {
-      throw new Error('Transaction did not return expected resources');
-    }
-
-    const createdEncounter = encounterEntry.resource as Encounter;
-    const updatedTask = taskEntry.resource as Task;
-
-    // Audit logging
-    await logQueueAudit(medplum, {
-      action: 'patient-claimed',
-      taskId: updatedTask.id!,
-      patientId: patient.reference.split('/')[1],
-      performerId: provider.reference!.split('/')[1],
-      details: {
-        encounterId: createdEncounter.id,
-        priority: task.priority,
-      },
-    });
-
-    logger.info('Patient claimed successfully', {
-      taskId: updatedTask.id,
-      encounterId: createdEncounter.id,
-      providerId: provider.reference,
-    });
-
-    return { task: updatedTask, encounter: createdEncounter };
-  } catch (error: any) {
-    // Handle version conflict (race condition detected)
-    if (error.outcome?.issue?.[0]?.code === 'conflict') {
-      logger.warn('Optimistic locking conflict - patient already claimed', {
-        taskId: task.id,
-      });
-      throw new Error('Patient was just claimed by another provider. Please select a different patient.');
-    }
-
-    logger.error('Failed to claim patient', error);
-    throw error;
-  }
+  return executeClaimTask(medplum, task, provider);
 }
 
 /**

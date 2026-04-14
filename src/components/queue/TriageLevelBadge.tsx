@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import { Badge, Tooltip } from '@mantine/core';
 import type { TriageLevel } from '../../utils/triageUtils';
 import { getTriageBadgeProps, TRIAGE_LEVELS } from '../../utils/triageUtils';

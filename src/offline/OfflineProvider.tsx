@@ -4,8 +4,29 @@ import { SyncManager } from './sync/SyncManager';
 import { SyncQueue } from './sync/SyncQueue';
 import { isResourceCached, getMetadata } from './db/operations';
 import { OfflineContextValue, CacheableResourceType } from './types';
+import {
+  initializeEncryption,
+  clearEncryptionKey,
+  isEncryptionReady,
+  isEncryptionSupported,
+} from './crypto';
+import { logger } from '../utils/logger';
 
-const OfflineContext = createContext<OfflineContextValue | null>(null);
+/**
+ * Feature flag for offline encryption
+ * Set VITE_ENABLE_OFFLINE_ENCRYPTION=true in .env to enable
+ */
+const ENCRYPTION_ENABLED = import.meta.env.VITE_ENABLE_OFFLINE_ENCRYPTION === 'true';
+
+/**
+ * Extended offline context with encryption status
+ */
+interface ExtendedOfflineContextValue extends OfflineContextValue {
+  /** Whether encryption is enabled and ready */
+  isEncryptionReady: boolean;
+}
+
+const OfflineContext = createContext<ExtendedOfflineContextValue | null>(null);
 
 interface OfflineProviderProps {
   children: ReactNode;
@@ -22,23 +43,52 @@ export function OfflineProvider({ children }: OfflineProviderProps): JSX.Element
   const [pendingChanges, setPendingChanges] = useState(0);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [encryptionReady, setEncryptionReady] = useState(false);
 
-  // Initialize SyncManager with Medplum client
+  // Initialize SyncManager and encryption with Medplum client
   useEffect(() => {
-    SyncManager.initialize(medplum);
+    const initSync = async () => {
+      // Initialize SyncManager (also recovers orphaned sync items from crashes)
+      await SyncManager.initialize(medplum);
 
-    // Load initial metadata
-    getMetadata().then((metadata) => {
+      // Initialize encryption if enabled and supported
+      if (ENCRYPTION_ENABLED && isEncryptionSupported()) {
+        try {
+          const accessToken = medplum.getAccessToken();
+          if (accessToken) {
+            await initializeEncryption(accessToken);
+            setEncryptionReady(true);
+            logger.info('Offline encryption initialized');
+          } else {
+            logger.warn('No access token available for encryption initialization');
+          }
+        } catch (error) {
+          logger.error('Failed to initialize offline encryption', {
+            error: error instanceof Error ? error.message : String(error),
+          });
+          // Continue without encryption - data will be stored unencrypted
+        }
+      }
+
+      // Load initial metadata
+      const metadata = await getMetadata();
       if (metadata?.lastSync) {
         setLastSyncTime(new Date(metadata.lastSync));
       }
       if (metadata?.pendingCount !== undefined) {
         setPendingChanges(metadata.pendingCount);
       }
-    });
+    };
+
+    initSync();
 
     return () => {
       SyncManager.cleanup();
+      // Clear encryption key on unmount (logout)
+      if (ENCRYPTION_ENABLED) {
+        clearEncryptionKey();
+        setEncryptionReady(false);
+      }
     };
   }, [medplum]);
 
@@ -129,13 +179,14 @@ export function OfflineProvider({ children }: OfflineProviderProps): JSX.Element
     []
   );
 
-  const contextValue: OfflineContextValue = {
+  const contextValue: ExtendedOfflineContextValue = {
     isOnline,
     pendingChanges,
     lastSyncTime,
     isSyncing,
     syncNow,
     isResourceCached: checkResourceCached,
+    isEncryptionReady: encryptionReady,
   };
 
   return (
@@ -148,7 +199,7 @@ export function OfflineProvider({ children }: OfflineProviderProps): JSX.Element
 /**
  * Hook to access offline context
  */
-export function useOffline(): OfflineContextValue {
+export function useOffline(): ExtendedOfflineContextValue {
   const context = useContext(OfflineContext);
   if (!context) {
     throw new Error('useOffline must be used within an OfflineProvider');

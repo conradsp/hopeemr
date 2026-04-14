@@ -3,6 +3,7 @@
  * Displays environment configuration errors in a user-friendly way
  */
 
+import { JSX } from 'react';
 import { Container, Paper, Title, Text, Code, Stack } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, JSX } from 'react';
 import { Modal, Stack, Text, Textarea, Group, Button } from '@mantine/core';
 import { formatHumanName } from '@medplum/core';
 import { useTranslation } from 'react-i18next';

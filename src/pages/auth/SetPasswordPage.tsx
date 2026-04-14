@@ -22,10 +22,6 @@ export function SetPasswordPage(): JSX.Element {
   const [success, setSuccess] = useState(false);
   const issues = getIssuesForExpression(outcome, undefined);
 
-  // Debug: Log the URL parameters
-  console.log('SetPasswordPage - URL params:', { id, secret });
-  console.log('SetPasswordPage - Current pathname:', window.location.pathname);
-
   // Validate that we have both id and secret
   if (!id || !secret) {
     return (
@@ -38,9 +34,6 @@ export function SetPasswordPage(): JSX.Element {
             </Title>
             <Text size="sm" c="dimmed" mt="xs" mb="lg">
               This password reset link is invalid or incomplete. Please check your email and use the full link provided.
-            </Text>
-            <Text size="xs" c="dimmed" mb="lg">
-              Debug info: id={id || 'missing'}, secret={secret || 'missing'}
             </Text>
             <Button onClick={() => navigate('/signin')} fullWidth>
               Go to Sign In

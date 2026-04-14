@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, JSX } from 'react';
 import {
   Container,
   Title,
@@ -91,8 +91,8 @@ export function QueueDashboardPage(): JSX.Element {
         const patientRef = task.for ? getReferenceString(task.for) : undefined;
         if (patientRef && !patientMap.has(patientRef)) {
           try {
-            const patient = await medplum.readReference(task.for as any);
-            patientMap.set(patientRef, patient);
+            const patient = await medplum.readReference(task.for as import('@medplum/fhirtypes').Reference<Patient>);
+            patientMap.set(patientRef, patient as Patient);
           } catch (err) {
             logger.warn('Failed to load patient', { patientRef, error: err });
           }

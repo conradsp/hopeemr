@@ -74,7 +74,11 @@ export function DiagnosisConfigPage(): JSX.Element {
   const [loadingCodes, setLoadingCodes] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCode, setEditingCode] = useState<ValueSetExpansionContains | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    code: string;
+    display: string;
+    system: typeof CODING_SYSTEMS[keyof typeof CODING_SYSTEMS];
+  }>({
     code: '',
     display: '',
     system: CODING_SYSTEMS.CUSTOM,
@@ -211,7 +215,7 @@ export function DiagnosisConfigPage(): JSX.Element {
     setFormData({
       code: code.code || '',
       display: code.display || '',
-      system: code.system || CODING_SYSTEMS.CUSTOM,
+      system: (code.system || CODING_SYSTEMS.CUSTOM) as typeof CODING_SYSTEMS[keyof typeof CODING_SYSTEMS],
     });
     setModalOpen(true);
   };
@@ -639,7 +643,7 @@ export function DiagnosisConfigPage(): JSX.Element {
               { value: CODING_SYSTEMS.CUSTOM, label: t('admin.diagnosisCodes.systems.custom') },
             ]}
             value={formData.system}
-            onChange={(value) => setFormData({ ...formData, system: value || CODING_SYSTEMS.CUSTOM })}
+            onChange={(value) => setFormData({ ...formData, system: (value || CODING_SYSTEMS.CUSTOM) as typeof CODING_SYSTEMS[keyof typeof CODING_SYSTEMS] })}
             required
           />
 

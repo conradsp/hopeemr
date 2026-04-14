@@ -55,7 +55,7 @@ export default defineConfig({
               cacheName: 'medplum-api-cache',
               expiration: {
                 maxEntries: 500,
-                maxAgeSeconds: 60 * 60 * 24, // 1 day (reduced from 7 days for security)
+                maxAgeSeconds: 60 * 60 * 2, // 2 hours - reduced for HIPAA compliance
               },
               cacheableResponse: {
                 statuses: [0, 200],
@@ -71,7 +71,7 @@ export default defineConfig({
               cacheName: 'local-api-cache',
               expiration: {
                 maxEntries: 500,
-                maxAgeSeconds: 60 * 60 * 24, // 1 day
+                maxAgeSeconds: 60 * 60 * 2, // 2 hours - same as production
               },
               cacheableResponse: {
                 statuses: [0, 200],
@@ -126,7 +126,8 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    // Sourcemaps disabled in production to prevent exposing source code
+    sourcemap: false,
   },
 });
 

@@ -27,6 +27,7 @@ export async function cachePatient(patient: Patient, isOfflineCreated = false): 
     resource: patient,
     _lastSynced: Date.now(),
     _isOfflineCreated: isOfflineCreated,
+    _versionId: patient.meta?.versionId, // Store version for conflict detection
   };
   await db.put('patients', cached);
 }
@@ -85,6 +86,7 @@ export async function cacheEncounter(encounter: Encounter, isOfflineCreated = fa
     resource: encounter,
     _lastSynced: Date.now(),
     _isOfflineCreated: isOfflineCreated,
+    _versionId: encounter.meta?.versionId,
   };
   await db.put('encounters', cached);
 }
@@ -119,6 +121,7 @@ export async function cacheObservation(observation: Observation, isOfflineCreate
     resource: observation,
     _lastSynced: Date.now(),
     _isOfflineCreated: isOfflineCreated,
+    _versionId: observation.meta?.versionId,
   };
   await db.put('observations', cached);
 }
@@ -166,6 +169,7 @@ export async function cacheMedicationRequest(
     resource: medicationRequest,
     _lastSynced: Date.now(),
     _isOfflineCreated: isOfflineCreated,
+    _versionId: medicationRequest.meta?.versionId,
   };
   await db.put('medicationRequests', cached);
 }
@@ -200,6 +204,7 @@ export async function cacheServiceRequest(serviceRequest: ServiceRequest, isOffl
     resource: serviceRequest,
     _lastSynced: Date.now(),
     _isOfflineCreated: isOfflineCreated,
+    _versionId: serviceRequest.meta?.versionId,
   };
   await db.put('serviceRequests', cached);
 }
@@ -237,6 +242,7 @@ export async function cacheDocumentReference(
     resource: documentReference,
     _lastSynced: Date.now(),
     _isOfflineCreated: isOfflineCreated,
+    _versionId: documentReference.meta?.versionId,
   };
   await db.put('documentReferences', cached);
 }
@@ -248,6 +254,45 @@ export async function getCachedDocumentReference(id: string): Promise<DocumentRe
   const db = await getDB();
   const cached = await db.get('documentReferences', id);
   return cached?.resource ?? null;
+}
+
+/**
+ * Get the cached version ID for a resource (for conflict detection)
+ */
+export async function getCachedVersionId(
+  resourceType: CacheableResourceType,
+  id: string
+): Promise<string | undefined> {
+  const db = await getDB();
+
+  switch (resourceType) {
+    case 'Patient': {
+      const cached = await db.get('patients', id);
+      return cached?._versionId;
+    }
+    case 'Encounter': {
+      const cached = await db.get('encounters', id);
+      return cached?._versionId;
+    }
+    case 'Observation': {
+      const cached = await db.get('observations', id);
+      return cached?._versionId;
+    }
+    case 'MedicationRequest': {
+      const cached = await db.get('medicationRequests', id);
+      return cached?._versionId;
+    }
+    case 'ServiceRequest': {
+      const cached = await db.get('serviceRequests', id);
+      return cached?._versionId;
+    }
+    case 'DocumentReference': {
+      const cached = await db.get('documentReferences', id);
+      return cached?._versionId;
+    }
+    default:
+      return undefined;
+  }
 }
 
 // ==================== SYNC QUEUE OPERATIONS ====================
@@ -359,6 +404,38 @@ export async function getSyncItem(id: string): Promise<SyncQueueItem | null> {
   const db = await getDB();
   const item = await db.get('syncQueue', id);
   return item ?? null;
+}
+
+/**
+ * Recover orphaned 'syncing' items that were interrupted by crash/restart.
+ * Resets items stuck in 'syncing' status back to 'pending' so they can be retried.
+ *
+ * @param staleThresholdMs - Time in ms after which a 'syncing' item is considered orphaned (default: 5 minutes)
+ * @returns Number of items recovered
+ */
+export async function recoverOrphanedSyncItems(staleThresholdMs = 5 * 60 * 1000): Promise<number> {
+  const db = await getDB();
+  const cutoffTime = Date.now() - staleThresholdMs;
+
+  // Get all items with 'syncing' status
+  const syncingItems = await db.getAllFromIndex('syncQueue', 'by-status', 'syncing');
+
+  let recoveredCount = 0;
+  const tx = db.transaction('syncQueue', 'readwrite');
+
+  for (const item of syncingItems) {
+    // If the item has been in 'syncing' status for longer than the threshold,
+    // it's likely orphaned from a crash. Reset to 'pending' for retry.
+    if (item.createdAt < cutoffTime) {
+      item.status = 'pending';
+      item.error = 'Recovered from interrupted sync';
+      await tx.store.put(item);
+      recoveredCount++;
+    }
+  }
+
+  await tx.done;
+  return recoveredCount;
 }
 
 // ==================== LOCAL ID MAPPING OPERATIONS ====================

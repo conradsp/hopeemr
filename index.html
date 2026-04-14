@@ -15,10 +15,12 @@
     <meta name="mobile-web-app-capable" content="yes" />
 
     <!-- Content Security Policy -->
+    <!-- Note: 'unsafe-inline' for styles is required by Mantine UI library -->
+    <!-- 'unsafe-eval' removed as it's not needed and poses security risk -->
     <meta http-equiv="Content-Security-Policy"
           content="
             default-src 'self';
-            script-src 'self' 'unsafe-inline' 'unsafe-eval';
+            script-src 'self';
             style-src 'self' 'unsafe-inline';
             img-src 'self' data: https: blob:;
             font-src 'self' data:;

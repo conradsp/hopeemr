@@ -1,5 +1,5 @@
 import { Text } from '@mantine/core';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, JSX } from 'react';
 import type { FhirPriority } from '../../utils/triageUtils';
 import { formatWaitTime, getWaitTimeColor } from '../../utils/triageUtils';
 

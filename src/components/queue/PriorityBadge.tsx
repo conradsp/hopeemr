@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import { Badge } from '@mantine/core';
 import type { FhirPriority } from '../../utils/triageUtils';
 import { getPriorityBadgeProps } from '../../utils/triageUtils';

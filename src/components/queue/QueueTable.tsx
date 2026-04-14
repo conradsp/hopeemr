@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import { ActionIcon, Badge, Group, Table, Text, Tooltip } from '@mantine/core';
 import { IconUserCheck, IconEdit, IconX } from '@tabler/icons-react';
 import { formatHumanName, getReferenceString } from '@medplum/core';

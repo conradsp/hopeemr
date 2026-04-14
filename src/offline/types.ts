@@ -30,6 +30,7 @@ export interface CachedResource<T extends Resource = Resource> {
   _lastSynced: number;
   _localId?: string; // For offline-created resources
   _isOfflineCreated?: boolean;
+  _versionId?: string; // Server version ID for conflict detection
 }
 
 /**
@@ -190,4 +191,75 @@ export interface SyncConflict {
   serverResource: Resource;
   resolution?: ConflictResolution;
   resolvedAt?: number;
+}
+
+// ==================== ENCRYPTION TYPES ====================
+
+/**
+ * Encrypted data blob structure
+ */
+export interface EncryptedBlob {
+  /** Base64-encoded initialization vector */
+  iv: string;
+  /** Base64-encoded ciphertext */
+  ciphertext: string;
+}
+
+/**
+ * Base interface for encrypted cached resources
+ * The actual resource data is encrypted; only metadata remains in plaintext
+ */
+export interface EncryptedCachedResource {
+  /** Encrypted resource data */
+  encryptedResource: EncryptedBlob;
+  /** Resource ID (kept unencrypted for indexing) */
+  _resourceId: string;
+  /** Resource type (kept unencrypted for queries) */
+  _resourceType: CacheableResourceType;
+  /** Timestamp of last sync */
+  _lastSynced: number;
+  /** Whether created offline */
+  _isOfflineCreated?: boolean;
+  /** Server version ID for conflict detection */
+  _versionId?: string;
+  /** Local ID for offline-created resources */
+  _localId?: string;
+  /** Flag indicating this is encrypted data */
+  _encrypted: true;
+}
+
+/**
+ * Typed encrypted cached resources
+ */
+export type EncryptedCachedPatient = EncryptedCachedResource;
+export type EncryptedCachedEncounter = EncryptedCachedResource;
+export type EncryptedCachedObservation = EncryptedCachedResource;
+export type EncryptedCachedMedicationRequest = EncryptedCachedResource;
+export type EncryptedCachedServiceRequest = EncryptedCachedResource;
+export type EncryptedCachedDocumentReference = EncryptedCachedResource;
+
+/**
+ * Union type for cached resources (encrypted or unencrypted)
+ */
+export type AnyCachedResource = CachedResource | EncryptedCachedResource;
+
+/**
+ * Type guard to check if a cached resource is encrypted
+ */
+export function isEncryptedCachedResource(
+  cached: AnyCachedResource
+): cached is EncryptedCachedResource {
+  return '_encrypted' in cached && cached._encrypted === true;
+}
+
+/**
+ * Encryption configuration stored in metadata
+ */
+export interface EncryptionMetadata {
+  /** Whether encryption is enabled */
+  enabled: boolean;
+  /** Timestamp when encryption was first enabled */
+  enabledAt?: number;
+  /** Whether migration from unencrypted data is complete */
+  migrationComplete: boolean;
 }

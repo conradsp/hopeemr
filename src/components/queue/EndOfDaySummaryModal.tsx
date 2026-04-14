@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import { Modal, Stack, SimpleGrid, Card, Text, Group, Divider, LoadingOverlay } from '@mantine/core';
 import {
   IconUsers,

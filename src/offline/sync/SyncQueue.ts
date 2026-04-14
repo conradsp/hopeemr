@@ -6,6 +6,7 @@ import {
   updateSyncItemStatus,
   clearCompletedSyncItems,
   getSyncItem,
+  recoverOrphanedSyncItems,
 } from '../db/operations';
 import { SyncQueueItem, SyncableResourceType, SyncStatus, SyncEvent, SyncEventType } from '../types';
 
@@ -106,6 +107,15 @@ class SyncQueueClass {
   async hasPending(): Promise<boolean> {
     const count = await this.getPendingCount();
     return count > 0;
+  }
+
+  /**
+   * Recover orphaned items stuck in 'syncing' status after crash/restart
+   * @param staleThresholdMs - Time threshold for considering an item orphaned (default: 5 min)
+   * @returns Number of items recovered
+   */
+  async recoverOrphaned(staleThresholdMs?: number): Promise<number> {
+    return recoverOrphanedSyncItems(staleThresholdMs);
   }
 
   /**
