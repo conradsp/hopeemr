@@ -25,6 +25,17 @@ CLAUDE.md
 .claude/
 .claude/**
 
+# OpenWolf (session/machine-specific files - do NOT commit)
+.wolf/memory.md
+.wolf/designqc-captures/
+.wolf/hooks/
+.wolf/token-ledger.json
+.wolf/cron-state.json
+.wolf/cron-manifest.json
+.wolf/suggestions.json
+.wolf/designqc-report.json
+.wolf/config.json
+
 # Coverage reports
 coverage/
 .nyc_output/

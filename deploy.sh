@@ -8,6 +8,10 @@
 #   --no-cache  Force rebuild without cache
 #   --logs      Follow logs after deployment
 #
+# First-time setup on server:
+#   sudo ./scripts/setup-server.sh   # Configure swap + Docker log rotation
+#   ./deploy.sh --full --no-cache    # Build and deploy all services
+#
 
 set -e  # Exit on error
 
