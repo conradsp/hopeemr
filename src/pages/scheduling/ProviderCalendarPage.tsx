@@ -6,7 +6,9 @@ import { JSX, useState, useEffect } from 'react';
 import { getPractitionerAppointments, cancelAppointment, checkInPatient, fulfillAppointment, markNoShow } from '../../utils/appointmentUtils';
 import { getPractitionerSchedules, getScheduleSlots } from '../../utils/scheduleUtils';
 import { BreadcrumbNav } from '../../components/shared/BreadcrumbNav';
+import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { logger } from '../../utils/logger';
 import styles from './ProviderCalendarPage.module.css';
@@ -18,6 +20,7 @@ interface SlotWithAppointment {
 }
 
 export function ProviderCalendarPage(): JSX.Element {
+  const { t } = useTranslation();
   const medplum = useMedplum();
   const navigate = useNavigate();
   const [practitioners, setPractitioners] = useState<Practitioner[]>([]);
@@ -28,6 +31,9 @@ export function ProviderCalendarPage(): JSX.Element {
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [cancelReason, setCancelReason] = useState('');
   const [cancelLoading, setCancelLoading] = useState(false);
+  const [pendingNoShow, setPendingNoShow] = useState<Appointment | null>(null);
+  const [noShowConfirmOpen, setNoShowConfirmOpen] = useState(false);
+  const [markingNoShow, setMarkingNoShow] = useState(false);
 
   useEffect(() => {
     loadPractitioners();
@@ -128,14 +134,14 @@ export function ProviderCalendarPage(): JSX.Element {
       await checkInPatient(medplum, appointment.id!);
       await loadDayView();
       notifications.show({
-        title: 'Success',
-        message: 'Patient checked in successfully',
+        title: t('common.success', 'Success'),
+        message: t('scheduling.checkInSuccess', 'Patient checked in successfully'),
         color: 'green',
       });
     } catch (error) {
       notifications.show({
-        title: 'Error',
-        message: 'Failed to check in patient',
+        title: t('common.error', 'Error'),
+        message: t('scheduling.checkInError', 'Failed to check in patient'),
         color: 'red',
       });
     }
@@ -146,37 +152,53 @@ export function ProviderCalendarPage(): JSX.Element {
       await fulfillAppointment(medplum, appointment.id!);
       await loadDayView();
       notifications.show({
-        title: 'Success',
-        message: 'Appointment completed successfully',
+        title: t('common.success', 'Success'),
+        message: t('scheduling.completeSuccess', 'Appointment completed successfully'),
         color: 'green',
       });
     } catch (error) {
       notifications.show({
-        title: 'Error',
-        message: 'Failed to complete appointment',
+        title: t('common.error', 'Error'),
+        message: t('scheduling.completeError', 'Failed to complete appointment'),
         color: 'red',
       });
     }
   };
 
-  const handleNoShow = async (appointment: Appointment) => {
-    if (confirm('Mark this appointment as no-show?')) {
-      try {
-        await markNoShow(medplum, appointment.id!);
-        await loadDayView();
-        notifications.show({
-          title: 'Success',
-          message: 'Appointment marked as no-show',
-          color: 'orange',
-        });
-      } catch (error) {
-        notifications.show({
-          title: 'Error',
-          message: 'Failed to mark as no-show',
-          color: 'red',
-        });
-      }
+  const handleNoShow = (appointment: Appointment): void => {
+    setPendingNoShow(appointment);
+    setNoShowConfirmOpen(true);
+  };
+
+  const handleNoShowConfirm = async (): Promise<void> => {
+    if (!pendingNoShow?.id || markingNoShow) return;
+
+    setMarkingNoShow(true);
+    try {
+      await markNoShow(medplum, pendingNoShow.id);
+      await loadDayView();
+      notifications.show({
+        title: t('common.success', 'Success'),
+        message: t('scheduling.noShowSuccess', 'Appointment marked as no-show'),
+        color: 'orange',
+      });
+    } catch (error) {
+      notifications.show({
+        title: t('common.error', 'Error'),
+        message: t('scheduling.noShowError', 'Failed to mark as no-show'),
+        color: 'red',
+      });
+    } finally {
+      setMarkingNoShow(false);
+      setNoShowConfirmOpen(false);
+      setPendingNoShow(null);
     }
+  };
+
+  const handleNoShowCancel = (): void => {
+    if (markingNoShow) return;
+    setNoShowConfirmOpen(false);
+    setPendingNoShow(null);
   };
 
   const handleCancelClick = (appointment: Appointment) => {
@@ -190,8 +212,8 @@ export function ProviderCalendarPage(): JSX.Element {
     try {
       await cancelAppointment(medplum, selectedAppointment.id, cancelReason);
       notifications.show({
-        title: 'Success',
-        message: 'Appointment cancelled successfully',
+        title: t('common.success', 'Success'),
+        message: t('scheduling.cancelSuccess', 'Appointment cancelled successfully'),
         color: 'green',
       });
       setSelectedAppointment(null);
@@ -199,8 +221,8 @@ export function ProviderCalendarPage(): JSX.Element {
       await loadDayView();
     } catch (error) {
       notifications.show({
-        title: 'Error',
-        message: 'Failed to cancel appointment',
+        title: t('common.error', 'Error'),
+        message: t('scheduling.cancelError', 'Failed to cancel appointment'),
         color: 'red',
       });
     } finally {
@@ -210,7 +232,7 @@ export function ProviderCalendarPage(): JSX.Element {
 
   const practitionerOptions = practitioners.map(p => ({
     value: p.id || '',
-    label: p.name?.[0]?.text || [p.name?.[0]?.given?.[0], p.name?.[0]?.family].filter(Boolean).join(' ') || 'Unknown',
+    label: p.name?.[0]?.text || [p.name?.[0]?.given?.[0], p.name?.[0]?.family].filter(Boolean).join(' ') || t('common.unknown', 'Unknown'),
   }));
 
   const getPatientName = (appointment?: Appointment): string => {
@@ -218,7 +240,7 @@ export function ProviderCalendarPage(): JSX.Element {
     const patientParticipant = appointment.participant?.find(
       p => p.actor?.reference?.startsWith('Patient/')
     );
-    return patientParticipant?.actor?.display || 'Unknown Patient';
+    return patientParticipant?.actor?.display || t('scheduling.unknownPatient', 'Unknown Patient');
   };
 
   const getStatusColor = (status?: string): string => {
@@ -250,17 +272,17 @@ export function ProviderCalendarPage(): JSX.Element {
       <Modal
         opened={!!selectedAppointment}
         onClose={() => setSelectedAppointment(null)}
-        title="Cancel Appointment"
+        title={t('scheduling.cancelAppointment', 'Cancel Appointment')}
         centered
       >
         <Stack>
           <Text size="sm">
-            Are you sure you want to cancel this appointment?
+            {t('scheduling.confirmCancelMessage', 'Are you sure you want to cancel this appointment?')}
           </Text>
-          
+
           <Textarea
-            label="Cancellation Reason (Optional)"
-            placeholder="Reason for cancellation"
+            label={t('scheduling.cancellationReasonLabel', 'Cancellation Reason (Optional)')}
+            placeholder={t('scheduling.cancellationReasonPlaceholder', 'Reason for cancellation')}
             value={cancelReason}
             onChange={(e) => setCancelReason(e.currentTarget.value)}
             rows={3}
@@ -268,15 +290,15 @@ export function ProviderCalendarPage(): JSX.Element {
 
           <Group justify="flex-end">
             <Button variant="default" onClick={() => setSelectedAppointment(null)}>
-              Keep Appointment
+              {t('scheduling.keepAppointment', 'Keep Appointment')}
             </Button>
-            <Button 
+            <Button
               color="red"
-              onClick={handleConfirmCancel} 
+              onClick={handleConfirmCancel}
               loading={cancelLoading}
               leftSection={<IconX size={16} />}
             >
-              Cancel Appointment
+              {t('scheduling.cancelAppointment', 'Cancel Appointment')}
             </Button>
           </Group>
         </Stack>
@@ -288,19 +310,19 @@ export function ProviderCalendarPage(): JSX.Element {
             <Title order={2}>
               <Group gap="xs">
                 <IconCalendar size={28} />
-                Provider Calendar
+                {t('scheduling.providerCalendar', 'Provider Calendar')}
               </Group>
             </Title>
             <Text size="sm" c="dimmed" mt="xs">
-              View daily schedule with all slots and appointments
+              {t('scheduling.providerCalendarSubtitle', 'View daily schedule with all slots and appointments')}
             </Text>
           </div>
         </Group>
 
         <Group mb="lg" align="flex-end">
           <Select
-            label="Provider"
-            placeholder="Select a provider"
+            label={t('common.provider', 'Provider')}
+            placeholder={t('common.selectProvider', 'Select a provider')}
             data={practitionerOptions}
             value={selectedPractitioner}
             onChange={setSelectedPractitioner}
@@ -334,7 +356,7 @@ export function ProviderCalendarPage(): JSX.Element {
             variant="light"
             onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}
           >
-            Today
+            {t('scheduling.today', 'Today')}
           </Button>
         </Group>
 
@@ -345,14 +367,14 @@ export function ProviderCalendarPage(): JSX.Element {
             <Stack align="center" gap="sm">
               <IconCalendar size={48} className={styles.emptyIcon} />
               <Text ta="center" c="dimmed" fw={500} size="lg">
-                No slots available for {selectedDate}
+                {t('scheduling.noSlotsAvailableFor', 'No slots available for')} {selectedDate}
               </Text>
               <Text ta="center" c="dimmed" size="sm">
-                This provider may not have scheduled hours on this date.
+                {t('scheduling.noScheduledHoursMessage', 'This provider may not have scheduled hours on this date.')}
                 <br />
-                Try navigating to a different date using the arrows above, or create a schedule at{' '}
+                {t('scheduling.tryDifferentDate', 'Try navigating to a different date using the arrows above, or create a schedule at')}{' '}
                 <Text component="span" c="blue" className={styles.linkText} onClick={() => navigate('/scheduling/manage')}>
-                  Scheduling → Manage Schedules
+                  {t('scheduling.manageSchedulesLink', 'Scheduling → Manage Schedules')}
                 </Text>
               </Text>
               <Group mt="md">
@@ -361,14 +383,14 @@ export function ProviderCalendarPage(): JSX.Element {
                   onClick={() => handleDateChange('prev')}
                   leftSection={<IconChevronLeft size={16} />}
                 >
-                  Previous Day
+                  {t('scheduling.previousDay', 'Previous Day')}
                 </Button>
                 <Button
                   variant="light"
                   onClick={() => handleDateChange('next')}
                   rightSection={<IconChevronRight size={16} />}
                 >
-                  Next Day
+                  {t('scheduling.nextDay', 'Next Day')}
                 </Button>
               </Group>
             </Stack>
@@ -377,13 +399,13 @@ export function ProviderCalendarPage(): JSX.Element {
           <Table striped>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Time</Table.Th>
-                <Table.Th>Duration</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Patient</Table.Th>
-                <Table.Th>Type</Table.Th>
-                <Table.Th>Reason</Table.Th>
-                <Table.Th>Actions</Table.Th>
+                <Table.Th>{t('common.time', 'Time')}</Table.Th>
+                <Table.Th>{t('common.duration', 'Duration')}</Table.Th>
+                <Table.Th>{t('common.status', 'Status')}</Table.Th>
+                <Table.Th>{t('common.patient', 'Patient')}</Table.Th>
+                <Table.Th>{t('common.type', 'Type')}</Table.Th>
+                <Table.Th>{t('common.reason', 'Reason')}</Table.Th>
+                <Table.Th>{t('common.actions', 'Actions')}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -409,14 +431,14 @@ export function ProviderCalendarPage(): JSX.Element {
                     </Table.Td>
                     <Table.Td>
                       <Text size="sm">
-                        {slot.start && slot.end ? 
-                          Math.round((new Date(slot.end).getTime() - new Date(slot.start).getTime()) / 60000) : 0} min
+                        {slot.start && slot.end ?
+                          Math.round((new Date(slot.end).getTime() - new Date(slot.start).getTime()) / 60000) : 0} {t('scheduling.minutesAbbrev', 'min')}
                       </Text>
                     </Table.Td>
                     <Table.Td>
                       <Group gap="xs">
                         <Badge color={getSlotStatusColor(slot)} variant="dot" size="sm">
-                          {slot.status === 'free' ? 'Available' : slot.status}
+                          {slot.status === 'free' ? t('scheduling.slotAvailable', 'Available') : slot.status}
                         </Badge>
                         {appointment && (
                           <Badge color={getStatusColor(appointment.status)} variant="light" size="sm">
@@ -438,12 +460,12 @@ export function ProviderCalendarPage(): JSX.Element {
                     <Table.Td>
                       <Text size="sm">
                         {isBooked && appointment ? (
-                          appointment.appointmentType?.coding?.[0]?.display || 
-                          appointment.serviceType?.[0]?.coding?.[0]?.display || 
-                          'General'
+                          appointment.appointmentType?.coding?.[0]?.display ||
+                          appointment.serviceType?.[0]?.coding?.[0]?.display ||
+                          t('scheduling.appointmentTypeGeneral', 'General')
                         ) : (
                           <Text c="dimmed">
-                            {slot.serviceType?.[0]?.coding?.[0]?.display || 'Any'}
+                            {slot.serviceType?.[0]?.coding?.[0]?.display || t('scheduling.appointmentTypeAny', 'Any')}
                           </Text>
                         )}
                       </Text>
@@ -464,7 +486,7 @@ export function ProviderCalendarPage(): JSX.Element {
                                 color="green"
                                 onClick={() => handleCheckIn(appointment)}
                               >
-                                Check In
+                                {t('scheduling.checkIn', 'Check In')}
                               </Button>
                               <Button
                                 size="xs"
@@ -472,7 +494,7 @@ export function ProviderCalendarPage(): JSX.Element {
                                 color="red"
                                 onClick={() => handleCancelClick(appointment)}
                               >
-                                Cancel
+                                {t('common.cancel', 'Cancel')}
                               </Button>
                             </>
                           )}
@@ -484,7 +506,7 @@ export function ProviderCalendarPage(): JSX.Element {
                                 color="green"
                                 onClick={() => handleComplete(appointment)}
                               >
-                                Complete
+                                {t('scheduling.complete', 'Complete')}
                               </Button>
                               <Button
                                 size="xs"
@@ -492,7 +514,7 @@ export function ProviderCalendarPage(): JSX.Element {
                                 color="orange"
                                 onClick={() => handleNoShow(appointment)}
                               >
-                                No Show
+                                {t('scheduling.noShow', 'No Show')}
                               </Button>
                             </>
                           )}
@@ -503,7 +525,7 @@ export function ProviderCalendarPage(): JSX.Element {
                           variant="light"
                           onClick={() => navigate('/scheduling/book')}
                         >
-                          Book
+                          {t('scheduling.book', 'Book')}
                         </Button>
                       ) : null}
                     </Table.Td>
@@ -514,6 +536,17 @@ export function ProviderCalendarPage(): JSX.Element {
           </Table>
         )}
       </Paper>
+      <ConfirmDialog
+        opened={noShowConfirmOpen}
+        title={t('scheduling.confirmNoShowTitle')}
+        message={t('scheduling.confirmNoShowMessage')}
+        confirmLabel={t('scheduling.markNoShow')}
+        confirmColor="orange"
+        cancelLabel={t('common.cancel')}
+        onConfirm={handleNoShowConfirm}
+        onCancel={handleNoShowCancel}
+        loading={markingNoShow}
+      />
     </Document>
   );
 }

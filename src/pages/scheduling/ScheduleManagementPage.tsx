@@ -3,20 +3,28 @@ import { Schedule, Practitioner } from '@medplum/fhirtypes';
 import { Document, Loading, useMedplum } from '@medplum/react';
 import { IconPlus, IconCalendar, IconToggleLeft, IconToggleRight, IconTrash, IconSettings, IconDotsVertical, IconTrashX } from '@tabler/icons-react';
 import { JSX, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getPractitionerSchedules, updateScheduleStatus, deleteFutureSlots, deleteSchedule } from '../../utils/scheduleUtils';
 import { CreateScheduleModal } from '../../components/scheduling/CreateScheduleModal';
 import { BreadcrumbNav } from '../../components/shared/BreadcrumbNav';
+import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 import { notifications } from '@mantine/notifications';
 import { logger } from '../../utils/logger';
 import styles from './ScheduleManagementPage.module.css';
 
+type PendingScheduleDelete = { schedule: Schedule; mode: 'futureSlots' | 'entireSchedule' };
+
 export function ScheduleManagementPage(): JSX.Element {
+  const { t } = useTranslation();
   const medplum = useMedplum();
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [practitioners, setPractitioners] = useState<Practitioner[]>([]);
   const [selectedPractitioner, setSelectedPractitioner] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<PendingScheduleDelete | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadPractitioners();
@@ -66,52 +74,65 @@ export function ScheduleManagementPage(): JSX.Element {
       }
     } catch (error) {
       notifications.show({
-        title: 'Error',
-        message: 'Failed to update schedule status',
+        title: t('common.error', 'Error'),
+        message: t('scheduling.failedUpdateStatus', 'Failed to update schedule status'),
         color: 'red',
       });
     }
   };
 
-  const handleDeleteFutureSlots = async (schedule: Schedule) => {
-    if (confirm('Are you sure you want to delete all future available slots for this schedule? The schedule will remain but all unbooked slots will be removed.')) {
-      try {
-        await deleteFutureSlots(medplum, schedule.id!);
+  const handleDeleteFutureSlots = (schedule: Schedule): void => {
+    setPendingDelete({ schedule, mode: 'futureSlots' });
+    setConfirmOpen(true);
+  };
+
+  const handleDeleteSchedule = (schedule: Schedule): void => {
+    setPendingDelete({ schedule, mode: 'entireSchedule' });
+    setConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async (): Promise<void> => {
+    if (!pendingDelete?.schedule.id || deleting) return;
+
+    setDeleting(true);
+    try {
+      if (pendingDelete.mode === 'futureSlots') {
+        await deleteFutureSlots(medplum, pendingDelete.schedule.id);
         notifications.show({
-          title: 'Success',
-          message: 'Future slots deleted successfully',
+          title: t('common.success', 'Success'),
+          message: t('scheduling.futureSlotsDeletedSuccess', 'Future slots deleted successfully'),
           color: 'green',
         });
-      } catch (error) {
+      } else {
+        await deleteSchedule(medplum, pendingDelete.schedule.id);
         notifications.show({
-          title: 'Error',
-          message: 'Failed to delete slots',
-          color: 'red',
+          title: t('common.success', 'Success'),
+          message: t('scheduling.scheduleDeletedSuccess', 'Schedule deleted successfully'),
+          color: 'green',
         });
       }
+      if (selectedPractitioner) {
+        await loadSchedules(selectedPractitioner);
+      }
+    } catch (error) {
+      notifications.show({
+        title: t('common.error', 'Error'),
+        message: pendingDelete.mode === 'futureSlots'
+          ? t('scheduling.failedDeleteSlots', 'Failed to delete slots')
+          : t('scheduling.failedDeleteSchedule', 'Failed to delete schedule'),
+        color: 'red',
+      });
+    } finally {
+      setDeleting(false);
+      setConfirmOpen(false);
+      setPendingDelete(null);
     }
   };
 
-  const handleDeleteSchedule = async (schedule: Schedule) => {
-    if (confirm('Are you sure you want to permanently DELETE this entire schedule? This will remove the schedule and all its slots. This action cannot be undone.')) {
-      try {
-        await deleteSchedule(medplum, schedule.id!);
-        notifications.show({
-          title: 'Success',
-          message: 'Schedule deleted successfully',
-          color: 'green',
-        });
-        if (selectedPractitioner) {
-          await loadSchedules(selectedPractitioner);
-        }
-      } catch (error) {
-        notifications.show({
-          title: 'Error',
-          message: 'Failed to delete schedule',
-          color: 'red',
-        });
-      }
-    }
+  const handleDeleteCancel = (): void => {
+    if (deleting) return;
+    setConfirmOpen(false);
+    setPendingDelete(null);
   };
 
   const handleModalClose = () => {
@@ -123,7 +144,7 @@ export function ScheduleManagementPage(): JSX.Element {
 
   const practitionerOptions = practitioners.map(p => ({
     value: p.id || '',
-    label: p.name?.[0]?.text || [p.name?.[0]?.given?.[0], p.name?.[0]?.family].filter(Boolean).join(' ') || 'Unknown',
+    label: p.name?.[0]?.text || [p.name?.[0]?.given?.[0], p.name?.[0]?.family].filter(Boolean).join(' ') || t('common.unknown', 'Unknown'),
   }));
 
   const selectedPractitionerData = practitioners.find(p => p.id === selectedPractitioner);
@@ -144,30 +165,30 @@ export function ScheduleManagementPage(): JSX.Element {
             <Title order={2}>
               <Group gap="xs">
                 <IconCalendar size={28} />
-                Schedule Management
+                {t('scheduling.scheduleManagement', 'Schedule Management')}
               </Group>
             </Title>
             <Text size="sm" c="dimmed" mt="xs">
-              Manage provider schedules and availability
+              {t('scheduling.manageProviderSchedules', 'Manage provider schedules and availability')}
             </Text>
           </div>
         </Group>
 
         <Group mb="lg" align="flex-end">
           <Select
-            label="Select Provider"
-            placeholder="Choose a provider"
+            label={t('scheduling.selectProvider', 'Select Provider')}
+            placeholder={t('scheduling.chooseProvider', 'Choose a provider')}
             data={practitionerOptions}
             value={selectedPractitioner}
             onChange={setSelectedPractitioner}
             className={styles.select}
           />
-          <Button 
-            leftSection={<IconPlus size={16} />} 
+          <Button
+            leftSection={<IconPlus size={16} />}
             onClick={() => setCreateModalOpen(true)}
             disabled={!selectedPractitioner}
           >
-            Create Schedule
+            {t('scheduling.createSchedule', 'Create Schedule')}
           </Button>
         </Group>
 
@@ -176,7 +197,7 @@ export function ScheduleManagementPage(): JSX.Element {
         ) : !selectedPractitioner ? (
           <Paper p="xl" withBorder bg="gray.0">
             <Text ta="center" c="dimmed">
-              Select a provider to view their schedules
+              {t('scheduling.selectProviderToViewSchedules', 'Select a provider to view their schedules')}
             </Text>
           </Paper>
         ) : schedules.length === 0 ? (
@@ -185,16 +206,16 @@ export function ScheduleManagementPage(): JSX.Element {
               <IconCalendar size={48} className={styles.emptyIcon} />
               <div className={styles.emptyContainer}>
                 <Text size="lg" fw={500} mb="xs">
-                  No Schedules Found
+                  {t('scheduling.noSchedulesFound', 'No Schedules Found')}
                 </Text>
                 <Text size="sm" c="dimmed" mb="md">
-                  Create a schedule to start accepting appointments
+                  {t('scheduling.createScheduleToAcceptAppointments', 'Create a schedule to start accepting appointments')}
                 </Text>
                 <Button
                   onClick={() => setCreateModalOpen(true)}
                   leftSection={<IconPlus size={16} />}
                 >
-                  Create Schedule
+                  {t('scheduling.createSchedule', 'Create Schedule')}
                 </Button>
               </div>
             </Stack>
@@ -203,11 +224,11 @@ export function ScheduleManagementPage(): JSX.Element {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Service Type</Table.Th>
-                <Table.Th>Planning Horizon</Table.Th>
-                <Table.Th>Notes</Table.Th>
-                <Table.Th>Actions</Table.Th>
+                <Table.Th>{t('scheduling.status', 'Status')}</Table.Th>
+                <Table.Th>{t('scheduling.serviceType', 'Service Type')}</Table.Th>
+                <Table.Th>{t('scheduling.planningHorizon', 'Planning Horizon')}</Table.Th>
+                <Table.Th>{t('scheduling.notes', 'Notes')}</Table.Th>
+                <Table.Th>{t('scheduling.actions', 'Actions')}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -215,12 +236,12 @@ export function ScheduleManagementPage(): JSX.Element {
                 <Table.Tr key={schedule.id}>
                   <Table.Td>
                     <Badge color={schedule.active ? 'green' : 'gray'} variant="light">
-                      {schedule.active ? 'Active' : 'Inactive'}
+                      {schedule.active ? t('scheduling.active', 'Active') : t('scheduling.inactive', 'Inactive')}
                     </Badge>
                   </Table.Td>
                   <Table.Td>
                     <Text size="sm" fw={500}>
-                      {schedule.serviceType?.[0]?.coding?.[0]?.display || 'General'}
+                      {schedule.serviceType?.[0]?.coding?.[0]?.display || t('scheduling.general', 'General')}
                     </Text>
                   </Table.Td>
                   <Table.Td>
@@ -242,7 +263,7 @@ export function ScheduleManagementPage(): JSX.Element {
                         variant="light"
                         color={schedule.active ? 'green' : 'red'}
                         onClick={() => handleToggleStatus(schedule)}
-                        title={schedule.active ? 'Deactivate' : 'Activate'}
+                        title={schedule.active ? t('scheduling.deactivate', 'Deactivate') : t('scheduling.activate', 'Activate')}
                       >
                         {schedule.active ? <IconToggleRight size={16} /> : <IconToggleLeft size={16} />}
                       </ActionIcon>
@@ -253,20 +274,20 @@ export function ScheduleManagementPage(): JSX.Element {
                           </ActionIcon>
                         </Menu.Target>
                         <Menu.Dropdown>
-                          <Menu.Label>Schedule Actions</Menu.Label>
+                          <Menu.Label>{t('scheduling.scheduleActions', 'Schedule Actions')}</Menu.Label>
                           <Menu.Item
                             leftSection={<IconTrash size={16} />}
                             onClick={() => handleDeleteFutureSlots(schedule)}
                             color="orange"
                           >
-                            Delete Future Slots
+                            {t('scheduling.deleteFutureSlots', 'Delete Future Slots')}
                           </Menu.Item>
                           <Menu.Item
                             leftSection={<IconTrashX size={16} />}
                             onClick={() => handleDeleteSchedule(schedule)}
                             color="red"
                           >
-                            Delete Entire Schedule
+                            {t('scheduling.deleteEntireSchedule', 'Delete Entire Schedule')}
                           </Menu.Item>
                         </Menu.Dropdown>
                       </Menu>
@@ -278,6 +299,24 @@ export function ScheduleManagementPage(): JSX.Element {
           </Table>
         )}
       </Paper>
+      <ConfirmDialog
+        opened={confirmOpen}
+        title={
+          pendingDelete?.mode === 'entireSchedule'
+            ? t('scheduling.confirmDeleteScheduleTitle')
+            : t('scheduling.confirmDeleteFutureSlotsTitle')
+        }
+        message={
+          pendingDelete?.mode === 'entireSchedule'
+            ? t('scheduling.confirmDeleteScheduleMessage')
+            : t('scheduling.confirmDeleteFutureSlotsMessage')
+        }
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        loading={deleting}
+      />
     </Document>
   );
 }

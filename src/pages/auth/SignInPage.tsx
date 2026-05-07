@@ -1,11 +1,13 @@
 import { Paper, Title, Container, Image } from '@mantine/core';
 import { Logo, SignInForm, useMedplumContext } from '@medplum/react';
 import { JSX, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import styles from './SignInPage.module.css';
 
 export function SignInPage(): JSX.Element {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { medplum } = useMedplumContext();
   const [clinicName, setClinicName] = useState<string>('EMR');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -49,7 +51,7 @@ export function SignInPage(): JSX.Element {
           {logoUrl ? (
             <Image
               src={logoUrl}
-              alt={`${clinicName} Logo`}
+              alt={t('auth.signIn.logoAlt', '{{clinicName}} Logo', { clinicName })}
               h={32}
               w="auto"
               fit="contain"
@@ -58,7 +60,7 @@ export function SignInPage(): JSX.Element {
           ) : (
             <Logo size={32} />
           )}
-          <Title order={2} mt="md">Sign in to {clinicName}</Title>
+          <Title order={2} mt="md">{t('auth.signIn.title', 'Sign in to {{clinicName}}', { clinicName })}</Title>
         </div>
         <SignInForm
           onSuccess={() => {

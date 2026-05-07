@@ -1,5 +1,6 @@
 import { JSX } from 'react';
 import { Badge, Tooltip } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 import type { TriageLevel } from '../../utils/triageUtils';
 import { getTriageBadgeProps, TRIAGE_LEVELS } from '../../utils/triageUtils';
 
@@ -25,6 +26,7 @@ export function TriageLevelBadge({
   size = 'sm',
   showTooltip = true,
 }: TriageLevelBadgeProps): JSX.Element {
+  const { t } = useTranslation();
   const badgeProps = getTriageBadgeProps(level);
   const info = TRIAGE_LEVELS[level];
 
@@ -47,7 +49,7 @@ export function TriageLevelBadge({
           </div>
           <div>{info.description}</div>
           <div>
-            <em>Target: {info.timeTarget}</em>
+            <em>{t('queue.triageTargetLabel', 'Target')}: {info.timeTarget}</em>
           </div>
         </div>
       }

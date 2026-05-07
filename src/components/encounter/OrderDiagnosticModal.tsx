@@ -55,8 +55,8 @@ export function OrderDiagnosticModal({ opened, onClose, patient, encounter }: Or
       setProviders(provs.filter(p => p.active !== false));
     } catch (_error) {
       notifications.show({
-        title: 'Error',
-        message: 'Failed to load diagnostic catalogs',
+        title: t('common.error', 'Error'),
+        message: t('orders.failedLoadCatalogs', 'Failed to load diagnostic catalogs'),
         color: 'red',
       });
     } finally {
@@ -81,8 +81,8 @@ export function OrderDiagnosticModal({ opened, onClose, patient, encounter }: Or
   const handleSubmit = async () => {
     if (selectedTests.length === 0) {
       notifications.show({
-        title: 'Validation Error',
-        message: 'Please select at least one test',
+        title: t('common.validationError', 'Validation Error'),
+        message: t('orders.pleaseSelectAtLeastOneTest', 'Please select at least one test'),
         color: 'yellow',
       });
       return;
@@ -90,8 +90,8 @@ export function OrderDiagnosticModal({ opened, onClose, patient, encounter }: Or
 
     if (!selectedProvider) {
       notifications.show({
-        title: 'Validation Error',
-        message: 'Please select a diagnostic provider',
+        title: t('common.validationError', 'Validation Error'),
+        message: t('orders.pleaseSelectDiagnosticProvider', 'Please select a diagnostic provider'),
         color: 'yellow',
       });
       return;
@@ -176,7 +176,7 @@ export function OrderDiagnosticModal({ opened, onClose, patient, encounter }: Or
           try {
             const price = getPriceFromResource(test);
             if (price && price > 0) {
-              const testName = test.title || test.code?.text || 'Test';
+              const testName = test.title || test.code?.text || t('orders.test', 'Test');
               if (orderType === 'lab') {
                 if (patient.id && encounter.id) {
                   await createLabCharge(
@@ -214,8 +214,10 @@ export function OrderDiagnosticModal({ opened, onClose, patient, encounter }: Or
         });
       } else {
         notifications.show({
-          title: 'Success',
-          message: `${selectedTests.length} ${orderType === 'lab' ? 'lab' : 'imaging'} order(s) created successfully`,
+          title: t('common.success', 'Success'),
+          message: orderType === 'lab'
+            ? t('orders.labOrdersCreatedSuccess', '{{count}} lab order(s) created successfully', { count: selectedTests.length })
+            : t('orders.imagingOrdersCreatedSuccess', '{{count}} imaging order(s) created successfully', { count: selectedTests.length }),
           color: 'green',
         });
       }
@@ -223,8 +225,8 @@ export function OrderDiagnosticModal({ opened, onClose, patient, encounter }: Or
     } catch (error) {
       handleError(error, 'creating diagnostic orders');
       notifications.show({
-        title: 'Error',
-        message: 'Failed to create orders',
+        title: t('common.error', 'Error'),
+        message: t('orders.failedCreateOrders', 'Failed to create orders'),
         color: 'red',
       });
     } finally {

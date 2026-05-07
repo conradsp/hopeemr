@@ -6,6 +6,7 @@ import { JSX, useState, useEffect } from 'react';
 import { createSchedule, generateSlots, ScheduleTemplate, TimeRange, getDayName } from '../../utils/scheduleUtils';
 import { getAppointmentTypes, AppointmentTypeDefinition } from '../../utils/appointmentTypes';
 import { notifications } from '@mantine/notifications';
+import { useTranslation } from 'react-i18next';
 import { logger } from '../../utils/logger';
 
 interface CreateScheduleModalProps {
@@ -17,8 +18,9 @@ interface CreateScheduleModalProps {
 export function CreateScheduleModal({ 
   opened, 
   onClose, 
-  practitioner 
+  practitioner
 }: CreateScheduleModalProps): JSX.Element {
+  const { t } = useTranslation();
   const medplum = useMedplum();
   const [loading, setLoading] = useState(false);
   const [appointmentTypes, setAppointmentTypes] = useState<AppointmentTypeDefinition[]>([]);
@@ -63,8 +65,8 @@ export function CreateScheduleModal({
     
     if (!practitioner?.id) {
       notifications.show({
-        title: 'Error',
-        message: 'No practitioner selected',
+        title: t('common.error', 'Error'),
+        message: t('scheduling.noPractitionerSelected', 'No practitioner selected'),
         color: 'red',
       });
       return;
@@ -72,8 +74,8 @@ export function CreateScheduleModal({
 
     if (formData.daysOfWeek.length === 0) {
       notifications.show({
-        title: 'Error',
-        message: 'Please select at least one day of the week',
+        title: t('common.error', 'Error'),
+        message: t('scheduling.selectAtLeastOneDay', 'Please select at least one day of the week'),
         color: 'red',
       });
       return;
@@ -83,14 +85,14 @@ export function CreateScheduleModal({
 
     try {
       // Create the schedule
-      const providerName = practitioner.name?.[0]?.text || 
+      const providerName = practitioner.name?.[0]?.text ||
                           [practitioner.name?.[0]?.given?.[0], practitioner.name?.[0]?.family].filter(Boolean).join(' ') ||
-                          'Provider';
-      
+                          t('common.provider', 'Provider');
+
       const schedule = await createSchedule(
         medplum,
         { reference: `Practitioner/${practitioner.id}`, display: providerName },
-        `${providerName} Schedule`,
+        t('scheduling.providerScheduleName', '{{provider}} Schedule', { provider: providerName }),
         formData.appointmentType || undefined
       );
 
@@ -124,16 +126,16 @@ export function CreateScheduleModal({
       }
 
       notifications.show({
-        title: 'Success',
-        message: `Schedule created with ${generatedSlots.length} slots!`,
+        title: t('common.success', 'Success'),
+        message: t('scheduling.scheduleCreatedWithSlots', 'Schedule created with {{count}} slots!', { count: generatedSlots.length }),
         color: generatedSlots.length === 0 ? 'orange' : 'green',
       });
       onClose();
     } catch (error) {
       logger.error('Schedule creation failed', error);
       notifications.show({
-        title: 'Error',
-        message: `Failed to create schedule: ${(error as Error).message}`,
+        title: t('common.error', 'Error'),
+        message: t('scheduling.failedCreateSchedule', 'Failed to create schedule: {{error}}', { error: (error as Error).message }),
         color: 'red',
       });
     } finally {
@@ -142,20 +144,20 @@ export function CreateScheduleModal({
   };
 
   const dayOptions = [
-    { value: '0', label: 'Sunday' },
-    { value: '1', label: 'Monday' },
-    { value: '2', label: 'Tuesday' },
-    { value: '3', label: 'Wednesday' },
-    { value: '4', label: 'Thursday' },
-    { value: '5', label: 'Friday' },
-    { value: '6', label: 'Saturday' },
+    { value: '0', label: t('scheduling.days.sunday', 'Sunday') },
+    { value: '1', label: t('scheduling.days.monday', 'Monday') },
+    { value: '2', label: t('scheduling.days.tuesday', 'Tuesday') },
+    { value: '3', label: t('scheduling.days.wednesday', 'Wednesday') },
+    { value: '4', label: t('scheduling.days.thursday', 'Thursday') },
+    { value: '5', label: t('scheduling.days.friday', 'Friday') },
+    { value: '6', label: t('scheduling.days.saturday', 'Saturday') },
   ];
 
   const appointmentTypeOptions = [
-    { value: '', label: 'All Types' },
-    ...appointmentTypes.map(t => ({
-      value: t.code,
-      label: `${t.display} (${t.duration} min)`,
+    { value: '', label: t('scheduling.allTypes', 'All Types') },
+    ...appointmentTypes.map(at => ({
+      value: at.code,
+      label: t('scheduling.appointmentTypeWithDuration', '{{display}} ({{duration}} min)', { display: at.display, duration: at.duration }),
     })),
   ];
 
@@ -163,50 +165,50 @@ export function CreateScheduleModal({
     <Modal
       opened={opened}
       onClose={onClose}
-      title="Create Schedule"
+      title={t('scheduling.createSchedule', 'Create Schedule')}
       size="lg"
       centered
     >
       <form onSubmit={handleSubmit}>
         <Stack>
           <TextInput
-            label="Provider"
+            label={t('common.provider', 'Provider')}
             value={
-              practitioner 
-                ? (practitioner.name?.[0]?.text || 
-                   [practitioner.name?.[0]?.given?.[0], practitioner.name?.[0]?.family].filter(Boolean).join(' ') || 
-                   'Unknown Provider')
-                : 'No provider selected'
+              practitioner
+                ? (practitioner.name?.[0]?.text ||
+                   [practitioner.name?.[0]?.given?.[0], practitioner.name?.[0]?.family].filter(Boolean).join(' ') ||
+                   t('scheduling.unknownProvider', 'Unknown Provider'))
+                : t('scheduling.noProviderSelected', 'No provider selected')
             }
             disabled
           />
 
           <Select
-            label="Appointment Type (Optional)"
-            placeholder="Select appointment type or leave blank for all types"
+            label={t('scheduling.appointmentTypeOptional', 'Appointment Type (Optional)')}
+            placeholder={t('scheduling.appointmentTypePlaceholder', 'Select appointment type or leave blank for all types')}
             data={appointmentTypeOptions}
             value={formData.appointmentType}
             onChange={(value) => {
-              const selectedType = appointmentTypes.find(t => t.code === value);
-              setFormData({ 
-                ...formData, 
+              const selectedType = appointmentTypes.find(at => at.code === value);
+              setFormData({
+                ...formData,
                 appointmentType: value || '',
                 slotDuration: selectedType?.duration || formData.slotDuration
               });
             }}
-            description="Leave blank to allow all appointment types"
+            description={t('scheduling.appointmentTypeDescription', 'Leave blank to allow all appointment types')}
           />
 
           <Group grow>
             <TextInput
-              label="Start Date"
+              label={t('scheduling.startDate', 'Start Date')}
               type="date"
               required
               value={formData.startDate}
               onChange={(e) => setFormData({ ...formData, startDate: e.currentTarget.value })}
             />
             <TextInput
-              label="End Date"
+              label={t('scheduling.endDate', 'End Date')}
               type="date"
               required
               value={formData.endDate}
@@ -215,8 +217,8 @@ export function CreateScheduleModal({
           </Group>
 
           <MultiSelect
-            label="Days of Week"
-            placeholder="Select days"
+            label={t('scheduling.daysOfWeek', 'Days of Week')}
+            placeholder={t('scheduling.selectDays', 'Select days')}
             required
             data={dayOptions}
             value={formData.daysOfWeek}
@@ -225,7 +227,7 @@ export function CreateScheduleModal({
 
           <Group grow>
             <TextInput
-              label="Start Time"
+              label={t('scheduling.startTime', 'Start Time')}
               type="time"
               required
               value={formData.startTime}
@@ -233,7 +235,7 @@ export function CreateScheduleModal({
               leftSection={<IconClock size={16} />}
             />
             <TextInput
-              label="End Time"
+              label={t('scheduling.endTime', 'End Time')}
               type="time"
               required
               value={formData.endTime}
@@ -243,18 +245,18 @@ export function CreateScheduleModal({
           </Group>
 
           <NumberInput
-            label="Slot Duration (minutes)"
+            label={t('scheduling.slotDurationMinutes', 'Slot Duration (minutes)')}
             required
             min={5}
             max={480}
             step={5}
             value={formData.slotDuration}
             onChange={(value) => setFormData({ ...formData, slotDuration: Number(value) || 30 })}
-            description="Duration of each appointment slot"
+            description={t('scheduling.slotDurationDescription', 'Duration of each appointment slot')}
           />
 
           <Checkbox
-            label="Add Lunch Break"
+            label={t('scheduling.addLunchBreak', 'Add Lunch Break')}
             checked={formData.enableBreak}
             onChange={(e) => setFormData({ ...formData, enableBreak: e.currentTarget.checked })}
           />
@@ -262,14 +264,14 @@ export function CreateScheduleModal({
           {formData.enableBreak && (
             <Group grow>
               <TextInput
-                label="Break Start"
+                label={t('scheduling.breakStart', 'Break Start')}
                 type="time"
                 value={formData.breakStart}
                 onChange={(e) => setFormData({ ...formData, breakStart: e.currentTarget.value })}
                 leftSection={<IconClock size={16} />}
               />
               <TextInput
-                label="Break End"
+                label={t('scheduling.breakEnd', 'Break End')}
                 type="time"
                 value={formData.breakEnd}
                 onChange={(e) => setFormData({ ...formData, breakEnd: e.currentTarget.value })}
@@ -280,10 +282,10 @@ export function CreateScheduleModal({
 
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={onClose}>
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </Button>
             <Button type="submit" loading={loading} leftSection={<IconCheck size={16} />}>
-              Create Schedule & Generate Slots
+              {t('scheduling.createScheduleAndSlots', 'Create Schedule & Generate Slots')}
             </Button>
           </Group>
         </Stack>

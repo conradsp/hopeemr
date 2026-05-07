@@ -1,5 +1,6 @@
 import { Container } from '@mantine/core';
 import { JSX, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EncounterPage } from '../../pages/encounter/EncounterPage';
 import { BreadcrumbNav } from '../shared/BreadcrumbNav';
 import { logger } from '../../utils/logger';
@@ -10,6 +11,7 @@ import styles from './EncounterPageWrapper.module.css';
 
 export function EncounterPageWrapper(): JSX.Element {
   const medplum = useMedplum();
+  const { t } = useTranslation();
   const { id } = useParams();
   const [encounter, setEncounter] = useState<Encounter>();
   const [patient, setPatient] = useState<Patient>();
@@ -37,16 +39,16 @@ export function EncounterPageWrapper(): JSX.Element {
 
   const patientBreadcrumb = patient ? {
     id: patient.id as string,
-    name: patient.name?.[0]?.text || 
+    name: patient.name?.[0]?.text ||
           [patient.name?.[0]?.given?.[0], patient.name?.[0]?.family].filter(Boolean).join(' ') ||
-          'Unknown Patient'
+          t('patient.unknown', 'Unknown Patient')
   } : null;
 
   const encounterBreadcrumb = encounter ? {
     id: encounter.id as string,
-    type: encounter.type?.[0]?.coding?.[0]?.display || 
-          encounter.type?.[0]?.text || 
-          'Encounter'
+    type: encounter.type?.[0]?.coding?.[0]?.display ||
+          encounter.type?.[0]?.text ||
+          t('encounter.encounter', 'Encounter')
   } : null;
 
   return (

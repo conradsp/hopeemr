@@ -23,6 +23,7 @@ export function ManageUsersPage(): JSX.Element {
   const [refreshKey, setRefreshKey] = useState(0);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [practitionerToDelete, setPractitionerToDelete] = useState<Practitioner | null>(null);
+  const [deleting, setDeleting] = useState(false);
   
   const [practitioners, practitionersLoading] = useSearchResources('Practitioner', {
     _count: '50',
@@ -53,7 +54,7 @@ export function ManageUsersPage(): JSX.Element {
   };
 
   const confirmDelete = async (): Promise<void> => {
-    setConfirmDialogOpen(false);
+    if (deleting) return;
     const practitioner = practitionerToDelete;
     if (!practitioner || !practitioner.id) {
       notifications.show({
@@ -63,6 +64,7 @@ export function ManageUsersPage(): JSX.Element {
       });
       return;
     }
+    setDeleting(true);
     try {
       // Find and delete ProjectMembership(s) associated with this Practitioner
       const memberships = await medplum.searchResources('ProjectMembership', {
@@ -108,6 +110,10 @@ export function ManageUsersPage(): JSX.Element {
         message: t('users.deleteErrorMessage'),
         color: 'red',
       });
+    } finally {
+      setDeleting(false);
+      setConfirmDialogOpen(false);
+      setPractitionerToDelete(null);
     }
   };
 
@@ -127,12 +133,13 @@ export function ManageUsersPage(): JSX.Element {
       />
       <ConfirmDialog
         opened={confirmDialogOpen}
-        onCancel={() => setConfirmDialogOpen(false)}
+        onCancel={() => { if (!deleting) setConfirmDialogOpen(false); }}
         onConfirm={confirmDelete}
         title={t('users.deleteConfirmTitle')}
         message={t('users.deleteConfirmMessage')}
         confirmLabel={t('common.delete')}
         cancelLabel={t('common.cancel')}
+        loading={deleting}
       />
       
       <Paper shadow="sm" p="lg" withBorder className={styles.paper}>

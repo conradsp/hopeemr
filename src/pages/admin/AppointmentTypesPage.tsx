@@ -25,6 +25,7 @@ export function AppointmentTypesPage(): JSX.Element {
   const [initializing, setInitializing] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [typeToDelete, setTypeToDelete] = useState<AppointmentTypeDefinition | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadTypes = async () => {
     setLoading(true);
@@ -66,9 +67,9 @@ export function AppointmentTypesPage(): JSX.Element {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!typeToDelete) return;
-    
-    setConfirmOpen(false);
+    if (!typeToDelete || deleting) return;
+
+    setDeleting(true);
     try {
       await deleteAppointmentType(medplum, typeToDelete.code);
       await loadTypes();
@@ -76,11 +77,14 @@ export function AppointmentTypesPage(): JSX.Element {
     } catch (error) {
       handleError(error, t('message.error.delete'));
     } finally {
+      setDeleting(false);
+      setConfirmOpen(false);
       setTypeToDelete(null);
     }
   };
 
   const handleDeleteCancel = () => {
+    if (deleting) return;
     setConfirmOpen(false);
     setTypeToDelete(null);
   };
@@ -109,6 +113,7 @@ export function AppointmentTypesPage(): JSX.Element {
         cancelLabel={t('common.cancel')}
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
+        loading={deleting}
       />
 
       <Paper shadow="sm" p="lg" withBorder className={styles.paper}>

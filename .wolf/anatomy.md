@@ -1,14 +1,14 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-30T22:28:21.462Z
-> Files: 306 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-06T23:39:36.275Z
+> Files: 263 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
 - `.dockerignore` — Docker ignore rules (~94 tok)
 - `.gitignore` — Git ignore rules (~260 tok)
-- `CLAUDE.md` — OpenWolf (~1386 tok)
-- `deploy.sh` — HopeEMR Deployment Script (~850 tok)
+- `CLAUDE.md` — OpenWolf (~1372 tok)
+- `deploy.sh` — HopeEMR Deployment Script (~910 tok)
 - `docker-compose-emr-https.yml` — HopeEMR Production Docker Compose with HTTPS (~2058 tok)
 - `docker-compose-emr-production.yml` — Production-Ready Docker Compose for Medplum EMR (~2228 tok)
 - `docker-compose-emr.yml` — Docker Compose: 5 services (~1265 tok)
@@ -16,12 +16,12 @@
 - `Dockerfile` — Docker container definition (~304 tok)
 - `Dockerfile.production` — Production Dockerfile for HopeEMR (~775 tok)
 - `eslint.config.js` — ESLint flat configuration (~831 tok)
-- `index.html` — HopeEMR (~445 tok)
+- `index.html` — HopeEMR (~358 tok)
 - `LOW-RESOURCE-PROVIDER-RECOMMENDATIONS.md` — EMR Recommendations for High-Volume Providers in Low-Resource Settings (~5034 tok)
-- `nginx-secure.conf` — Secure Nginx Configuration for EMR Application (~888 tok)
+- `nginx-secure.conf` — Secure Nginx Configuration for EMR Application (~964 tok)
 - `nginx.conf` — Nginx configuration (~298 tok)
 - `package-lock.json` — npm lock file (~106496 tok)
-- `package.json` — Node.js package manifest (~534 tok)
+- `package.json` — Node.js package manifest (~578 tok)
 - `postcss.config.mjs` — Declares config (~118 tok)
 - `README.md` — Project documentation (~1557 tok)
 - `tsconfig.json` — TypeScript configuration (~147 tok)
@@ -31,8 +31,8 @@
 
 ## .claude/
 
-- `settings.json` — OpenWolf hooks configuration (~441 tok)
-- `settings.local.json` — Permission settings (~84 tok)
+- `settings.json` (~441 tok)
+- `settings.local.json` (~660 tok)
 
 ## .claude/rules/
 
@@ -83,53 +83,17 @@
 ## docs/
 
 - `BED_MANAGEMENT.md` — Bed Management System (~2425 tok)
-- `BILLING_AUTOMATION_COMPLETE.md` — ✅ Billing System - 100% COMPLETE! (~3019 tok)
-- `BILLING_COMPLETE.md` — Billing System - IMPLEMENTATION COMPLETE! ✅ (~2815 tok)
-- `BILLING_FINAL_STATUS.md` — Billing System - FINAL STATUS REPORT (~2118 tok)
-- `BILLING_IMPLEMENTATION_STATUS.md` — Billing System - Implementation Status (~1915 tok)
-- `BILLING_QUICK_START.md` — Billing System Quick Start Guide (~1866 tok)
 - `BILLING_SYSTEM.md` — Billing System Implementation (~2622 tok)
 - `CLINICAL_NOTES.md` — Clinical Notes System (~1353 tok)
-- `CODE_REVIEW_REPORT.md` — EMR Application - Comprehensive Code Review & Refactor Plan (~2849 tok)
 - `DEPLOYMENT_CHECKLIST.md` — 📋 Medplum EMR Deployment Checklist (~2188 tok)
-- `DEPLOYMENT_FILES_SUMMARY.md` — 🚀 EMR Docker Deployment - Complete Package (~2725 tok)
 - `DEPLOYMENT.md` — EMR Application Deployment Guide (~2543 tok)
-- `DOCKER_DEPLOYMENT_SUMMARY.md` — Docker Deployment - Summary of Changes (~2786 tok)
-- `FINAL_COMPLETION_REPORT.md` — 🎉 EMR Development Session - COMPLETE! (~4181 tok)
-- `I18N_ALL_ADMIN_PAGES_COMPLETE.md` — Internationalization: All Admin Pages Complete (~1712 tok)
-- `I18N_AUDIT.md` — Internationalization Audit Report (~3698 tok)
-- `I18N_COMPLETION_STATUS.md` — I18N Completion Status (~412 tok)
-- `I18N_COMPLETION_SUMMARY.md` — i18n Translation Project - Completion Summary (~2722 tok)
-- `I18N_EXECUTIVE_SUMMARY.md` — i18n Translation Project - Executive Summary (~2718 tok)
-- `I18N_FINAL_REPORT.md` — i18n Translation Project - FINAL COMPLETION REPORT (~2860 tok)
-- `I18N_FINAL_STATUS.md` — i18n Translation Implementation - FINAL STATUS (~2408 tok)
-- `I18N_IMPLEMENTATION_GUIDE.md` — Internationalization Implementation Guide (~1956 tok)
-- `I18N_IMPLEMENTATION_PLAN.md` — i18n Translation Implementation Plan - Actionable Steps (~2261 tok)
-- `I18N_LATEST_PROGRESS.md` — i18n Translation Project - Latest Progress Update (~2082 tok)
-- `I18N_PROJECT_STATUS.md` — i18n Translation Project - Complete Plan & Status (~2247 tok)
-- `I18N_TRANSLATION_PLAN.md` — i18n Translation Plan - Complete Coverage (~1170 tok)
-- `PERMISSIONS_COMPLETE.md` — 🎉 Roles & Permissions System - IMPLEMENTATION COMPLETE! (~2823 tok)
-- `PERMISSIONS_QUICKSTART.md` — Roles & Permissions - Quick Start Guide (~812 tok)
-- `PERMISSIONS_STATUS.md` — Roles & Permissions System - Status Report (~1879 tok)
 - `PERMISSIONS_SYSTEM.md` — Roles and Permissions System - Implementation Complete! (~2153 tok)
 - `PHARMACY_MODULE.md` — Pharmacy & Medication Management Module (~2320 tok)
 - `QUEUE_MANAGEMENT_ARCHITECTURE.md` — Queue Management System Architecture (~4681 tok)
 - `QUICKSTART.md` — Medplum EMR - Quick Start Guide (~1044 tok)
 - `README.docker.md` — Quick Start - Docker Deployment (~1240 tok)
-- `REFACTOR_QUICK_GUIDE.md` — EMR Code Review - Critical Issues & Quick Fixes (~2064 tok)
-- `REFACTORING_SUMMARY.md` — EMR Refactoring Summary - Complete (~2450 tok)
 - `SCHEDULING.md` — Scheduling System (~2538 tok)
-- `SESSION_SUMMARY.md` — EMR Application - Session Summary & Implementation Status (~2469 tok)
 - `SETUP_LOCAL.md` — Local Development Setup for Medplum EMR (~1378 tok)
-- `STYLING_REFACTOR_COMPLETION_REPORT.md` — 🎉 COMPREHENSIVE STYLING REFACTOR - COMPLETE! (~2464 tok)
-- `STYLING_REFACTOR_COMPLETION.md` — 🎉 Styling Refactor - COMPREHENSIVE COMPLETION SUMMARY (~2331 tok)
-- `STYLING_REFACTOR_CURRENT_STATUS.md` — Final Styling Refactor - Status Report (~1111 tok)
-- `STYLING_REFACTOR_EXECUTIVE_SUMMARY.md` — Styling Refactor - Executive Summary (~1567 tok)
-- `STYLING_REFACTOR_FINAL_SUMMARY.md` — Styling Refactor - Final Summary (~800 tok)
-- `STYLING_REFACTOR_PLAN.md` — EMR Application - Styling Refactoring Plan (~2658 tok)
-- `STYLING_REFACTOR_PROGRESS.md` — Styling Refactoring - Progress Report (~1251 tok)
-- `STYLING_REFACTOR_QA_REPORT.md` — Styling Refactor - QA Report (~1130 tok)
-- `STYLING_REFACTOR_REMAINING_WORK.md` — Complete Styling Refactor - Action Plan (~1094 tok)
 - `TESTING_GUIDE.md` — 🧪 Billing System - Complete Test Plan (~3706 tok)
 
 ## nginx/
@@ -138,32 +102,33 @@
 
 ## nginx/conf.d/
 
-- `emr-app.conf` — EMR Application (hopeemr.com) (~460 tok)
+- `emr-app.conf` — EMR Application (hopeemr.com) (~650 tok)
 - `medplum-api.conf` — Medplum API Server (api.hopeemr.com) (~542 tok)
 
 ## scripts/
 
 - `check-inline-styles.sh` — Quick script to find and show all remaining inline styles (~155 tok)
-- `setup-server.sh` — HopeEMR Server Setup Script (~1122 tok)
+- `migrate-bed-operational-status.mjs` — One-off migration for HopeEMR Location resources with physicalType=bd. (~1369 tok)
+- `setup-server.sh` — HopeEMR Server Setup Script (~1202 tok)
 
 ## src/
 
 - `App.css` — Styles: 5 rules (~212 tok)
 - `EMRApp.module.css` — Styles: 2 rules (~52 tok)
-- `EMRApp.tsx` — EMRApp — uses useNavigate, useEffect (~3355 tok)
+- `EMRApp.tsx` — EMRApp (~3358 tok)
 - `i18n.ts` — Declares savedLanguage (~185 tok)
-- `main.tsx` — container (~960 tok)
+- `main.tsx` — container (~950 tok)
 - `vite-env.d.ts` — / <reference types="vite/client" /> (~68 tok)
 
 ## src/components/
 
-- `ConfigError.tsx` — Configuration Error Display Component (~473 tok)
-- `ErrorBoundary.tsx` — Error Boundary Component (~1110 tok)
+- `ConfigError.tsx` — Configuration Error Display Component (~696 tok)
+- `ErrorBoundary.tsx` — Safe translation helper for ErrorBoundary. (~1352 tok)
 
 ## src/components/admin/
 
 - `EditAppointmentTypeModal.tsx` — EditAppointmentTypeModal — renders form, modal — uses useState, useEffect (~1428 tok)
-- `EditDiagnosticProviderModal.tsx` — EditDiagnosticProviderModal — renders modal — uses useState, useEffect (~1455 tok)
+- `EditDiagnosticProviderModal.tsx` — EditDiagnosticProviderModal — renders modal (~1846 tok)
 - `EditImagingTestModal.tsx` — CATEGORIES — renders modal — uses useState, useEffect (~2023 tok)
 - `EditLabTestModal.module.css` — Styles: 7 rules (~88 tok)
 - `EditLabTestModal.tsx` — CATEGORIES — renders modal — uses useState, useEffect (~2844 tok)
@@ -171,7 +136,7 @@
 - `EditNoteTemplateModal.tsx` — EditNoteTemplateModal — renders form, modal — uses useState, useEffect (~1940 tok)
 - `EditUserRolesModal.module.css` — Styles: 2 rules (~19 tok)
 - `EditUserRolesModal.tsx` — EditUserRolesModal — renders modal — uses useState, useEffect (~1369 tok)
-- `NewProviderModal.tsx` — NewProviderModal — renders form, modal (~2201 tok)
+- `NewProviderModal.tsx` — NewProviderModal — renders form, modal (~2574 tok)
 
 ## src/components/auth/
 
@@ -200,13 +165,13 @@
 - `EncounterHeader.tsx` — EncounterHeader — renders modal — uses useState, useCallback, useEffect (~2623 tok)
 - `EncounterList.tsx` — EncounterList — renders table (~342 tok)
 - `EncounterPageWrapper.module.css` — Styles: 1 rules (~32 tok)
-- `EncounterPageWrapper.tsx` — EncounterPageWrapper — uses useParams, useEffect (~568 tok)
+- `EncounterPageWrapper.tsx` — EncounterPageWrapper (~604 tok)
 - `EncounterQuickActions.tsx` — EncounterQuickActions (~604 tok)
 - `EncounterTabs.module.css` — Styles: 6 rules (~143 tok)
 - `EnterLabResultModal.module.css` — Styles: 2 rules (~30 tok)
 - `EnterLabResultModal.tsx` — EnterLabResultModal — renders modal (~660 tok)
 - `NewEncounterModal.tsx` — NewEncounterModal — renders form, modal — uses useNavigate, useState, useEffect (~3760 tok)
-- `OrderDiagnosticModal.tsx` — OrderDiagnosticModal — renders modal — uses useState, useCallback, useEffect (~3821 tok)
+- `OrderDiagnosticModal.tsx` — OrderDiagnosticModal — renders modal (~3956 tok)
 - `PrescribeMedicationModal.tsx` — PrescribeMedicationModal — renders modal — uses useState, useEffect (~2021 tok)
 - `RecordVitalsModal.tsx` — Build observation resources from vitals data (~5570 tok)
 
@@ -219,7 +184,7 @@
 - `NotesTab.tsx` — NotesTab (~1667 tok)
 - `ObservationsTab.tsx` — ObservationsTab (~997 tok)
 - `OrdersTab.module.css` — Styles: 4 rules (~82 tok)
-- `OrdersTab.tsx` — OrdersTab — renders modal — uses useState (~3253 tok)
+- `OrdersTab.tsx` — OrdersTab — renders modal (~3767 tok)
 - `OverviewTab.tsx` — OverviewTab (~1001 tok)
 - `ProceduresTab.tsx` — ProceduresTab (~725 tok)
 - `VitalsTab.tsx` — VitalsTab (~1918 tok)
@@ -227,7 +192,7 @@
 ## src/components/encounter/tabs/orders/
 
 - `OrderCard.module.css` — Styles: 2 rules (~60 tok)
-- `OrderCard.tsx` — OrderCard (~2300 tok)
+- `OrderCard.tsx` — OrderCard (~2368 tok)
 - `orderHelpers.ts` — Exports getOrderDocuments, getOrderResults (~336 tok)
 
 ## src/components/patient/
@@ -236,7 +201,7 @@
 - `AddInsuranceModal.tsx` — AddInsuranceModal — renders form, modal — uses useState (~1522 tok)
 - `AddPractitionerModal.tsx` — AddPractitionerModal — renders form, modal — uses useState (~1062 tok)
 - `NewPatientModal.tsx` — NewPatientModal — renders form, modal — uses useNavigate, useState (~1849 tok)
-- `PatientDemographics.tsx` — PatientDemographics (~385 tok)
+- `PatientDemographics.tsx` — PatientDemographics (~446 tok)
 - `PatientEncounters.module.css` — Styles: 2 rules (~46 tok)
 - `PatientEncounters.tsx` — PatientEncounters — renders table — uses useNavigate (~1065 tok)
 - `PatientMainSection.module.css` — Styles: 2 rules (~47 tok)
@@ -248,8 +213,7 @@
 - `PatientSidebar.tsx` — PatientSidebar — uses useState, useEffect (~2845 tok)
 - `PatientTimeline.module.css` — Styles: 1 rules (~22 tok)
 - `PatientTimeline.tsx` — No user-facing strings to translate in PatientTimeline (~151 tok)
-- `PatientTopMenu.tsx` — PatientTopMenu (~252 tok)
-- `PatientTopMenu.tsx.deleted` (~10 tok)
+- `PatientTopMenu.tsx` — PatientTopMenu (~300 tok)
 
 ## src/components/queue/
 
@@ -260,7 +224,7 @@
 - `QueueMetrics.tsx` — Queue Metrics Component (~2076 tok)
 - `QueueTable.tsx` — Queue Table Component (~2601 tok)
 - `TaskTypeIcon.tsx` — TaskTypeIcon - Displays an icon for a provider task type (~493 tok)
-- `TriageLevelBadge.tsx` — Triage Level Badge Component (~414 tok)
+- `TriageLevelBadge.tsx` — Triage Level Badge Component (~447 tok)
 - `WaitTimeDisplay.tsx` — Wait Time Display Component (~486 tok)
 
 ## src/components/registration/
@@ -269,12 +233,12 @@
 
 ## src/components/scheduling/
 
-- `CreateScheduleModal.tsx` — CreateScheduleModal — renders form, modal — uses useState, useEffect (~2719 tok)
+- `CreateScheduleModal.tsx` — CreateScheduleModal — renders form, modal (~3128 tok)
 
 ## src/components/shared/
 
 - `BreadcrumbNav.module.css` — Styles: 1 rules (~20 tok)
-- `BreadcrumbNav.tsx` — BreadcrumbNav — uses useNavigate (~1123 tok)
+- `BreadcrumbNav.tsx` — BreadcrumbNav (~1244 tok)
 - `ClinicalImpressionDisplay.module.css` — Styles: 1 rules (~28 tok)
 - `ClinicalImpressionDisplay.tsx` — ClinicalImpressionDisplay (~1250 tok)
 - `ConfirmDialog.tsx` — Dialog title - defaults to i18n 'common.confirm' (~495 tok)
@@ -287,25 +251,14 @@
 
 ## src/hooks/
 
-- `useArrayField.ts` — Hook for managing dynamic array fields in forms (~705 tok)
-- `useAsync.ts` — Custom hook to handle async operations with proper cleanup (~736 tok)
 - `useModalForm.ts` — Custom hook to manage modal form state and submission (~564 tok)
 - `usePermissions.ts` — React Hooks for Permissions (~1230 tok)
 - `useWorkflowConfig.ts` — Hook to access and manage workflow configuration (~1014 tok)
 
 ## src/i18n/
 
-- `en.json` (~18333 tok)
-- `es.json` (~19918 tok)
-- `index.ts` (~106 tok)
-
-## src/locales/en/
-
-- `queue.json` (~1951 tok)
-
-## src/locales/es/
-
-- `queue.json` (~2088 tok)
+- `en.json` (~18646 tok)
+- `es.json` (~20239 tok)
 
 ## src/offline/
 
@@ -323,7 +276,7 @@
 ## src/offline/db/
 
 - `operations.ts` — Cache a patient for offline access (~4588 tok)
-- `schema.ts` — IndexedDB schema for offline storage (~1746 tok)
+- `schema.ts` — IndexedDB schema for offline storage (~1541 tok)
 
 ## src/offline/hooks/
 
@@ -343,41 +296,41 @@
 ## src/pages/admin/
 
 - `AppointmentTypesPage.module.css` — Styles: 3 rules (~44 tok)
-- `AppointmentTypesPage.tsx` — AppointmentTypesPage — renders table — uses useState, useEffect (~2343 tok)
+- `AppointmentTypesPage.tsx` — AppointmentTypesPage — renders table (~2389 tok)
 - `BedsPage.module.css` — Styles: 1 rules (~15 tok)
-- `BedsPage.tsx` — BedsPage — renders table, modal — uses useState, useCallback, useEffect (~4213 tok)
+- `BedsPage.tsx` — BedsPage — renders table, modal (~4245 tok)
 - `DepartmentsPage.module.css` — Styles: 1 rules (~17 tok)
-- `DepartmentsPage.tsx` — DepartmentsPage — renders table, modal — uses useState, useCallback, useEffect (~3118 tok)
+- `DepartmentsPage.tsx` — DepartmentsPage — renders table, modal (~3198 tok)
 - `DiagnosisCodesPage.module.css` — Styles: 1 rules (~21 tok)
-- `DiagnosisCodesPage.tsx` — DiagnosisCodesPage — renders table, modal — uses useState, useEffect (~2700 tok)
-- `DiagnosisConfigPage.tsx` — DiagnosisConfigPage — uses useState, useEffect, useCallback (~7202 tok)
+- `DiagnosisCodesPage.tsx` — DiagnosisCodesPage — renders table, modal (~2746 tok)
+- `DiagnosisConfigPage.tsx` — DiagnosisConfigPage (~7248 tok)
 - `DiagnosticProvidersPage.module.css` — Styles: 4 rules (~75 tok)
-- `DiagnosticProvidersPage.tsx` — DiagnosticProvidersPage — renders table — uses useState, useEffect (~2553 tok)
+- `DiagnosticProvidersPage.tsx` — DiagnosticProvidersPage — renders table (~2598 tok)
 - `ImagingTestsPage.module.css` — Styles: 2 rules (~46 tok)
-- `ImagingTestsPage.tsx` — ImagingTestsPage — renders table — uses useState, useCallback, useEffect (~2500 tok)
+- `ImagingTestsPage.tsx` — ImagingTestsPage — renders table (~2559 tok)
 - `InventoryPage.module.css` — Styles: 2 rules (~25 tok)
 - `InventoryPage.tsx` — InventoryPage — renders table, modal — uses useState, useEffect (~3096 tok)
 - `LabTestsPage.module.css` — Styles: 3 rules (~63 tok)
-- `LabTestsPage.tsx` — LabTestsPage — renders table — uses useState, useCallback, useEffect (~2443 tok)
+- `LabTestsPage.tsx` — LabTestsPage — renders table (~2489 tok)
 - `ManageUsersPage.module.css` — Styles: 3 rules (~29 tok)
-- `ManageUsersPage.tsx` — ManageUsersPage — renders table — uses useState (~4160 tok)
+- `ManageUsersPage.tsx` — ManageUsersPage — renders table (~4225 tok)
 - `MedicationCatalogPage.module.css` — Styles: 2 rules (~25 tok)
-- `MedicationCatalogPage.tsx` — MedicationCatalogPage — renders modal — uses useState, useCallback, useEffect (~5290 tok)
+- `MedicationCatalogPage.tsx` — ALLOWED_EXTENSION_URLS — renders modal (~5042 tok)
 - `NoteTemplatesPage.module.css` — Styles: 3 rules (~43 tok)
-- `NoteTemplatesPage.tsx` — NoteTemplatesPage — renders table — uses useState, useEffect (~2230 tok)
+- `NoteTemplatesPage.tsx` — NoteTemplatesPage — renders table (~2276 tok)
 - `SettingsPage.module.css` — Styles: 2 rules (~49 tok)
 - `SettingsPage.tsx` — SettingsPage — renders form — uses useState, useEffect (~4572 tok)
 
 ## src/pages/auth/
 
 - `RegisterPage.module.css` — Styles: 3 rules (~48 tok)
-- `RegisterPage.tsx` — RegisterPage — uses useNavigate (~257 tok)
+- `RegisterPage.tsx` — RegisterPage (~298 tok)
 - `ResetPasswordPage.module.css` — Styles: 2 rules (~69 tok)
-- `ResetPasswordPage.tsx` — ResetPasswordPage — renders form — uses useNavigate, useState (~919 tok)
+- `ResetPasswordPage.tsx` — ResetPasswordPage — renders form (~1061 tok)
 - `SetPasswordPage.module.css` — Styles: 2 rules (~69 tok)
-- `SetPasswordPage.tsx` — SetPasswordPage — renders form — uses useNavigate, useState (~1180 tok)
+- `SetPasswordPage.tsx` — SetPasswordPage — renders form (~1412 tok)
 - `SignInPage.module.css` — Styles: 3 rules (~38 tok)
-- `SignInPage.tsx` — SignInPage — uses useNavigate, useEffect (~671 tok)
+- `SignInPage.tsx` — SignInPage (~720 tok)
 
 ## src/pages/billing/
 
@@ -393,7 +346,7 @@
 ## src/pages/patient/
 
 - `PatientPage.module.css` — Styles: 4 rules (~98 tok)
-- `PatientPage.tsx` — PatientPage — uses useParams, useState, useEffect (~721 tok)
+- `PatientPage.tsx` — PatientPage (~751 tok)
 
 ## src/pages/queue/
 
@@ -406,15 +359,14 @@
 - `BookAppointmentPage.module.css` — Styles: 2 rules (~38 tok)
 - `BookAppointmentPage.tsx` — BookAppointmentPage — renders modal — uses useState, useEffect (~4646 tok)
 - `ProviderCalendarPage.module.css` — Styles: 6 rules (~82 tok)
-- `ProviderCalendarPage.tsx` — ProviderCalendarPage — renders modal — uses useNavigate, useState, useEffect (~5228 tok)
+- `ProviderCalendarPage.tsx` — ProviderCalendarPage — renders modal (~5992 tok)
 - `ScheduleManagementPage.module.css` — Styles: 4 rules (~43 tok)
-- `ScheduleManagementPage.tsx` — ScheduleManagementPage — renders table — uses useState, useEffect (~2974 tok)
+- `ScheduleManagementPage.tsx` — ScheduleManagementPage — renders table (~3640 tok)
 
 ## src/styles/
 
 - `common.css` — Styles: 16 rules, 2 media queries (~520 tok)
 - `global.css` — Styles: 1 rules, 1 media queries (~346 tok)
-- `utilities.css` — Styles: 105 rules (~1586 tok)
 - `variables.css` — Styles: 42 vars (~526 tok)
 
 ## src/types/
@@ -424,11 +376,11 @@
 
 ## src/utils/
 
-- `admin.ts` — Checks if the current user is an admin by examining their ProjectMembership. (~293 tok)
 - `appointmentSyncService.ts` — Appointment to Queue Synchronization Service (~3305 tok)
 - `appointmentTypes.ts` — Appointment Type definitions (~2382 tok)
 - `appointmentUtils.ts` — Book an appointment and mark slot as busy (~2237 tok)
-- `bedManagement.ts` — Get all departments (Location resources with physicalType = 'wa' for ward) (~3038 tok)
+- `bedManagement.test.ts` — Declares makeBed (~1171 tok)
+- `bedManagement.ts` — Get all departments (Location resources with physicalType = 'wa' for ward) (~3752 tok)
 - `billing.ts` — Create a charge item for a service (~4207 tok)
 - `constants.ts` — Application-wide constants (~1018 tok)
 - `criticalThresholds.test.ts` — Declares emptyVitals (~3097 tok)
@@ -441,7 +393,6 @@
 - `encounterUtils.ts` — Checks if an observation is a vital sign (~865 tok)
 - `envValidation.ts` — Environment variable validation (~719 tok)
 - `errorHandling.ts` — Standard error types for the EMR application (~1599 tok)
-- `fhirCrud.ts` — Generic FHIR CRUD Utilities (~2261 tok)
 - `imagingTests.ts` — Default imaging tests catalog (~2353 tok)
 - `labTests.ts` — Default lab tests catalog (~3581 tok)
 - `logger.ts` — Centralized logging utility for the EMR application (~1372 tok)

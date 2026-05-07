@@ -2,6 +2,7 @@ import { Container } from '@mantine/core';
 import { Patient } from '@medplum/fhirtypes';
 import { Loading, useMedplum } from '@medplum/react';
 import { JSX, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { PatientSidebar } from '../../components/patient/PatientSidebar';
 import { PatientMainSection } from '../../components/patient/PatientMainSection';
@@ -11,6 +12,7 @@ import styles from './PatientPage.module.css';
 
 export function PatientPage(): JSX.Element {
   const medplum = useMedplum();
+  const { t } = useTranslation();
   const { id } = useParams();
   const [patient, setPatient] = useState<Patient | null>(null);
   const [section, setSection] = useState('demographics');
@@ -38,9 +40,9 @@ export function PatientPage(): JSX.Element {
 
   const patientBreadcrumb = {
     id: patient.id as string,
-    name: patient.name?.[0]?.text || 
+    name: patient.name?.[0]?.text ||
           [patient.name?.[0]?.given?.[0], patient.name?.[0]?.family].filter(Boolean).join(' ') ||
-          'Unknown Patient'
+          t('patient.unknown', 'Unknown Patient')
   };
 
   return (

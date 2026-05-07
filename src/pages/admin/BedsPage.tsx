@@ -13,7 +13,10 @@ import {
   BedFormData,
   BedType,
   BedStatus,
-  getBedStatusFromCode,
+  getBedStatusFromLocation,
+  getOperationalStatusCode,
+  setBedStatusExtension,
+  OPERATIONAL_STATUS_SYSTEM,
   BedWithDepartment,
 } from '../../utils/bedManagement';
 import { BreadcrumbNav } from '../../components/shared/BreadcrumbNav';
@@ -32,6 +35,7 @@ export function BedsPage(): JSX.Element {
   const [editingBed, setEditingBed] = useState<Location | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState<BedFormData>({
     bedNumber: '',
@@ -75,7 +79,7 @@ export function BedsPage(): JSX.Element {
         roomNumber,
         departmentId: deptId,
         bedType: (bed.type?.[0]?.coding?.[0]?.code || 'standard') as BedType,
-        status: getBedStatusFromCode(bed.operationalStatus?.code),
+        status: getBedStatusFromLocation(bed),
         dailyRate: getPriceFromResource(bed) || 0,
       });
     } else {
@@ -118,20 +122,23 @@ export function BedsPage(): JSX.Element {
             }],
           }],
           operationalStatus: {
-            system: 'http://terminology.hl7.org/CodeSystem/v2-0116',
+            system: OPERATIONAL_STATUS_SYSTEM,
             code: getOperationalStatusCode(formData.status),
             display: formData.status,
           },
-          extension: [
-            {
-              url: 'http://example.org/fhir/StructureDefinition/room-number',
-              valueString: formData.roomNumber,
-            },
-            {
-              url: 'http://example.org/fhir/StructureDefinition/department-name',
-              valueString: departments.find(d => d.id === formData.departmentId)?.name || ''
-            }
-          ],
+          extension: setBedStatusExtension(
+            [
+              {
+                url: 'http://example.org/fhir/StructureDefinition/room-number',
+                valueString: formData.roomNumber,
+              },
+              {
+                url: 'http://example.org/fhir/StructureDefinition/department-name',
+                valueString: departments.find(d => d.id === formData.departmentId)?.name || '',
+              },
+            ],
+            formData.status
+          ),
         };
         // Remove departmentName before sending to FHIR server
         const { departmentName, ...locationResource } = updatedBed as any;
@@ -167,9 +174,9 @@ export function BedsPage(): JSX.Element {
   };
 
   const handleDeleteConfirm = async (): Promise<void> => {
-    if (!pendingDeleteId) return;
-    
-    setConfirmOpen(false);
+    if (!pendingDeleteId || deleting) return;
+
+    setDeleting(true);
     try {
       await deleteBed(medplum, pendingDeleteId);
       showSuccess(t('beds.bedDeleteSuccess'));
@@ -177,25 +184,16 @@ export function BedsPage(): JSX.Element {
     } catch (error) {
       handleError(error, 'deleting bed');
     } finally {
+      setDeleting(false);
+      setConfirmOpen(false);
       setPendingDeleteId(null);
     }
   };
 
   const handleDeleteCancel = (): void => {
+    if (deleting) return;
     setConfirmOpen(false);
     setPendingDeleteId(null);
-  };
-
-  const getOperationalStatusCode = (status: BedStatus): string => {
-    switch (status) {
-      case 'available': return 'U';
-      case 'occupied': return 'O';
-      case 'reserved': return 'K';
-      case 'maintenance': return 'C';
-      case 'contaminated': return 'I';
-      case 'housekeeping': return 'K';
-      default: return 'U';
-    }
   };
 
   const getStatusColor = (status: BedStatus): string => {
@@ -310,11 +308,16 @@ export function BedsPage(): JSX.Element {
       <ConfirmDialog
         opened={confirmOpen}
         title={t('common.confirmDelete')}
-        message={t('beds.bedDeleteSuccess')}
+        message={t('beds.confirmDeleteMessage', {
+          name: beds.find(b => b.id === pendingDeleteId)?.identifier?.[0]?.value
+            ?? beds.find(b => b.id === pendingDeleteId)?.name
+            ?? '',
+        })}
         confirmLabel={t('common.delete')}
         cancelLabel={t('common.cancel')}
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
+        loading={deleting}
       />
 
       <Paper shadow="sm" p="lg" withBorder className={styles.paper}>
@@ -364,7 +367,7 @@ export function BedsPage(): JSX.Element {
                 const roomNumber = bed.extension?.find(
                   e => e.url === 'http://example.org/fhir/StructureDefinition/room-number'
                 )?.valueString || '-';
-                const status = getBedStatusFromCode(bed.operationalStatus?.code);
+                const status = getBedStatusFromLocation(bed);
                 
                 return (
                   <Table.Tr key={bed.id}>

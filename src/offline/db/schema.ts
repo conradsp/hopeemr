@@ -62,7 +62,6 @@ export interface OfflineDBSchema extends DBSchema {
     value: CachedDocumentReference;
     indexes: {
       'by-patient': string;
-      'by-encounter': string;
       'by-lastSynced': number;
     };
   };
@@ -101,66 +100,43 @@ export async function getDB(): Promise<IDBPDatabase<OfflineDBSchema>> {
   }
 
   dbInstance = await openDB<OfflineDBSchema>(DB_NAME, DB_VERSION, {
-    upgrade(db) {
-      // Patients store
-      if (!db.objectStoreNames.contains('patients')) {
+    // Migration ladder — each `if (oldVersion < N)` block runs for any user
+    // upgrading past version N. New schema changes append a new block; never
+    // mutate an earlier block (existing users have already run it).
+    upgrade(db, oldVersion) {
+      if (oldVersion < 1) {
         const patientStore = db.createObjectStore('patients', { keyPath: 'resource.id' });
         patientStore.createIndex('by-lastSynced', '_lastSynced');
-      }
 
-      // Encounters store
-      if (!db.objectStoreNames.contains('encounters')) {
         const encounterStore = db.createObjectStore('encounters', { keyPath: 'resource.id' });
         encounterStore.createIndex('by-patient', 'resource.subject.reference');
         encounterStore.createIndex('by-lastSynced', '_lastSynced');
-      }
 
-      // Observations store
-      if (!db.objectStoreNames.contains('observations')) {
         const observationStore = db.createObjectStore('observations', { keyPath: 'resource.id' });
         observationStore.createIndex('by-patient', 'resource.subject.reference');
         observationStore.createIndex('by-encounter', 'resource.encounter.reference');
         observationStore.createIndex('by-lastSynced', '_lastSynced');
-      }
 
-      // MedicationRequests store
-      if (!db.objectStoreNames.contains('medicationRequests')) {
         const medReqStore = db.createObjectStore('medicationRequests', { keyPath: 'resource.id' });
         medReqStore.createIndex('by-patient', 'resource.subject.reference');
         medReqStore.createIndex('by-encounter', 'resource.encounter.reference');
         medReqStore.createIndex('by-lastSynced', '_lastSynced');
-      }
 
-      // ServiceRequests store
-      if (!db.objectStoreNames.contains('serviceRequests')) {
         const serviceReqStore = db.createObjectStore('serviceRequests', { keyPath: 'resource.id' });
         serviceReqStore.createIndex('by-patient', 'resource.subject.reference');
         serviceReqStore.createIndex('by-encounter', 'resource.encounter.reference');
         serviceReqStore.createIndex('by-lastSynced', '_lastSynced');
-      }
 
-      // DocumentReferences store
-      if (!db.objectStoreNames.contains('documentReferences')) {
         const docRefStore = db.createObjectStore('documentReferences', { keyPath: 'resource.id' });
         docRefStore.createIndex('by-patient', 'resource.subject.reference');
-        docRefStore.createIndex('by-encounter', 'resource.context.encounter[0].reference');
         docRefStore.createIndex('by-lastSynced', '_lastSynced');
-      }
 
-      // Sync queue store
-      if (!db.objectStoreNames.contains('syncQueue')) {
         const syncStore = db.createObjectStore('syncQueue', { keyPath: 'id' });
         syncStore.createIndex('by-status', 'status');
         syncStore.createIndex('by-createdAt', 'createdAt');
-      }
 
-      // Metadata store
-      if (!db.objectStoreNames.contains('metadata')) {
         db.createObjectStore('metadata', { keyPath: 'key' });
-      }
 
-      // Local ID mappings store
-      if (!db.objectStoreNames.contains('localIdMappings')) {
         const mappingStore = db.createObjectStore('localIdMappings', { keyPath: 'localId' });
         mappingStore.createIndex('by-serverId', 'serverId');
       }

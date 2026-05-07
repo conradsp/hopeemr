@@ -8,7 +8,6 @@ import '@medplum/react/styles.css';
 import './App.css';
 import './styles/global.css';
 import './styles/variables.css';
-import './styles/utilities.css';
 import './styles/common.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

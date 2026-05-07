@@ -21,6 +21,7 @@ export function ImagingTestsPage(): JSX.Element {
   const [selectedTest, setSelectedTest] = useState<ActivityDefinition | null>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [testToDelete, setTestToDelete] = useState<ActivityDefinition | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadImagingTests = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -59,16 +60,20 @@ export function ImagingTestsPage(): JSX.Element {
   };
 
   const confirmDelete = async (): Promise<void> => {
-    setConfirmDialogOpen(false);
-    if (!testToDelete?.identifier?.[0]?.value) {
+    if (!testToDelete?.identifier?.[0]?.value || deleting) {
       return;
     }
+    setDeleting(true);
     try {
       await deleteImagingTest(medplum, testToDelete.identifier[0].value);
       showSuccess(t('admin.imagingTests.deleteSuccess'));
       await loadImagingTests();
     } catch (error) {
       handleError(error, t('message.error.delete'));
+    } finally {
+      setDeleting(false);
+      setConfirmDialogOpen(false);
+      setTestToDelete(null);
     }
   };
 
@@ -221,12 +226,13 @@ export function ImagingTestsPage(): JSX.Element {
       />
       <ConfirmDialog
         opened={confirmDialogOpen}
-        onCancel={() => setConfirmDialogOpen(false)}
+        onCancel={() => { if (!deleting) setConfirmDialogOpen(false); }}
         onConfirm={confirmDelete}
         title={t('admin.imagingTests.confirmDeleteTitle')}
         message={t('admin.imagingTests.confirmDeleteMessage', { name: testToDelete?.title })}
         confirmLabel={t('common.delete')}
         cancelLabel={t('common.cancel')}
+        loading={deleting}
       />
     </Container>
   );

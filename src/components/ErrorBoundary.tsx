@@ -1,7 +1,26 @@
 import { Component, ReactNode, JSX } from 'react';
 import { Container, Title, Text, Button, Stack, Paper } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
+import i18n from 'i18next';
 import { logger } from '../utils/logger';
+
+/**
+ * Safe translation helper for ErrorBoundary.
+ * The boundary may catch errors thrown DURING i18next initialization, in which
+ * case calling `t()` would itself throw and prevent the fallback UI from rendering.
+ * This wrapper falls back to the English string in any failure mode.
+ */
+function safeT(key: string, fallback: string): string {
+  try {
+    if (i18n && typeof i18n.t === 'function' && i18n.isInitialized) {
+      const value = i18n.t(key, { defaultValue: fallback });
+      return typeof value === 'string' ? value : fallback;
+    }
+  } catch {
+    // Swallow — i18n is broken, use fallback.
+  }
+  return fallback;
+}
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -78,11 +97,14 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               <IconAlertTriangle size={64} color="var(--mantine-color-red-6)" />
               
               <Title order={2} ta="center">
-                Something went wrong
+                {safeT('errors.somethingWentWrong', 'Something went wrong')}
               </Title>
-              
+
               <Text c="dimmed" ta="center">
-                We're sorry, but something unexpected happened. The error has been logged and we'll look into it.
+                {safeT(
+                  'errors.unexpectedErrorMessage',
+                  "We're sorry, but something unexpected happened. The error has been logged and we'll look into it."
+                )}
               </Text>
 
               {import.meta.env.DEV && this.state.error && (
@@ -101,10 +123,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
               <Stack gap="sm" w="100%">
                 <Button onClick={this.handleReset} fullWidth variant="light">
-                  Try Again
+                  {safeT('errors.tryAgain', 'Try Again')}
                 </Button>
                 <Button onClick={this.handleReload} fullWidth variant="default">
-                  Reload Page
+                  {safeT('errors.reloadPage', 'Reload Page')}
                 </Button>
               </Stack>
             </Stack>

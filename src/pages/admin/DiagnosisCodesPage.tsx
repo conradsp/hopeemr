@@ -24,6 +24,7 @@ export function DiagnosisCodesPage(): JSX.Element {
   });
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [codeToDelete, setCodeToDelete] = useState<ValueSetExpansionContains | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadCodes();
@@ -107,8 +108,9 @@ export function DiagnosisCodesPage(): JSX.Element {
   };
 
   const confirmDelete = async () => {
-    if (!codeToDelete) return;
+    if (!codeToDelete || deleting) return;
 
+    setDeleting(true);
     try {
       await deleteDiagnosisCode(medplum, codeToDelete.code!, codeToDelete.system!);
       showSuccess(t('admin.diagnosisCodes.deleteSuccess'));
@@ -116,6 +118,7 @@ export function DiagnosisCodesPage(): JSX.Element {
     } catch (error) {
       handleError(error, t('admin.diagnosisCodes.deleteError'));
     } finally {
+      setDeleting(false);
       setConfirmOpen(false);
       setCodeToDelete(null);
     }
@@ -253,12 +256,13 @@ export function DiagnosisCodesPage(): JSX.Element {
 
       <ConfirmDialog
         opened={confirmOpen}
-        onCancel={() => setConfirmOpen(false)}
+        onCancel={() => { if (!deleting) setConfirmOpen(false); }}
         onConfirm={confirmDelete}
         title={t('admin.diagnosisCodes.deleteConfirmTitle')}
         message={t('admin.diagnosisCodes.deleteConfirmMessage', { code: codeToDelete?.code })}
         confirmLabel={t('common.delete')}
         cancelLabel={t('common.cancel')}
+        loading={deleting}
       />
     </Container>
   );

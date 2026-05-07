@@ -28,6 +28,7 @@ export function DepartmentsPage(): JSX.Element {
   const [editingDepartment, setEditingDepartment] = useState<Location | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [formData, setFormData] = useState<DepartmentFormData>({
     name: '',
     code: '',
@@ -128,21 +129,24 @@ export function DepartmentsPage(): JSX.Element {
   };
 
   const handleDeleteConfirm = async (): Promise<void> => {
-    if (!pendingDeleteId) return;
-    
-    setConfirmOpen(false);
+    if (!pendingDeleteId || deleting) return;
+
+    setDeleting(true);
     try {
       await deleteDepartment(medplum, pendingDeleteId);
-      showSuccess(t('beds.deleteSuccess'));
+      showSuccess(t('beds.departmentDeleteSuccess'));
       await loadDepartments();
     } catch (error) {
       handleError(error, 'deleting department');
     } finally {
+      setDeleting(false);
+      setConfirmOpen(false);
       setPendingDeleteId(null);
     }
   };
 
   const handleDeleteCancel = (): void => {
+    if (deleting) return;
     setConfirmOpen(false);
     setPendingDeleteId(null);
   };
@@ -211,11 +215,14 @@ export function DepartmentsPage(): JSX.Element {
       <ConfirmDialog
         opened={confirmOpen}
         title={t('common.confirmDelete')}
-        message={t('beds.deleteSuccess')}
+        message={t('beds.confirmDeleteDepartmentMessage', {
+          name: departments.find(d => d.id === pendingDeleteId)?.name ?? '',
+        })}
         confirmLabel={t('common.delete')}
         cancelLabel={t('common.cancel')}
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
+        loading={deleting}
       />
 
       <Paper shadow="sm" p="lg" withBorder className={styles.paper}>

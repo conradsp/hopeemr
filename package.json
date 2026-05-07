@@ -11,7 +11,9 @@
     "lint": "eslint src/",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "migrate:beds": "node scripts/migrate-bed-operational-status.mjs",
+    "migrate:beds:dry": "node scripts/migrate-bed-operational-status.mjs --dry-run"
   },
   "prettier": {
     "printWidth": 120,

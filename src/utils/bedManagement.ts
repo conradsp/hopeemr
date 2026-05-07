@@ -4,6 +4,15 @@ import { Location, Encounter } from '@medplum/fhirtypes';
 import { logger } from './logger';
 
 export type BedStatus = 'available' | 'occupied' | 'reserved' | 'maintenance' | 'contaminated' | 'housekeeping';
+
+// FHIR v2-0116 (Bed Status). Used by Location.operationalStatus per FHIR R4.
+// Codes: C=Closed, H=Housekeeping, I=Isolated, K=Contaminated, O=Occupied, U=Unoccupied.
+export const OPERATIONAL_STATUS_SYSTEM = 'http://terminology.hl7.org/CodeSystem/v2-0116';
+
+// HopeEMR-internal extension preserving the BedStatus literal. Necessary because
+// 'reserved' has no FHIR v2-0116 equivalent (closest standard code is 'O' Occupied,
+// but that loses the reserved-vs-occupied distinction the UI exposes).
+export const BED_STATUS_EXTENSION_URL = 'http://example.org/fhir/StructureDefinition/bed-status';
 export type BedType = 'standard' | 'icu' | 'isolation' | 'bariatric' | 'pediatric' | 'maternity';
 export type DepartmentType = 'emergency' | 'icu' | 'surgery' | 'pediatrics' | 'maternity' | 'general' | 'cardiology' | 'oncology' | 'orthopedics' | 'psychiatry';
 
@@ -192,14 +201,20 @@ export async function createBed(
       reference: `Location/${data.departmentId}`,
     },
     operationalStatus: {
-      system: 'http://terminology.hl7.org/CodeSystem/v2-0116',
+      system: OPERATIONAL_STATUS_SYSTEM,
       code: getOperationalStatusCode(data.status),
       display: data.status,
     },
-    extension: [{
-      url: 'http://example.org/fhir/StructureDefinition/room-number',
-      valueString: data.roomNumber,
-    }],
+    extension: [
+      {
+        url: 'http://example.org/fhir/StructureDefinition/room-number',
+        valueString: data.roomNumber,
+      },
+      {
+        url: BED_STATUS_EXTENSION_URL,
+        valueCode: data.status,
+      },
+    ],
   };
 
   return medplum.createResource(bed);
@@ -277,12 +292,13 @@ export async function assignBedToEncounter(
   const updatedBed: Location = {
     ...bed,
     operationalStatus: {
-      system: 'http://terminology.hl7.org/CodeSystem/v2-0116',
+      system: OPERATIONAL_STATUS_SYSTEM,
       code: 'O',
       display: 'Occupied',
     },
+    extension: setBedStatusExtension(bed.extension, 'occupied'),
   };
-  
+
   // Save both resources
   await medplum.updateResource(updatedBed);
   return medplum.updateResource(updatedEncounter);
@@ -324,10 +340,11 @@ export async function releaseBedFromEncounter(
   const updatedBed: Location = {
     ...bed,
     operationalStatus: {
-      system: 'http://terminology.hl7.org/CodeSystem/v2-0116',
+      system: OPERATIONAL_STATUS_SYSTEM,
       code: 'U',
       display: 'Unoccupied',
     },
+    extension: setBedStatusExtension(bed.extension, 'available'),
   };
   
   // Save both resources
@@ -351,31 +368,62 @@ export function getCurrentBedAssignment(encounter: Encounter): Location['id'] | 
 }
 
 /**
- * Helper function to convert bed status to operational status code
+ * Convert HopeEMR BedStatus to FHIR v2-0116 OperationalStatus code.
+ *
+ * Note: 'reserved' has no v2-0116 equivalent. We map it to 'O' (Occupied) so that
+ * standards-only consumers see the bed as not-available; the BedStatus literal
+ * is preserved alongside in the BED_STATUS_EXTENSION_URL extension.
  */
-function getOperationalStatusCode(status: BedStatus): string {
+export function getOperationalStatusCode(status: BedStatus): string {
   switch (status) {
     case 'available':
       return 'U'; // Unoccupied
     case 'occupied':
       return 'O'; // Occupied
     case 'reserved':
-      return 'K'; // Housekeeping (closest match)
+      return 'O'; // Occupied (operationally not available; extension preserves the 'reserved' distinction)
     case 'maintenance':
       return 'C'; // Closed
     case 'contaminated':
-      return 'I'; // Isolated
+      return 'K'; // Contaminated
     case 'housekeeping':
-      return 'K'; // Housekeeping
+      return 'H'; // Housekeeping
     default:
       return 'U';
   }
 }
 
 /**
- * Helper function to convert operational status code to bed status
+ * Read BedStatus from a Location, preferring the BED_STATUS_EXTENSION_URL
+ * extension (canonical) and falling back to the v2-0116 code mapping for
+ * pre-migration beds that don't yet carry the extension.
  */
-export function getBedStatusFromCode(code?: string): BedStatus {
+export function getBedStatusFromLocation(location: Location): BedStatus {
+  const ext = location.extension?.find((e) => e.url === BED_STATUS_EXTENSION_URL);
+  if (ext?.valueCode && isBedStatus(ext.valueCode)) {
+    return ext.valueCode;
+  }
+  return getBedStatusFromLegacyCode(location.operationalStatus?.code);
+}
+
+/**
+ * Build a new extension array with the BedStatus extension set/replaced.
+ */
+export function setBedStatusExtension(
+  existing: Location['extension'] | undefined,
+  status: BedStatus
+): NonNullable<Location['extension']> {
+  const others = (existing ?? []).filter((e) => e.url !== BED_STATUS_EXTENSION_URL);
+  return [...others, { url: BED_STATUS_EXTENSION_URL, valueCode: status }];
+}
+
+/**
+ * Legacy v2-0116 → BedStatus mapping. Mirrors the (FHIR-non-compliant) mapping
+ * that pre-migration beds were saved with, so unmigrated beds continue to display
+ * the user-visible state they had before the code fix. Once all beds are migrated
+ * (extension present), this fallback becomes unreachable.
+ */
+function getBedStatusFromLegacyCode(code?: string): BedStatus {
   switch (code) {
     case 'U':
       return 'available';
@@ -390,6 +438,19 @@ export function getBedStatusFromCode(code?: string): BedStatus {
     default:
       return 'available';
   }
+}
+
+const BED_STATUSES: readonly BedStatus[] = [
+  'available',
+  'occupied',
+  'reserved',
+  'maintenance',
+  'contaminated',
+  'housekeeping',
+];
+
+function isBedStatus(value: string): value is BedStatus {
+  return (BED_STATUSES as readonly string[]).includes(value);
 }
 
 /**

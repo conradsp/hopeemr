@@ -4,6 +4,7 @@ import { formatDateTime } from '@medplum/core';
 import { ServiceRequest, Observation, DocumentReference } from '@medplum/fhirtypes';
 import { getServiceRequestStatusColor } from '../../../../utils/encounterUtils';
 import { useSearchResources } from '@medplum/react';
+import { useTranslation } from 'react-i18next';
 import styles from './OrderCard.module.css';
 
 interface OrderCardProps {
@@ -12,7 +13,6 @@ interface OrderCardProps {
   isImaging: boolean;
   results: Observation[];
   documents: DocumentReference[];
-  t: any;
   onUploadImage: () => void;
   onViewImages: () => void;
   onEnterLabResults?: () => void;
@@ -21,20 +21,20 @@ interface OrderCardProps {
   onDeleteImage?: (doc: DocumentReference) => void;
 }
 
-export function OrderCard({ 
-  sr, 
-  isLab, 
-  isImaging, 
-  results, 
-  documents, 
-  t, 
-  onUploadImage, 
-  onViewImages, 
-  onEnterLabResults, 
-  expanded, 
-  setExpanded, 
-  onDeleteImage 
+export function OrderCard({
+  sr,
+  isLab,
+  isImaging,
+  results,
+  documents,
+  onUploadImage,
+  onViewImages,
+  onEnterLabResults,
+  expanded,
+  setExpanded,
+  onDeleteImage
 }: OrderCardProps): React.ReactElement {
+  const { t } = useTranslation();
   // Fetch practitioners for display
   const practitionerRefs = [
     sr.requester?.reference,
@@ -133,7 +133,7 @@ export function OrderCard({
           <Group gap="xs">
             {isImaging && (
               <Button size="xs" onClick={onUploadImage}>
-                Upload Image/Note
+                {t('orders.uploadImageOrNote', 'Upload Image/Note')}
               </Button>
             )}
             {isLab && onEnterLabResults && (
@@ -149,7 +149,7 @@ export function OrderCard({
           {isImaging && documents.length > 0 && (
             <Paper bg="gray.1" p="sm" radius="sm" style={{ cursor: 'pointer' }} onClick={onViewImages}>
               <Text size="xs" c="dimmed" mb={4}>
-                Attached Images
+                {t('orders.attachedImages', 'Attached Images')}
               </Text>
               <Stack gap="xs">
                 {documents.map((doc, idx) => (
@@ -170,16 +170,16 @@ export function OrderCard({
                     <Text c="dimmed" size="xs" style={{ marginLeft: 'auto' }}>
                       {doc.date && formatDateTime(doc.date)}
                     </Text>
-                    <Button 
-                      size="xs" 
-                      color="red" 
-                      variant="light" 
+                    <Button
+                      size="xs"
+                      color="red"
+                      variant="light"
                       onClick={(e) => {
                         e.stopPropagation();
                         onDeleteImage?.(doc);
                       }}
                     >
-                      Delete
+                      {t('common.delete', 'Delete')}
                     </Button>
                   </Group>
                 ))}
@@ -190,13 +190,13 @@ export function OrderCard({
           {/* Lab Results */}
           {isLab && results.length === 0 && (
             <Text size="xs" c="dimmed">
-              No lab results
+              {t('orders.noLabResultsShort', 'No lab results')}
             </Text>
           )}
           {isLab && results.length > 0 && (
             <Paper bg="gray.1" p="sm" radius="sm">
               <Text size="xs" c="dimmed" mb={4}>
-                Lab Results
+                {t('orders.labResults', 'Lab Results')}
               </Text>
               <Stack gap="xs">
                 {results.map((obs: any, idx: number) => (
@@ -211,7 +211,7 @@ export function OrderCard({
                     )}
                     {obs.valueString && <Text>{obs.valueString}</Text>}
                     {obs.valueBoolean !== undefined && (
-                      <Text>{obs.valueBoolean ? 'Yes' : 'No'}</Text>
+                      <Text>{obs.valueBoolean ? t('common.yes', 'Yes') : t('common.no', 'No')}</Text>
                     )}
                     {obs.valueCodeableConcept && (
                       <Text>{obs.valueCodeableConcept.text}</Text>

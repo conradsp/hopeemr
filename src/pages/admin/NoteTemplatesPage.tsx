@@ -21,6 +21,7 @@ export function NoteTemplatesPage(): JSX.Element {
   const [initializing, setInitializing] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<Questionnaire | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadTemplates = async () => {
     setLoading(true);
@@ -63,9 +64,9 @@ export function NoteTemplatesPage(): JSX.Element {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!templateToDelete?.id) return;
-    
-    setConfirmOpen(false);
+    if (!templateToDelete?.id || deleting) return;
+
+    setDeleting(true);
     try {
       await medplum.deleteResource('Questionnaire', templateToDelete.id);
       await loadTemplates();
@@ -73,11 +74,14 @@ export function NoteTemplatesPage(): JSX.Element {
     } catch (error) {
       handleError(error, t('message.error.delete'));
     } finally {
+      setDeleting(false);
+      setConfirmOpen(false);
       setTemplateToDelete(null);
     }
   };
 
   const handleDeleteCancel = () => {
+    if (deleting) return;
     setConfirmOpen(false);
     setTemplateToDelete(null);
   };
@@ -106,6 +110,7 @@ export function NoteTemplatesPage(): JSX.Element {
         cancelLabel={t('common.cancel')}
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
+        loading={deleting}
       />
 
       <Paper shadow="sm" p="lg" withBorder className={styles.paper}>

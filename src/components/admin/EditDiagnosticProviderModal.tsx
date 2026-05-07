@@ -3,6 +3,7 @@ import { Modal, TextInput, Button, Group, Stack, Select, Switch } from '@mantine
 import { useMedplum } from '@medplum/react';
 import { Organization } from '@medplum/fhirtypes';
 import { notifications } from '@mantine/notifications';
+import { useTranslation } from 'react-i18next';
 import { saveDiagnosticProvider, DiagnosticProviderDefinition } from '../../utils/diagnosticProviders';
 
 interface EditDiagnosticProviderModalProps {
@@ -12,6 +13,7 @@ interface EditDiagnosticProviderModalProps {
 }
 
 export function EditDiagnosticProviderModal({ opened, onClose, provider }: EditDiagnosticProviderModalProps): JSX.Element {
+  const { t } = useTranslation();
   const medplum = useMedplum();
   const [loading, setLoading] = useState(false);
   
@@ -45,8 +47,8 @@ export function EditDiagnosticProviderModal({ opened, onClose, provider }: EditD
   const handleSave = async () => {
     if (!name.trim()) {
       notifications.show({
-        title: 'Validation Error',
-        message: 'Provider name is required',
+        title: t('common.validationError', 'Validation Error'),
+        message: t('admin.diagnosticProviders.nameRequired', 'Provider name is required'),
         color: 'red',
       });
       return;
@@ -54,8 +56,8 @@ export function EditDiagnosticProviderModal({ opened, onClose, provider }: EditD
 
     if (!code.trim()) {
       notifications.show({
-        title: 'Validation Error',
-        message: 'Provider code is required',
+        title: t('common.validationError', 'Validation Error'),
+        message: t('admin.diagnosticProviders.codeRequired', 'Provider code is required'),
         color: 'red',
       });
       return;
@@ -82,15 +84,17 @@ export function EditDiagnosticProviderModal({ opened, onClose, provider }: EditD
       }
       
       notifications.show({
-        title: 'Success',
-        message: provider ? 'Provider updated successfully' : 'Provider created successfully',
+        title: t('common.success', 'Success'),
+        message: provider
+          ? t('admin.diagnosticProviders.updateSuccess', 'Provider updated successfully')
+          : t('admin.diagnosticProviders.createSuccess', 'Provider created successfully'),
         color: 'green',
       });
       onClose(true);
     } catch (error) {
       notifications.show({
-        title: 'Error',
-        message: 'Failed to save provider',
+        title: t('common.error', 'Error'),
+        message: t('admin.diagnosticProviders.saveError', 'Failed to save provider'),
         color: 'red',
       });
     } finally {
@@ -102,35 +106,39 @@ export function EditDiagnosticProviderModal({ opened, onClose, provider }: EditD
     <Modal
       opened={opened}
       onClose={() => onClose(false)}
-      title={provider ? 'Edit Diagnostic Provider' : 'Add Diagnostic Provider'}
+      title={provider
+        ? t('admin.diagnosticProviders.editTitle', 'Edit Diagnostic Provider')
+        : t('admin.diagnosticProviders.addTitle', 'Add Diagnostic Provider')}
       size="lg"
     >
       <Stack gap="md">
         <TextInput
-          label="Provider Code"
-          placeholder="e.g., quest, labcorp"
+          label={t('admin.diagnosticProviders.providerCode', 'Provider Code')}
+          placeholder={t('admin.diagnosticProviders.providerCodePlaceholder', 'e.g., quest, labcorp')}
           value={code}
           onChange={(e) => setCode(e.currentTarget.value)}
           required
           disabled={!!provider}
-          description={provider ? 'Cannot change code of existing provider' : 'Unique identifier for this provider'}
+          description={provider
+            ? t('admin.diagnosticProviders.codeImmutableHint', 'Cannot change code of existing provider')
+            : t('admin.diagnosticProviders.codeUniqueHint', 'Unique identifier for this provider')}
         />
 
         <TextInput
-          label="Provider Name"
-          placeholder="e.g., Quest Diagnostics"
+          label={t('admin.diagnosticProviders.providerName', 'Provider Name')}
+          placeholder={t('admin.diagnosticProviders.providerNamePlaceholder', 'e.g., Quest Diagnostics')}
           value={name}
           onChange={(e) => setName(e.currentTarget.value)}
           required
         />
 
         <Select
-          label="Provider Type"
-          placeholder="Select type"
+          label={t('admin.diagnosticProviders.providerType', 'Provider Type')}
+          placeholder={t('admin.diagnosticProviders.selectType', 'Select type')}
           data={[
-            { value: 'lab', label: 'Laboratory' },
-            { value: 'imaging', label: 'Imaging' },
-            { value: 'both', label: 'Lab & Imaging' },
+            { value: 'lab', label: t('admin.diagnosticProviders.types.lab', 'Laboratory') },
+            { value: 'imaging', label: t('admin.diagnosticProviders.types.imaging', 'Imaging') },
+            { value: 'both', label: t('admin.diagnosticProviders.types.both', 'Lab & Imaging') },
           ]}
           value={type}
           onChange={setType}
@@ -138,31 +146,31 @@ export function EditDiagnosticProviderModal({ opened, onClose, provider }: EditD
         />
 
         <TextInput
-          label="Phone"
-          placeholder="e.g., 1-866-697-8378"
+          label={t('admin.diagnosticProviders.phone', 'Phone')}
+          placeholder={t('admin.diagnosticProviders.phonePlaceholder', 'e.g., 1-866-697-8378')}
           value={phone}
           onChange={(e) => setPhone(e.currentTarget.value)}
         />
 
         <TextInput
-          label="Website"
-          placeholder="e.g., https://www.example.com"
+          label={t('admin.diagnosticProviders.website', 'Website')}
+          placeholder={t('admin.diagnosticProviders.websitePlaceholder', 'e.g., https://www.example.com')}
           value={website}
           onChange={(e) => setWebsite(e.currentTarget.value)}
         />
 
         <Switch
-          label="Active"
+          label={t('admin.diagnosticProviders.active', 'Active')}
           checked={active}
           onChange={(e) => setActive(e.currentTarget.checked)}
         />
 
         <Group justify="flex-end" mt="md">
           <Button variant="subtle" onClick={() => onClose(false)}>
-            Cancel
+            {t('common.cancel', 'Cancel')}
           </Button>
           <Button onClick={handleSave} loading={loading}>
-            {provider ? 'Update' : 'Create'}
+            {provider ? t('common.update', 'Update') : t('common.create', 'Create')}
           </Button>
         </Group>
       </Stack>

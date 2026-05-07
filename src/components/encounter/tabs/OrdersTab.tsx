@@ -15,6 +15,7 @@ import styles from './OrdersTab.module.css';
 
 import { OrderCard } from './orders/OrderCard';
 import { getOrderDocuments, getOrderResults } from './orders/orderHelpers';
+import { ConfirmDialog } from '../../shared/ConfirmDialog';
 
 interface OrdersTabProps {
   serviceRequests: ServiceRequest[] | undefined;
@@ -38,10 +39,15 @@ export function OrdersTab({ serviceRequests }: OrdersTabProps): JSX.Element {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerSlides, setViewerSlides] = useState<any[]>([]);
   const [viewerNotes, setViewerNotes] = useState<string[]>([]);
-  const [viewerOrderName, setViewerOrderName] = useState('Image Gallery');
+  const [viewerOrderName, setViewerOrderName] = useState(t('orders.imageGallery', 'Image Gallery'));
 
   // Expanded state for each order
   const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({});
+
+  // Confirm-delete state for image deletion
+  const [pendingDeleteDoc, setPendingDeleteDoc] = useState<DocumentReference | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deletingImage, setDeletingImage] = useState(false);
 
   // Get encounter reference from the first order, or undefined
   const encounterRef = serviceRequests?.[0]?.encounter?.reference;
@@ -90,7 +96,7 @@ export function OrdersTab({ serviceRequests }: OrdersTabProps): JSX.Element {
 
   async function handleUploadImage(): Promise<void> {
     if (!uploadingOrder || !uploadFile) {
-      notifications.show({ title: 'Validation Error', message: 'Please select a file', color: 'yellow' });
+      notifications.show({ title: t('common.validationError', 'Validation Error'), message: t('orders.pleaseSelectFile', 'Please select a file'), color: 'yellow' });
       return;
     }
     try {
@@ -122,34 +128,52 @@ export function OrdersTab({ serviceRequests }: OrdersTabProps): JSX.Element {
         description: uploadNote,
       };
       await medplum.createResource(docRef);
-      notifications.show({ title: 'Success', message: 'Image uploaded', color: 'green' });
+      notifications.show({ title: t('common.success', 'Success'), message: t('orders.imageUploaded', 'Image uploaded'), color: 'green' });
       setUploadModalOpen(false);
       setUploadingOrder(null);
       setUploadFile(null);
       setUploadNote('');
       setRefreshKey(k => k + 1);
     } catch {
-      notifications.show({ title: 'Error', message: 'Failed to upload image', color: 'red' });
+      notifications.show({ title: t('common.error', 'Error'), message: t('orders.failedUploadImage', 'Failed to upload image'), color: 'red' });
     }
   }
 
-  async function handleDeleteImage(doc: DocumentReference): Promise<void> {
+  function handleRequestDeleteImage(doc: DocumentReference): void {
     if (!doc.id) {
       return;
     }
+    setPendingDeleteDoc(doc);
+    setConfirmDeleteOpen(true);
+  }
+
+  async function handleDeleteImageConfirm(): Promise<void> {
+    if (!pendingDeleteDoc?.id || deletingImage) return;
+
+    setDeletingImage(true);
     try {
-      await medplum.deleteResource('DocumentReference', doc.id);
-      notifications.show({ title: 'Deleted', message: 'Image deleted', color: 'green' });
+      await medplum.deleteResource('DocumentReference', pendingDeleteDoc.id);
+      notifications.show({ title: t('common.deleted', 'Deleted'), message: t('orders.imageDeleted', 'Image deleted'), color: 'green' });
       setRefreshKey(k => k + 1);
     } catch {
-      notifications.show({ title: 'Error', message: 'Failed to delete image', color: 'red' });
+      notifications.show({ title: t('common.error', 'Error'), message: t('orders.failedDeleteImage', 'Failed to delete image'), color: 'red' });
+    } finally {
+      setDeletingImage(false);
+      setConfirmDeleteOpen(false);
+      setPendingDeleteDoc(null);
     }
+  }
+
+  function handleDeleteImageCancel(): void {
+    if (deletingImage) return;
+    setConfirmDeleteOpen(false);
+    setPendingDeleteDoc(null);
   }
 
   async function handleEnterLabResults(sr: ServiceRequest): Promise<void> {
     const testCode = sr.code?.coding?.[0]?.code || sr.code?.text;
     if (!testCode) {
-      notifications.show({ title: 'Error', message: 'Cannot determine test type', color: 'red' });
+      notifications.show({ title: t('common.error', 'Error'), message: t('orders.cannotDetermineTestType', 'Cannot determine test type'), color: 'red' });
       return;
     }
     const labTests = await getLabTests(medplum);
@@ -169,13 +193,13 @@ export function OrdersTab({ serviceRequests }: OrdersTabProps): JSX.Element {
           const fields = JSON.parse(resultFieldsExt.valueString);
           setResultFields(fields);
         } catch {
-          setResultFields([{ name: 'result', label: sr.code?.coding?.[0]?.display || sr.code?.text || 'Result', type: 'string' }]);
+          setResultFields([{ name: 'result', label: sr.code?.coding?.[0]?.display || sr.code?.text || t('orders.result', 'Result'), type: 'string' }]);
         }
       } else {
-        setResultFields([{ name: 'result', label: sr.code?.coding?.[0]?.display || sr.code?.text || 'Result', type: 'string' }]);
+        setResultFields([{ name: 'result', label: sr.code?.coding?.[0]?.display || sr.code?.text || t('orders.result', 'Result'), type: 'string' }]);
       }
     } else {
-      setResultFields([{ name: 'result', label: sr.code?.coding?.[0]?.display || sr.code?.text || 'Result', type: 'string' }]);
+      setResultFields([{ name: 'result', label: sr.code?.coding?.[0]?.display || sr.code?.text || t('orders.result', 'Result'), type: 'string' }]);
     }
     setActiveOrder(sr);
     setLabResultModalOpen(true);
@@ -198,7 +222,6 @@ export function OrdersTab({ serviceRequests }: OrdersTabProps): JSX.Element {
               isImaging={isImaging}
               results={results}
               documents={documents}
-              t={t}
               onUploadImage={() => { setUploadModalOpen(true); setUploadingOrder(sr); }}
               onViewImages={() => {
                 setViewerSlides(documents.map(doc => ({
@@ -208,23 +231,35 @@ export function OrdersTab({ serviceRequests }: OrdersTabProps): JSX.Element {
                   description: doc.description || '',
                 })));
                 setViewerNotes(documents.map(doc => doc.description || ''));
-                setViewerOrderName(sr.code?.coding?.[0]?.display || sr.code?.text || 'Image Gallery');
+                setViewerOrderName(sr.code?.coding?.[0]?.display || sr.code?.text || t('orders.imageGallery', 'Image Gallery'));
                 setViewerOpen(true);
               }}
               onEnterLabResults={() => handleEnterLabResults(sr)}
               expanded={isExpanded}
               setExpanded={(val) => setExpandedOrders(prev => ({ ...prev, [sr.id ?? '']: val }))}
-              onDeleteImage={handleDeleteImage}
+              onDeleteImage={handleRequestDeleteImage}
             />
           );
         })}
       </Stack>
+      <ConfirmDialog
+        opened={confirmDeleteOpen}
+        title={t('common.confirmDelete')}
+        message={t('orders.confirmDeleteImageMessage', {
+          name: pendingDeleteDoc?.content?.[0]?.attachment?.title ?? '',
+        })}
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={handleDeleteImageConfirm}
+        onCancel={handleDeleteImageCancel}
+        loading={deletingImage}
+      />
       {/* Imaging upload modal */}
-      <Modal opened={uploadModalOpen} onClose={() => setUploadModalOpen(false)} title="Upload Imaging">
+      <Modal opened={uploadModalOpen} onClose={() => setUploadModalOpen(false)} title={t('orders.uploadImagingTitle', 'Upload Imaging')}>
         <Stack>
-          <FileInput label="Select Image" value={uploadFile} onChange={setUploadFile} accept="image/*" required />
-          <Textarea label="Notes" value={uploadNote} onChange={e => setUploadNote(e.currentTarget.value)} placeholder="Enter notes" />
-          <Button onClick={handleUploadImage}>Upload</Button>
+          <FileInput label={t('orders.selectImage', 'Select Image')} value={uploadFile} onChange={setUploadFile} accept="image/*" required />
+          <Textarea label={t('common.notes', 'Notes')} value={uploadNote} onChange={e => setUploadNote(e.currentTarget.value)} placeholder={t('common.enterNotes', 'Enter notes')} />
+          <Button onClick={handleUploadImage}>{t('common.upload', 'Upload')}</Button>
         </Stack>
       </Modal>
       {/* Lightbox gallery modal with zoom and thumbnails */}

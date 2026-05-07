@@ -3,6 +3,7 @@ import { Practitioner, HumanName, ContactPoint, Address } from '@medplum/fhirtyp
 import { useMedplum } from '@medplum/react';
 import { IconUserPlus } from '@tabler/icons-react';
 import { JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModalForm } from '../../hooks/useModalForm';
 import { handleError, showSuccess } from '../../utils/errorHandling';
 import { validators } from '../../utils/validation';
@@ -29,6 +30,7 @@ interface ProviderFormData {
 
 export function NewProviderModal({ opened, onClose }: NewProviderModalProps): JSX.Element {
   const medplum = useMedplum();
+  const { t } = useTranslation();
 
   const { formData, updateField, reset, loading, handleSave } = useModalForm<ProviderFormData>({
     initialData: {
@@ -48,13 +50,13 @@ export function NewProviderModal({ opened, onClose }: NewProviderModalProps): JS
     onSave: async (data) => {
       // Validation
       if (!validators.required(data.firstName) || !validators.required(data.lastName)) {
-        throw new Error('First name and last name are required');
+        throw new Error(t('users.newProvider.errorNameRequired', 'First name and last name are required'));
       }
       if (!validators.email(data.email)) {
-        throw new Error('Valid email is required');
+        throw new Error(t('users.newProvider.errorEmailRequired', 'Valid email is required'));
       }
       if (data.phone && !validators.phone(data.phone)) {
-        throw new Error('Please enter a valid 10-digit phone number');
+        throw new Error(t('users.newProvider.errorPhoneInvalid', 'Please enter a valid 10-digit phone number'));
       }
 
       const name: HumanName = {
@@ -126,7 +128,7 @@ export function NewProviderModal({ opened, onClose }: NewProviderModalProps): JS
         }
       }
     },
-    successMessage: 'Provider created successfully!',
+    successMessage: t('users.newProvider.successMessage', 'Provider created successfully!'),
     onSuccess: () => {
       reset();
       onClose();
@@ -139,20 +141,20 @@ export function NewProviderModal({ opened, onClose }: NewProviderModalProps): JS
   };
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Add New Provider" size="lg" centered>
+    <Modal opened={opened} onClose={onClose} title={t('users.newProvider.title', 'Add New Provider')} size="lg" centered>
       <form onSubmit={handleSubmit}>
         <Stack>
           <Group grow>
             <TextInput
-              label="First Name"
-              placeholder="John"
+              label={t('users.newProvider.firstName', 'First Name')}
+              placeholder={t('users.newProvider.firstNamePlaceholder', 'John')}
               required
               value={formData.firstName}
               onChange={(event) => updateField('firstName', event.currentTarget.value)}
             />
             <TextInput
-              label="Last Name"
-              placeholder="Doe"
+              label={t('users.newProvider.lastName', 'Last Name')}
+              placeholder={t('users.newProvider.lastNamePlaceholder', 'Doe')}
               required
               value={formData.lastName}
               onChange={(event) => updateField('lastName', event.currentTarget.value)}
@@ -160,8 +162,8 @@ export function NewProviderModal({ opened, onClose }: NewProviderModalProps): JS
           </Group>
 
           <Select
-            label="Gender"
-            placeholder="Select gender"
+            label={t('users.newProvider.gender', 'Gender')}
+            placeholder={t('users.newProvider.genderPlaceholder', 'Select gender')}
             data={['male', 'female', 'other', 'unknown']}
             value={formData.gender}
             onChange={(value) => updateField('gender', value || '')}
@@ -169,16 +171,16 @@ export function NewProviderModal({ opened, onClose }: NewProviderModalProps): JS
 
           <Group grow>
             <TextInput
-              label="Email"
-              placeholder="john.doe@hospital.com"
+              label={t('users.newProvider.email', 'Email')}
+              placeholder={t('users.newProvider.emailPlaceholder', 'john.doe@hospital.com')}
               type="email"
               required
               value={formData.email}
               onChange={(event) => updateField('email', event.currentTarget.value)}
             />
             <TextInput
-              label="Phone"
-              placeholder="555-123-4567"
+              label={t('users.newProvider.phone', 'Phone')}
+              placeholder={t('users.newProvider.phonePlaceholder', '555-123-4567')}
               type="tel"
               value={formData.phone}
               onChange={(event) => updateField('phone', event.currentTarget.value)}
@@ -187,50 +189,50 @@ export function NewProviderModal({ opened, onClose }: NewProviderModalProps): JS
 
           <Group grow>
             <TextInput
-              label="NPI Number"
-              placeholder="1234567890"
+              label={t('users.newProvider.npi', 'NPI Number')}
+              placeholder={t('users.newProvider.npiPlaceholder', '1234567890')}
               value={formData.npi}
               onChange={(event) => updateField('npi', event.currentTarget.value)}
             />
             <TextInput
-              label="Specialty"
-              placeholder="e.g., Cardiology, Family Medicine"
+              label={t('users.newProvider.specialty', 'Specialty')}
+              placeholder={t('users.newProvider.specialtyPlaceholder', 'e.g., Cardiology, Family Medicine')}
               value={formData.specialty}
               onChange={(event) => updateField('specialty', event.currentTarget.value)}
             />
           </Group>
 
           <Textarea
-            label="Qualification"
-            placeholder="MD, DO, NP, PA, etc."
+            label={t('users.newProvider.qualification', 'Qualification')}
+            placeholder={t('users.newProvider.qualificationPlaceholder', 'MD, DO, NP, PA, etc.')}
             value={formData.qualification}
             onChange={(event) => updateField('qualification', event.currentTarget.value)}
             rows={2}
           />
 
           <TextInput
-            label="Address Line 1"
-            placeholder="123 Medical Center Drive"
+            label={t('users.newProvider.addressLine', 'Address Line 1')}
+            placeholder={t('users.newProvider.addressLinePlaceholder', '123 Medical Center Drive')}
             value={formData.addressLine}
             onChange={(event) => updateField('addressLine', event.currentTarget.value)}
           />
 
           <Group grow>
             <TextInput
-              label="City"
-              placeholder="Anytown"
+              label={t('users.newProvider.city', 'City')}
+              placeholder={t('users.newProvider.cityPlaceholder', 'Anytown')}
               value={formData.city}
               onChange={(event) => updateField('city', event.currentTarget.value)}
             />
             <TextInput
-              label="State"
-              placeholder="CA"
+              label={t('users.newProvider.state', 'State')}
+              placeholder={t('users.newProvider.statePlaceholder', 'CA')}
               value={formData.state}
               onChange={(event) => updateField('state', event.currentTarget.value)}
             />
             <TextInput
-              label="Postal Code"
-              placeholder="12345"
+              label={t('users.newProvider.postalCode', 'Postal Code')}
+              placeholder={t('users.newProvider.postalCodePlaceholder', '12345')}
               value={formData.postalCode}
               onChange={(event) => updateField('postalCode', event.currentTarget.value)}
             />
@@ -238,10 +240,10 @@ export function NewProviderModal({ opened, onClose }: NewProviderModalProps): JS
 
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={onClose}>
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </Button>
             <Button type="submit" loading={loading} leftSection={<IconUserPlus size={16} />}>
-              Create Provider
+              {t('users.newProvider.createProvider', 'Create Provider')}
             </Button>
           </Group>
         </Stack>

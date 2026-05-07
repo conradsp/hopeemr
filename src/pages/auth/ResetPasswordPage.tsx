@@ -11,11 +11,13 @@ import {
   useMedplum,
 } from '@medplum/react';
 import { JSX, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import styles from './ResetPasswordPage.module.css';
 
 export function ResetPasswordPage(): JSX.Element {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const medplum = useMedplum();
   const [outcome, setOutcome] = useState<OperationOutcome>();
   const [success, setSuccess] = useState(false);
@@ -35,10 +37,10 @@ export function ResetPasswordPage(): JSX.Element {
           <Center style={{ flexDirection: 'column' }}>
             <Logo size={32} />
             <Title order={2} mt="md">
-              Reset Password
+              {t('auth.resetPassword.title', 'Reset Password')}
             </Title>
             <Text size="sm" c="dimmed" mt="xs">
-              Enter your email to receive a password reset link
+              {t('auth.resetPassword.subtitle', 'Enter your email to receive a password reset link')}
             </Text>
           </Center>
 
@@ -50,8 +52,8 @@ export function ResetPasswordPage(): JSX.Element {
                 <TextInput
                   name="email"
                   type="email"
-                  label="Email Address"
-                  placeholder="your@email.com"
+                  label={t('auth.resetPassword.emailLabel', 'Email Address')}
+                  placeholder={t('auth.resetPassword.emailPlaceholder', 'your@email.com')}
                   required={true}
                   autoFocus={true}
                   error={getErrorsForInput(outcome, 'email')}
@@ -64,10 +66,10 @@ export function ResetPasswordPage(): JSX.Element {
                     onClick={() => navigate('/signin')}
                     size="sm"
                   >
-                    ← Back to Sign In
+                    {t('auth.resetPassword.backToSignIn', '← Back to Sign In')}
                   </Anchor>
                   <Button type="submit" size="md">
-                    Send Reset Link
+                    {t('auth.resetPassword.sendResetLink', 'Send Reset Link')}
                   </Button>
                 </Group>
               </>
@@ -76,14 +78,16 @@ export function ResetPasswordPage(): JSX.Element {
             {success && (
               <div data-testid="success" className={styles.success}>
                 <Text size="md" c="green" fw={500} mb="md">
-                  ✓ Reset link sent!
+                  {t('auth.resetPassword.successTitle', '✓ Reset link sent!')}
                 </Text>
                 <Text size="sm" c="dimmed" mb="lg">
-                  If an account exists with that email, you will receive a password reset link shortly.
-                  Check your inbox and spam folder.
+                  {t(
+                    'auth.resetPassword.successMessage',
+                    'If an account exists with that email, you will receive a password reset link shortly. Check your inbox and spam folder.'
+                  )}
                 </Text>
                 <Button onClick={() => navigate('/signin')} fullWidth>
-                  Back to Sign In
+                  {t('auth.resetPassword.backToSignInButton', 'Back to Sign In')}
                 </Button>
               </div>
             )}

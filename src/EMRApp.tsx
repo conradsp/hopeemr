@@ -1,5 +1,6 @@
 import { Route, Routes, Navigate, useLocation, useNavigate } from 'react-router';
 import { useState, useEffect, JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Header } from './components/shared/Header';
 import { OfflineBanner } from './components/shared/OfflineBanner';
 import { EncounterPageWrapper } from './components/encounter/EncounterPageWrapper';
@@ -39,6 +40,7 @@ import { logger } from './utils/logger';
 import styles from './EMRApp.module.css';
 
 export function EMRApp(): JSX.Element {
+  const { t } = useTranslation();
   const medplum = useMedplum();
   const navigate = useNavigate();
   const [, setPatient] = useState<Patient | null>(null);
@@ -65,16 +67,16 @@ export function EMRApp(): JSX.Element {
         absoluteTimeout: 8 * 60 * 60 * 1000, // 8 hours
         onWarning: () => {
           notifications.show({
-            title: 'Session Timeout Warning',
-            message: 'Your session will expire in 5 minutes due to inactivity. Please save your work.',
+            title: t('session.timeoutWarningTitle'),
+            message: t('session.timeoutWarningMessage'),
             color: 'yellow',
             autoClose: false,
           });
         },
         onTimeout: () => {
           notifications.show({
-            title: 'Session Expired',
-            message: 'Your session has expired. You will be redirected to the sign-in page.',
+            title: t('session.expiredTitle'),
+            message: t('session.expiredMessage'),
             color: 'red',
           });
           // Logout happens in the session manager
@@ -88,7 +90,7 @@ export function EMRApp(): JSX.Element {
         sessionManager.destroy();
       };
     }
-  }, [isAuthenticated, isSetPasswordRoute, isLoading, medplum, navigate]);
+  }, [isAuthenticated, isSetPasswordRoute, isLoading, medplum, navigate, t]);
 
   // Show loading while checking authentication
   if (isLoading) {

@@ -82,18 +82,19 @@ define(['./workbox-137dedbd'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.tkfc1mr56fo"
+    "revision": "0.8sqjnjh3g6g"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
-    allowlist: [/^\/$/]
+    allowlist: [/^\/$/],
+    denylist: [/^\/api/, /^\/fhir/]
   }));
   workbox.registerRoute(/^https:\/\/.*\.medplum\.com\/fhir\/R4\/.*/i, new workbox.NetworkFirst({
     "cacheName": "medplum-api-cache",
     "networkTimeoutSeconds": 10,
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 500,
-      maxAgeSeconds: 86400
+      maxAgeSeconds: 7200
     }), new workbox.CacheableResponsePlugin({
       statuses: [0, 200]
     })]
@@ -103,7 +104,7 @@ define(['./workbox-137dedbd'], (function (workbox) { 'use strict';
     "networkTimeoutSeconds": 10,
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 500,
-      maxAgeSeconds: 86400
+      maxAgeSeconds: 7200
     }), new workbox.CacheableResponsePlugin({
       statuses: [0, 200]
     })]
@@ -128,4 +129,3 @@ define(['./workbox-137dedbd'], (function (workbox) { 'use strict';
   }), 'GET');
 
 }));
-//# sourceMappingURL=sw.js.map

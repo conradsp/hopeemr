@@ -25,6 +25,19 @@ interface MedicationFormData {
   price: number;
 }
 
+const ALLOWED_EXTENSION_URLS = [
+  'http://example.org/fhir/StructureDefinition/medication-category',
+  'http://example.org/fhir/StructureDefinition/medication-description',
+];
+
+function filterAllowedExtensions(extArr: any[] = []): any[] {
+  return extArr.filter(
+    (ext) =>
+      (ALLOWED_EXTENSION_URLS.includes(ext.url) && typeof ext.valueString === 'string') ||
+      !('valueString' in ext)
+  );
+}
+
 export function MedicationCatalogPage(): JSX.Element {
   const { t } = useTranslation();
   const medplum = useMedplum();
@@ -47,6 +60,7 @@ export function MedicationCatalogPage(): JSX.Element {
   });
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadMedications = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -160,48 +174,17 @@ export function MedicationCatalogPage(): JSX.Element {
       }
 
       if (editingMedication) {
-        // Only allow valueString for category and description extensions
-        const allowedUrls = [
-          'http://example.org/fhir/StructureDefinition/medication-category',
-          'http://example.org/fhir/StructureDefinition/medication-description',
-        ];
-        function filterAllowedExtensions(extArr: any[] = []): any[] {
-          const allowedUrls = [
-            'http://example.org/fhir/StructureDefinition/medication-category',
-            'http://example.org/fhir/StructureDefinition/medication-description',
-          ];
-          return extArr.filter(
-            (ext) =>
-              (allowedUrls.includes(ext.url) && typeof ext.valueString === 'string') ||
-              (!('valueString' in ext))
-          );
-        }
         const cleanedExtensions = filterAllowedExtensions(editingMedication.extension);
         const newExtensions = filterAllowedExtensions(medicationData.extension);
-         const updatedMedication = {
-           ...medicationData,
-           id: editingMedication.id,
-           extension: [...cleanedExtensions, ...newExtensions],
-         } as Medication;
-         const medicationWithPrice = setPriceOnResource(updatedMedication, formData.price);
-         await updateMedication(medplum, medicationWithPrice);
-         showSuccess(t('pharmacy.updateSuccess'));
+        const updatedMedication = {
+          ...medicationData,
+          id: editingMedication.id,
+          extension: [...cleanedExtensions, ...newExtensions],
+        } as Medication;
+        const medicationWithPrice = setPriceOnResource(updatedMedication, formData.price);
+        await updateMedication(medplum, medicationWithPrice);
+        showSuccess(t('pharmacy.updateSuccess'));
       } else {
-        const allowedUrls = [
-          'http://example.org/fhir/StructureDefinition/medication-category',
-          'http://example.org/fhir/StructureDefinition/medication-description',
-        ];
-        function filterAllowedExtensions(extArr: any[] = []): any[] {
-          const allowedUrls = [
-            'http://example.org/fhir/StructureDefinition/medication-category',
-            'http://example.org/fhir/StructureDefinition/medication-description',
-          ];
-          return extArr.filter(
-            (ext) =>
-              (allowedUrls.includes(ext.url) && typeof ext.valueString === 'string') ||
-              (!('valueString' in ext))
-          );
-        }
         medicationData.extension = filterAllowedExtensions(medicationData.extension);
         const medicationWithPrice = setPriceOnResource(medicationData, formData.price);
         await createMedication(medplum, medicationWithPrice);
@@ -224,8 +207,8 @@ export function MedicationCatalogPage(): JSX.Element {
   };
 
   const handleDeleteConfirm = async (): Promise<void> => {
-    if (!pendingDeleteId) { return; }
-    setConfirmOpen(false);
+    if (!pendingDeleteId || deleting) { return; }
+    setDeleting(true);
     try {
       await deleteMedication(medplum, pendingDeleteId);
       showSuccess(t('pharmacy.deleteSuccess'));
@@ -233,11 +216,14 @@ export function MedicationCatalogPage(): JSX.Element {
     } catch (error) {
       handleError(error, 'deleting medication');
     } finally {
+      setDeleting(false);
+      setConfirmOpen(false);
       setPendingDeleteId(null);
     }
   };
 
   const handleDeleteCancel = (): void => {
+    if (deleting) return;
     setConfirmOpen(false);
     setPendingDeleteId(null);
   };
@@ -385,6 +371,7 @@ export function MedicationCatalogPage(): JSX.Element {
         cancelLabel={t('common.cancel')}
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
+        loading={deleting}
       />
 
       <Paper shadow="sm" p="lg" withBorder className={styles.paper}>

@@ -21,6 +21,7 @@ export function LabTestsPage(): JSX.Element {
   const [selectedTest, setSelectedTest] = useState<ActivityDefinition | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [testToDelete, setTestToDelete] = useState<ActivityDefinition | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadLabTests = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -62,9 +63,9 @@ export function LabTestsPage(): JSX.Element {
   };
 
   const handleDeleteConfirm = async (): Promise<void> => {
-    if (!testToDelete?.identifier?.[0]?.value) return;
-    
-    setConfirmOpen(false);
+    if (!testToDelete?.identifier?.[0]?.value || deleting) return;
+
+    setDeleting(true);
     try {
       await deleteLabTest(medplum, testToDelete.identifier[0].value);
       showSuccess(t('admin.labTests.deleteSuccess'));
@@ -72,11 +73,14 @@ export function LabTestsPage(): JSX.Element {
     } catch (error) {
       handleError(error, t('message.error.delete'));
     } finally {
+      setDeleting(false);
+      setConfirmOpen(false);
       setTestToDelete(null);
     }
   };
 
   const handleDeleteCancel = (): void => {
+    if (deleting) return;
     setConfirmOpen(false);
     setTestToDelete(null);
   };
@@ -121,6 +125,7 @@ export function LabTestsPage(): JSX.Element {
         cancelLabel={t('common.cancel')}
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
+        loading={deleting}
       />
 
       <Group justify="space-between" mb="xl">
