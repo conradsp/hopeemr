@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-06T23:39:36.275Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-07T22:37:27.384Z
 > Files: 263 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
@@ -162,7 +162,7 @@
 - `AdministerMedicationModal.tsx` — AdministerMedicationModal — renders modal — uses useState (~1438 tok)
 - `CreateNoteModal.tsx` — CreateNoteModal — renders modal — uses useEffect (~1850 tok)
 - `EncounterHeader.module.css` — Styles: 1 rules (~19 tok)
-- `EncounterHeader.tsx` — EncounterHeader — renders modal — uses useState, useCallback, useEffect (~2623 tok)
+- `EncounterHeader.tsx` — EncounterHeader — renders modal (~2655 tok)
 - `EncounterList.tsx` — EncounterList — renders table (~342 tok)
 - `EncounterPageWrapper.module.css` — Styles: 1 rules (~32 tok)
 - `EncounterPageWrapper.tsx` — EncounterPageWrapper (~604 tok)
@@ -220,12 +220,12 @@
 - `CompleteTaskModal.tsx` — CompleteTaskModal - Modal for completing a provider task (~858 tok)
 - `EndOfDaySummaryModal.tsx` — EndOfDaySummaryModal - Modal showing end of day statistics (~1682 tok)
 - `PendingTaskCard.tsx` — PendingTaskCard - Displays a provider task in a card format (~1040 tok)
-- `PriorityBadge.tsx` — Priority Badge Component (~250 tok)
-- `QueueMetrics.tsx` — Queue Metrics Component (~2076 tok)
+- `PriorityBadge.tsx` — Priority Badge Component (~276 tok)
+- `QueueMetrics.tsx` — Queue Metrics Component (~2106 tok)
 - `QueueTable.tsx` — Queue Table Component (~2601 tok)
 - `TaskTypeIcon.tsx` — TaskTypeIcon - Displays an icon for a provider task type (~493 tok)
-- `TriageLevelBadge.tsx` — Triage Level Badge Component (~447 tok)
-- `WaitTimeDisplay.tsx` — Wait Time Display Component (~486 tok)
+- `TriageLevelBadge.tsx` — Triage Level Badge Component (~554 tok)
+- `WaitTimeDisplay.tsx` — Wait Time Display Component (~513 tok)
 
 ## src/components/registration/
 
@@ -351,7 +351,7 @@
 ## src/pages/queue/
 
 - `CheckInPage.tsx` — Check-In Page (~4421 tok)
-- `ProviderWorkQueuePage.tsx` — Provider Work Queue Page (~12242 tok)
+- `ProviderWorkQueuePage.tsx` — Provider Work Queue Page (~12271 tok)
 - `QueueDashboardPage.tsx` — Queue Dashboard Page (~4023 tok)
 
 ## src/pages/scheduling/
@@ -406,6 +406,6 @@
 - `sessionTimeout.ts` — Session Timeout Management (~1545 tok)
 - `settings.ts` — Extension URLs for workflow configuration (~2220 tok)
 - `terminologyService.ts` — Terminology Service (~5252 tok)
-- `triageUtils.test.ts` — Declares color0 (~1640 tok)
-- `triageUtils.ts` — Triage Level Utilities (~2777 tok)
+- `triageUtils.test.ts` — Declares color0 (~1970 tok)
+- `triageUtils.ts` — Triage Level Utilities (~2714 tok)
 - `validation.ts` — Common validation utilities for form inputs (~2798 tok)

@@ -4,6 +4,8 @@ import {
   getTriageLevelColor,
   formatWaitTime,
   getTriageLevelInfo,
+  getTriageBadgeProps,
+  getPriorityBadgeProps,
 } from './triageUtils';
 import type { TriageLevel } from './triageUtils';
 
@@ -51,87 +53,101 @@ describe('triageUtils', () => {
       expect(getTriageLevelColor(5)).toBe('blue');
     });
 
-    it('should return gray for unknown levels', () => {
+    it('should return a default color for unknown levels', () => {
       const color0 = getTriageLevelColor(0 as TriageLevel);
       const color6 = getTriageLevelColor(6 as TriageLevel);
-      // Should return some default color (may vary)
       expect(color0).toBeTruthy();
       expect(color6).toBeTruthy();
     });
   });
 
   describe('formatWaitTime', () => {
-    it('should format 0 minutes', () => {
+    it('returns justArrived key for sub-minute waits', () => {
       const result = formatWaitTime(0);
-      expect(result).toBeTruthy(); // Should return a string
-      expect(typeof result).toBe('string');
+      expect(result.key).toBe('queue.waitTime.justArrived');
+      expect(result.params).toEqual({});
     });
 
-    it('should format minutes less than 60', () => {
-      const result15 = formatWaitTime(15);
-      const result45 = formatWaitTime(45);
-      expect(result15).toContain('15');
-      expect(result45).toContain('45');
+    it('returns minute key with count for sub-hour waits', () => {
+      expect(formatWaitTime(15)).toEqual({ key: 'queue.waitTime.minute', params: { count: 15 } });
+      expect(formatWaitTime(45)).toEqual({ key: 'queue.waitTime.minute', params: { count: 45 } });
+      expect(formatWaitTime(1)).toEqual({ key: 'queue.waitTime.minute', params: { count: 1 } });
     });
 
-    it('should format hours and minutes', () => {
-      const result90 = formatWaitTime(90);
-      const result125 = formatWaitTime(125);
-      expect(result90).toContain('1');
-      expect(result90).toContain('30');
-      expect(result125).toContain('2');
+    it('returns hour key for whole-hour waits', () => {
+      expect(formatWaitTime(60)).toEqual({ key: 'queue.waitTime.hour', params: { count: 1 } });
+      expect(formatWaitTime(120)).toEqual({ key: 'queue.waitTime.hour', params: { count: 2 } });
     });
 
-    it('should format whole hours', () => {
-      const result = formatWaitTime(60);
-      expect(result).toContain('1');
+    it('returns hoursMinutes for mixed waits', () => {
+      expect(formatWaitTime(90)).toEqual({
+        key: 'queue.waitTime.hoursMinutes',
+        params: { hours: 1, minutes: 30 },
+      });
+      expect(formatWaitTime(125)).toEqual({
+        key: 'queue.waitTime.hoursMinutes',
+        params: { hours: 2, minutes: 5 },
+      });
     });
 
-    it('should handle large wait times', () => {
+    it('handles large wait times', () => {
       const result = formatWaitTime(300);
-      expect(result).toBeTruthy();
+      expect(result.key).toBe('queue.waitTime.hour');
+      expect(result.params).toEqual({ count: 5 });
     });
   });
 
   describe('getTriageLevelInfo', () => {
-    it('should return correct info for ESI 1', () => {
-      const info = getTriageLevelInfo(1);
-      expect(info).toBeTruthy();
-      expect(info.label).toContain('1');
+    it.each([1, 2, 3, 4, 5] as TriageLevel[])('returns color and i18n keys for ESI %i', (level) => {
+      const info = getTriageLevelInfo(level);
+      expect(info.level).toBe(level);
       expect(info.color).toBeTruthy();
+      expect(info.labelKey).toBe(`queue.triage.level${level}.name`);
+      expect(info.descriptionKey).toBe(`queue.triage.level${level}.description`);
+      expect(info.timeTargetKey).toBe(`queue.triage.level${level}.timeTarget`);
+    });
+  });
+
+  describe('getTriageBadgeProps', () => {
+    it('returns filled variant for ESI 1-2', () => {
+      expect(getTriageBadgeProps(1).variant).toBe('filled');
+      expect(getTriageBadgeProps(2).variant).toBe('filled');
     });
 
-    it('should return correct info for ESI 2', () => {
-      const info = getTriageLevelInfo(2);
-      expect(info).toBeTruthy();
-      expect(info.label).toContain('2');
-      expect(info.color).toBeTruthy();
+    it('returns light variant for ESI 3-5', () => {
+      expect(getTriageBadgeProps(3).variant).toBe('light');
+      expect(getTriageBadgeProps(4).variant).toBe('light');
+      expect(getTriageBadgeProps(5).variant).toBe('light');
     });
 
-    it('should return correct info for ESI 3', () => {
-      const info = getTriageLevelInfo(3);
-      expect(info).toBeTruthy();
-      expect(info.label).toContain('3');
-      expect(info.color).toBeTruthy();
+    it('returns the badge label key with level + nameKey params', () => {
+      const props = getTriageBadgeProps(3);
+      expect(props.labelKey).toBe('queue.triage.badgeLabel');
+      expect(props.labelParams).toEqual({ level: 3, nameKey: 'queue.triage.level3.name' });
+    });
+  });
+
+  describe('getPriorityBadgeProps', () => {
+    it('returns filled variant for stat/asap', () => {
+      expect(getPriorityBadgeProps('stat').variant).toBe('filled');
+      expect(getPriorityBadgeProps('asap').variant).toBe('filled');
     });
 
-    it('should return correct info for ESI 4', () => {
-      const info = getTriageLevelInfo(4);
-      expect(info).toBeTruthy();
-      expect(info.label).toContain('4');
-      expect(info.color).toBeTruthy();
+    it('returns light variant for urgent/routine', () => {
+      expect(getPriorityBadgeProps('urgent').variant).toBe('light');
+      expect(getPriorityBadgeProps('routine').variant).toBe('light');
     });
 
-    it('should return correct info for ESI 5', () => {
-      const info = getTriageLevelInfo(5);
-      expect(info).toBeTruthy();
-      expect(info.label).toContain('5');
-      expect(info.color).toBeTruthy();
+    it('returns the queue.priority.* key for each priority', () => {
+      expect(getPriorityBadgeProps('stat').labelKey).toBe('queue.priority.stat');
+      expect(getPriorityBadgeProps('asap').labelKey).toBe('queue.priority.asap');
+      expect(getPriorityBadgeProps('urgent').labelKey).toBe('queue.priority.urgent');
+      expect(getPriorityBadgeProps('routine').labelKey).toBe('queue.priority.routine');
     });
   });
 
   describe('ESI Triage System Integration', () => {
-    it('should maintain consistency between ESI levels and priorities', () => {
+    it('maintains consistency between ESI levels and priorities', () => {
       const testCases: Array<{ level: TriageLevel; expectedPriority: string }> = [
         { level: 1, expectedPriority: 'stat' },
         { level: 2, expectedPriority: 'stat' },
@@ -145,35 +161,27 @@ describe('triageUtils', () => {
         const info = getTriageLevelInfo(level);
 
         expect(priority).toBe(expectedPriority);
-        expect(info).toBeTruthy();
         expect(info.color).toBeTruthy();
+        expect(info.labelKey).toBeTruthy();
       });
     });
 
-    it('should have decreasing urgency from ESI 1 to ESI 5', () => {
-      const urgencyOrder = [1, 2, 3, 4, 5] as TriageLevel[];
-
-      // ESI 1-2 should be stat
-      expect(suggestPriorityFromTriage(urgencyOrder[0])).toBe('stat');
-      expect(suggestPriorityFromTriage(urgencyOrder[1])).toBe('stat');
-
-      // ESI 3 should be urgent
-      expect(suggestPriorityFromTriage(urgencyOrder[2])).toBe('urgent');
-
-      // ESI 4-5 should be routine
-      expect(suggestPriorityFromTriage(urgencyOrder[3])).toBe('routine');
-      expect(suggestPriorityFromTriage(urgencyOrder[4])).toBe('routine');
+    it('has decreasing urgency from ESI 1 to ESI 5', () => {
+      expect(suggestPriorityFromTriage(1)).toBe('stat');
+      expect(suggestPriorityFromTriage(2)).toBe('stat');
+      expect(suggestPriorityFromTriage(3)).toBe('urgent');
+      expect(suggestPriorityFromTriage(4)).toBe('routine');
+      expect(suggestPriorityFromTriage(5)).toBe('routine');
     });
 
-    it('should have appropriate info for each ESI level', () => {
+    it('has appropriate info for each ESI level', () => {
       const levels: TriageLevel[] = [1, 2, 3, 4, 5];
 
       levels.forEach((level) => {
         const info = getTriageLevelInfo(level);
-        expect(info).toBeTruthy();
-        expect(info.label).toBeTruthy();
         expect(info.color).toBeTruthy();
-        expect(info.description).toBeTruthy();
+        expect(info.labelKey).toBeTruthy();
+        expect(info.descriptionKey).toBeTruthy();
       });
     });
   });

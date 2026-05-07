@@ -9,121 +9,85 @@
 
 export interface TriageLevelInfo {
   level: number;
-  label: string;
   color: string;
-  description: string;
-  timeTarget: string;
-  examples: string[];
+  // i18n keys; resolve via t() at the display site.
+  labelKey: string;
+  descriptionKey: string;
+  timeTargetKey: string;
 }
 
 /**
- * ESI Triage Levels with clinical descriptions
- * Healthcare Agent requirement: Document ESI system clearly
+ * ESI Triage Levels — color + i18n key references for label/description/timeTarget.
+ * Healthcare Agent requirement: Document ESI system clearly. Strings live in
+ * src/i18n/en.json and es.json under queue.triage.level{N}.{name|description|timeTarget}.
  */
 export const TRIAGE_LEVELS: Record<number, TriageLevelInfo> = {
   1: {
     level: 1,
-    label: 'Resuscitation',
     color: 'red',
-    description: 'Immediate life-saving intervention required',
-    timeTarget: 'Immediate (0 min)',
-    examples: [
-      'Cardiac arrest',
-      'Severe respiratory distress',
-      'Unresponsive',
-      'Severe hemorrhage',
-      'Major trauma with unstable vitals',
-    ],
+    labelKey: 'queue.triage.level1.name',
+    descriptionKey: 'queue.triage.level1.description',
+    timeTargetKey: 'queue.triage.level1.timeTarget',
   },
   2: {
     level: 2,
-    label: 'Emergent',
     color: 'orange',
-    description: 'High risk situation, potential for deterioration',
-    timeTarget: 'Within 10 minutes',
-    examples: [
-      'Chest pain with cardiac risk factors',
-      'Altered mental status',
-      'Severe pain (8-10/10)',
-      'Difficulty breathing',
-      'Severe dehydration',
-    ],
+    labelKey: 'queue.triage.level2.name',
+    descriptionKey: 'queue.triage.level2.description',
+    timeTargetKey: 'queue.triage.level2.timeTarget',
   },
   3: {
     level: 3,
-    label: 'Urgent',
     color: 'yellow',
-    description: 'Moderate acuity, multiple resources needed',
-    timeTarget: 'Within 30 minutes',
-    examples: [
-      'Moderate pain (5-7/10)',
-      'Abdominal pain',
-      'Fever with concerning symptoms',
-      'Minor trauma requiring evaluation',
-      'Moderate bleeding',
-    ],
+    labelKey: 'queue.triage.level3.name',
+    descriptionKey: 'queue.triage.level3.description',
+    timeTargetKey: 'queue.triage.level3.timeTarget',
   },
   4: {
     level: 4,
-    label: 'Less Urgent',
     color: 'green',
-    description: 'Low acuity, one resource needed',
-    timeTarget: 'Within 60 minutes',
-    examples: [
-      'Mild pain (2-4/10)',
-      'Minor injuries',
-      'Sore throat',
-      'Rash without systemic symptoms',
-      'Chronic condition follow-up',
-    ],
+    labelKey: 'queue.triage.level4.name',
+    descriptionKey: 'queue.triage.level4.description',
+    timeTargetKey: 'queue.triage.level4.timeTarget',
   },
   5: {
     level: 5,
-    label: 'Non-Urgent',
     color: 'blue',
-    description: 'Minor symptoms, no resources needed immediately',
-    timeTarget: 'Within 120 minutes',
-    examples: [
-      'Medication refill',
-      'Minor cold symptoms',
-      'Prescription renewal',
-      'Minor questions',
-      'Follow-up appointment',
-    ],
+    labelKey: 'queue.triage.level5.name',
+    descriptionKey: 'queue.triage.level5.description',
+    timeTargetKey: 'queue.triage.level5.timeTarget',
   },
 } as const;
 
 /**
  * FHIR Task Priority mapping
  * Healthcare Agent requirement: ESI → FHIR priority mapping
+ *
+ * `labelKey` resolves via t() at display site (queue.priority.{code}).
  */
 export const PRIORITY_CODES = {
   routine: {
     code: 'routine',
-    display: 'Routine',
+    labelKey: 'queue.priority.routine',
     color: 'green',
-    description: 'Normal priority',
     sortOrder: 3,
   },
   urgent: {
     code: 'urgent',
-    display: 'Urgent',
+    labelKey: 'queue.priority.urgent',
     color: 'yellow',
-    description: 'Urgent priority',
     sortOrder: 2,
   },
   asap: {
     code: 'asap',
-    display: 'ASAP',
+    labelKey: 'queue.priority.asap',
     color: 'orange',
-    description: 'As soon as possible',
     sortOrder: 1,
   },
   stat: {
     code: 'stat',
-    display: 'STAT',
+    labelKey: 'queue.priority.stat',
     color: 'red',
-    description: 'Immediate attention required',
     sortOrder: 0,
   },
 } as const;
@@ -139,17 +103,11 @@ export function getTriageLevelInfo(level: TriageLevel): TriageLevelInfo {
 }
 
 /**
- * Get triage level color for UI display
+ * Get triage level color for UI display.
+ * Returns gray for unknown levels (defensive against bad data).
  */
 export function getTriageLevelColor(level: TriageLevel): string {
-  return TRIAGE_LEVELS[level].color;
-}
-
-/**
- * Get triage level label
- */
-export function getTriageLevelLabel(level: TriageLevel): string {
-  return TRIAGE_LEVELS[level].label;
+  return TRIAGE_LEVELS[level]?.color ?? 'gray';
 }
 
 /**
@@ -157,13 +115,6 @@ export function getTriageLevelLabel(level: TriageLevel): string {
  */
 export function getPriorityColor(priority: FhirPriority): string {
   return PRIORITY_CODES[priority].color;
-}
-
-/**
- * Get FHIR priority display name
- */
-export function getPriorityDisplay(priority: FhirPriority): string {
-  return PRIORITY_CODES[priority].display;
 }
 
 /**
@@ -281,22 +232,32 @@ export function getWaitTimeColor(waitTimeMinutes: number, priority: FhirPriority
   return 'red';
 }
 
+export interface WaitTimeFormat {
+  /** i18n key — resolve at display site via t(key, params). */
+  key: string;
+  params: Record<string, number>;
+}
+
 /**
- * Format wait time for display
+ * Format wait time as an i18n key + params. Display sites translate via t().
+ * Uses i18next plural suffixes (_one / _other) for "minutes" and "hours".
  */
-export function formatWaitTime(minutes: number): string {
-  if (minutes < 1) return 'Just arrived';
-  if (minutes === 1) return '1 minute';
-  if (minutes < 60) return `${minutes} minutes`;
+export function formatWaitTime(minutes: number): WaitTimeFormat {
+  if (minutes < 1) {
+    return { key: 'queue.waitTime.justArrived', params: {} };
+  }
+  if (minutes < 60) {
+    return { key: 'queue.waitTime.minute', params: { count: minutes } };
+  }
 
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
 
   if (remainingMinutes === 0) {
-    return hours === 1 ? '1 hour' : `${hours} hours`;
+    return { key: 'queue.waitTime.hour', params: { count: hours } };
   }
 
-  return `${hours}h ${remainingMinutes}m`;
+  return { key: 'queue.waitTime.hoursMinutes', params: { hours, minutes: remainingMinutes } };
 }
 
 /**
@@ -314,34 +275,38 @@ export function calculateEstimatedWait(
 }
 
 /**
- * Get triage level badge props for Mantine Badge component
+ * Get triage level badge props for Mantine Badge component.
+ * Display sites translate via t(labelKey, labelParams).
  */
 export function getTriageBadgeProps(level: TriageLevel): {
   color: string;
   variant: 'filled' | 'light' | 'outline';
-  label: string;
+  labelKey: string;
+  labelParams: { level: number; nameKey: string };
 } {
   const info = TRIAGE_LEVELS[level];
   return {
     color: info.color,
     variant: level <= 2 ? 'filled' : 'light',
-    label: `ESI ${level} - ${info.label}`,
+    labelKey: 'queue.triage.badgeLabel',
+    labelParams: { level, nameKey: info.labelKey },
   };
 }
 
 /**
- * Get priority badge props for Mantine Badge component
+ * Get priority badge props for Mantine Badge component.
+ * Display sites translate via t(labelKey).
  */
 export function getPriorityBadgeProps(priority: FhirPriority): {
   color: string;
   variant: 'filled' | 'light' | 'outline';
-  label: string;
+  labelKey: string;
 } {
   const info = PRIORITY_CODES[priority];
   return {
     color: info.color,
     variant: priority === 'stat' || priority === 'asap' ? 'filled' : 'light',
-    label: info.display.toUpperCase(),
+    labelKey: info.labelKey,
   };
 }
 

@@ -623,6 +623,54 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-06T23:38:49.228Z"
+    },
+    {
+      "id": "bug-039",
+      "timestamp": "2026-05-07T22:33:57.140Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/utils/triageUtils.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-07T22:33:57.140Z"
+    },
+    {
+      "id": "bug-040",
+      "timestamp": "2026-05-07T22:34:02.992Z",
+      "error_message": "Type error",
+      "file": "src/utils/triageUtils.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-07T22:34:02.992Z"
+    },
+    {
+      "id": "bug-041",
+      "timestamp": "2026-05-07T22:34:58.050Z",
+      "error_message": "CSS fix: displayTime",
+      "file": "src/pages/queue/ProviderWorkQueuePage.tsx",
+      "root_cause": "displayTime: formatWaitTime(calculateWaitTime(task)), → (() => { const w = formatWaitTime(calculateWaitTime(task))",
+      "fix": "Changed displayTime: formatWaitTime(calculateWaitTime(task)), → (() => { const w = formatWaitTime(calculateWaitTime(task))",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-07T22:34:58.050Z"
     }
   ]
 }

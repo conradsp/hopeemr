@@ -77,13 +77,13 @@ export function QueueMetrics({ tasks, detailed = true }: QueueMetricsProps): JSX
         <MetricCard
           icon={<IconClock size={24} />}
           label={t('queue.metrics.avgWait', 'Avg Wait')}
-          value={formatWaitTime(averageWaitTime)}
+          value={(() => { const w = formatWaitTime(averageWaitTime); return t(w.key, w.params); })()}
           color="orange"
         />
         <MetricCard
           icon={<IconAlertTriangle size={24} />}
           label={t('queue.metrics.longestWait', 'Longest Wait')}
-          value={formatWaitTime(longestWaitTime)}
+          value={(() => { const w = formatWaitTime(longestWaitTime); return t(w.key, w.params); })()}
           color={longestWaitTime > 60 ? 'red' : 'orange'}
         />
       </SimpleGrid>

@@ -326,7 +326,7 @@ export function ProviderWorkQueuePage(): JSX.Element {
           patient,
           patientRef,
           time: task.authoredOn ? new Date(task.authoredOn) : new Date(),
-          displayTime: formatWaitTime(calculateWaitTime(task)),
+          displayTime: (() => { const w = formatWaitTime(calculateWaitTime(task)); return t(w.key, w.params); })(),
           status: task.status || 'ready',
           priority: task.priority as FhirPriority,
           complaint: getChiefComplaint(task),
@@ -899,7 +899,7 @@ export function ProviderWorkQueuePage(): JSX.Element {
                             <div style={{ textAlign: 'right' }}>
                               <Group gap="xs">
                                 <IconClock size={16} />
-                                <Text size="sm">{formatWaitTime(waitTime)}</Text>
+                                <Text size="sm">{(() => { const w = formatWaitTime(waitTime); return t(w.key, w.params); })()}</Text>
                               </Group>
                             </div>
                           </Group>

@@ -1,5 +1,6 @@
 import { Text } from '@mantine/core';
 import { useEffect, useState, JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { FhirPriority } from '../../utils/triageUtils';
 import { formatWaitTime, getWaitTimeColor } from '../../utils/triageUtils';
 
@@ -33,6 +34,7 @@ export function WaitTimeDisplay({
   size = 'sm',
   updateInterval = 60,
 }: WaitTimeDisplayProps): JSX.Element {
+  const { t } = useTranslation();
   const [waitTimeMinutes, setWaitTimeMinutes] = useState(() =>
     calculateWaitTime(authoredOn)
   );
@@ -47,11 +49,11 @@ export function WaitTimeDisplay({
   }, [authoredOn, updateInterval]);
 
   const color = getWaitTimeColor(waitTimeMinutes, priority);
-  const formatted = formatWaitTime(waitTimeMinutes);
+  const { key, params } = formatWaitTime(waitTimeMinutes);
 
   return (
     <Text size={size} c={color} fw={500}>
-      {formatted}
+      {t(key, params)}
     </Text>
   );
 }

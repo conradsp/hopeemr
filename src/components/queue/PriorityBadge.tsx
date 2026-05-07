@@ -1,5 +1,6 @@
 import { JSX } from 'react';
 import { Badge } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 import type { FhirPriority } from '../../utils/triageUtils';
 import { getPriorityBadgeProps } from '../../utils/triageUtils';
 
@@ -19,11 +20,12 @@ interface PriorityBadgeProps {
 }
 
 export function PriorityBadge({ priority, size = 'sm' }: PriorityBadgeProps): JSX.Element {
+  const { t } = useTranslation();
   const badgeProps = getPriorityBadgeProps(priority);
 
   return (
     <Badge color={badgeProps.color} variant={badgeProps.variant} size={size}>
-      {badgeProps.label}
+      {t(badgeProps.labelKey)}
     </Badge>
   );
 }

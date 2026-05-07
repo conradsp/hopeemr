@@ -228,19 +228,19 @@ export function EncounterHeader({ encounter, medplum, onStatusChange }: Encounte
         </>
       )}
 
-      <Modal opened={statusModalOpen} onClose={() => setStatusModalOpen(false)} title="Change Encounter Status" centered>
+      <Modal opened={statusModalOpen} onClose={() => setStatusModalOpen(false)} title={t('encounter.changeStatusTitle', 'Change Encounter Status')} centered>
         <Select
-          label="Encounter Status"
+          label={t('encounter.statusLabel', 'Encounter Status')}
           data={encounterStatusOptions}
           value={newStatus || encounter?.status || ''}
           onChange={(value) => setNewStatus(value || '')}
         />
         <Group justify="flex-end" mt="md">
           <Button variant="default" onClick={() => setStatusModalOpen(false)}>
-            Cancel
+            {t('common.cancel', 'Cancel')}
           </Button>
           <Button onClick={handleStatusChange} disabled={!newStatus}>
-            Save
+            {t('common.save', 'Save')}
           </Button>
         </Group>
       </Modal>
