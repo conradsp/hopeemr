@@ -1,4 +1,4 @@
-# HopeEMR Facility Flavors & Customization — Design Spec
+# HopeEMR Facility Types & Customization — Design Spec
 
 **Date:** 2026-05-08
 **Status:** Approved (pending written-spec review)
@@ -19,7 +19,7 @@ The product question this spec answers: how does HopeEMR support meaningfully di
 
 **The originating ask conflated four customization axes** that must be designed separately:
 
-1. Operator-controlled tier/packaging ("flavor").
+1. Operator-controlled tier/packaging ("facility type").
 2. Facility admin-controlled per-facility configuration.
 3. End-user personalization.
 4. Branding (logo, name) — already exists.
@@ -43,15 +43,15 @@ Reserved alternatives:
 
 **2.2 Sequencing: Option B — thin foundation + concurrent universal-core feature work.**
 
-The foundation alone delivers no clinician-visible value. Most site-visit feedback (facesheet, visit dashboard, prescription dichotomy, lab capture, pharmacy lot/cost) is universal need, not flavoring need. The foundation must be designed thinly, so it serves the actual variation we know about (Clinic vs. eventually-Hospital, Honduras profile, free-clinic operations) without becoming an end in itself.
+The foundation alone delivers no clinician-visible value. Most site-visit feedback (facesheet, visit dashboard, prescription dichotomy, lab capture, pharmacy lot/cost) is universal need, not facility-type need. The foundation must be designed thinly, so it serves the actual variation we know about (Clinic vs. eventually-Hospital, Honduras profile, free-clinic operations) without becoming an end in itself.
 
-**Yojoa is phase 2.** The Hospital flavor and inpatient modules are not built in phase 1. Hospital flavor will extend (not replace) the Clinic flavor — hospitals run outpatient encounters too, and the foundation must preserve this composition.
+**Yojoa is phase 2.** The Hospital facility type and inpatient modules are not built in phase 1. Hospital facility type will extend (not replace) the Clinic facility type — hospitals run outpatient encounters too, and the foundation must preserve this composition.
 
-## 3. Module taxonomy (Clinic flavor, phase 1)
+## 3. Module taxonomy (Clinic facility type, phase 1)
 
 ### 3.1 Universal Core — always on
 
-Cannot be toggled at the facility level. Ships to every Clinic-flavor facility.
+Cannot be toggled at the facility level. Ships to every Clinic-type facility.
 
 - Patient registration & demographics
 - Encounters & charting
@@ -74,9 +74,9 @@ Cannot be toggled at the facility level. Ships to every Clinic-flavor facility.
 
 Two toggles. No more in phase 1.
 
-### 3.3 Phase-2 modules (not in Clinic flavor at all)
+### 3.3 Phase-2 modules (not in Clinic facility type at all)
 
-Not exposed by the Clinic flavor's availability ceiling. Built when the Hospital flavor is built for Yojoa:
+Not exposed by the Clinic facility type's availability ceiling. Built when the Hospital facility type is built for Yojoa:
 
 - Inpatient encounter type, admission ordersets (ABCVANDISMAL pattern)
 - MAR (Medication Administration Record) with scheduled / prn / discreet sigs
@@ -99,7 +99,7 @@ Diagnoses stays in Universal Core but the catalog is explicitly customizable:
 ```
 Country Profile     (data, in master Project, synced into facility Projects)
         ↓
-Flavor              (code: src/config/flavors/*.ts)
+FacilityType        (code: src/config/facility-types/*.ts)
         ↓
 Facility Config     (data, on per-Project emr-settings Organization)
         ↓
@@ -124,13 +124,13 @@ Artifact set:
 
 The actual content of these artifacts (the pregnancy form fields, the monthly diagnosis report definition) is **out of scope for this spec** — that's regulatory authoring work that produces content for the foundation to load. The foundation must load and apply whatever the master Project contains.
 
-### 4.2 Flavor (Layer 2) — code
+### 4.2 FacilityType (Layer 2) — code
 
-Lives in `src/config/flavors/`. TypeScript objects, version-controlled.
+Lives in `src/config/facility-types/`. TypeScript objects, version-controlled.
 
 ```typescript
-// src/config/flavors/types.ts
-export type FlavorId = 'clinic' | 'hospital';
+// src/config/facility-types/types.ts
+export type FacilityTypeId = 'clinic' | 'hospital';
 export type ModuleId =
   | 'imaging'
   | 'departments'
@@ -155,8 +155,8 @@ export interface CatalogSeeds {
   // Applied once at provisioning, not enforced at runtime
 }
 
-export interface Flavor {
-  id: FlavorId;
+export interface FacilityType {
+  id: FacilityTypeId;
   name: string;
   /** Module availability ceiling — what modules CAN be enabled at the facility */
   availableModules: ModuleId[];
@@ -170,8 +170,8 @@ export interface Flavor {
 ```
 
 ```typescript
-// src/config/flavors/clinic.ts
-export const clinicFlavor: Flavor = {
+// src/config/facility-types/clinic.ts
+export const clinicFacilityType: FacilityType = {
   id: 'clinic',
   name: 'Outpatient Clinic',
   availableModules: ['imaging', 'departments'],
@@ -181,7 +181,7 @@ export const clinicFlavor: Flavor = {
 };
 ```
 
-A facility's flavor assignment is data — `valueCode: 'clinic'` on their `emr-settings` `Organization`. The flavor object itself is code.
+A facility's facility-type assignment is data — `valueCode: 'clinic'` on their `emr-settings` `Organization`. The `FacilityType` object itself is code.
 
 ### 4.3 Facility Config (Layer 3) — data on `emr-settings` Organization
 
@@ -191,7 +191,7 @@ Extends the existing per-Project singleton `Organization` (identifier `emr-setti
 http://hopeemr.org/fhir/country
   valueCode: 'HN'
 
-http://hopeemr.org/fhir/flavor
+http://hopeemr.org/fhir/facility-type
   valueCode: 'clinic' | 'hospital'
 
 http://hopeemr.org/fhir/module-enabled
@@ -208,7 +208,7 @@ http://hopeemr.org/fhir/free-clinic-mode
   valueBoolean
 ```
 
-The facility admin can write `module-enabled`, `module-setting`, `free-clinic-mode`, and existing workflow extensions. They **cannot write** `country` or `flavor` — those are operator-only (enforced by AccessPolicy, see §5.3).
+The facility admin can write `module-enabled`, `module-setting`, `free-clinic-mode`, and existing workflow extensions. They **cannot write** `country` or `facility-type` — those are operator-only (enforced by AccessPolicy, see §5.3).
 
 ### 4.4 User Preferences (Layer 4) — deferred
 
@@ -220,7 +220,7 @@ Not built in phase 1. When added, will live on `Practitioner.extension` or a `Us
 // src/config/resolveConfig.ts
 export interface ResolvedConfig {
   country: CountryCode;
-  flavor: FlavorId;
+  facilityType: FacilityTypeId;
   modules: Record<ModuleId, { enabled: boolean; settings: ModuleSettings }>;
   freeClinicMode: boolean;
   workflowConfig: WorkflowConfiguration;  // existing
@@ -229,21 +229,21 @@ export interface ResolvedConfig {
 
 export function resolveConfig(
   countryProfile: CountryProfile,        // Layer 1 (loaded from facility Project's Library)
-  flavor: Flavor,                        // Layer 2 (looked up by id from code)
+  facilityType: FacilityType,            // Layer 2 (looked up by id from code)
   facilitySettings: FacilityConfigData | null,  // Layer 3 (null if emr-settings Organization is missing)
 ): ResolvedConfig {
   // 1. Start with country profile baseline (locale, required artifacts).
   // 2. Determine the enabled-modules set with three-state semantics:
   //    a. If facilitySettings is null OR contains zero `module-enabled` extensions,
-  //       use flavor.defaultEnabledModules verbatim. Treated as "facility config absent —
-  //       fall back to flavor defaults."
+  //       use facilityType.defaultEnabledModules verbatim. Treated as "facility config absent —
+  //       fall back to facility-type defaults."
   //    b. If facilitySettings contains one or more `module-enabled` extensions, those are
   //       authoritative. The set of enabled modules equals the set of module-enabled
-  //       extensions, intersected with flavor.availableModules. A module-enabled extension
+  //       extensions, intersected with facilityType.availableModules. A module-enabled extension
   //       referencing a module outside availableModules is ignored (and logged) — it is
   //       not honored. A module not present in any module-enabled extension is disabled.
   // 3. Apply per-module settings from facilitySettings.module-setting extensions:
-  //    only applied if the module is in flavor.availableModules.
+  //    only applied if the module is in facilityType.availableModules.
   // 4. Validate: country profile required artifacts are present; if not, log error but
   //    do not block (resolver returns a usable config and lets calling code decide).
   // 5. Return ResolvedConfig.
@@ -254,15 +254,15 @@ export function resolveConfig(
 
 | State | Resolved enabled set |
 |---|---|
-| `emr-settings` Organization missing entirely | `flavor.defaultEnabledModules` |
-| `emr-settings` Organization exists but has no `module-enabled` extensions | `flavor.defaultEnabledModules` |
-| `emr-settings` Organization has at least one `module-enabled` extension | the set of `module-enabled` extensions ∩ `flavor.availableModules` |
+| `emr-settings` Organization missing entirely | `facilityType.defaultEnabledModules` |
+| `emr-settings` Organization exists but has no `module-enabled` extensions | `facilityType.defaultEnabledModules` |
+| `emr-settings` Organization has at least one `module-enabled` extension | the set of `module-enabled` extensions ∩ `facilityType.availableModules` |
 
 The third state means a facility admin who explicitly disables every module results in zero enabled modules — that is the admin's choice, not a fallback.
 
-The provisioning script (`scripts/provision-facility.ts`) **always seeds the `module-enabled` extensions with `flavor.defaultEnabledModules`** when creating the `emr-settings` Organization, so a freshly-provisioned facility starts in the third state with the expected modules. The "no extensions" fallback exists for dev/test scenarios where the Organization gets created without going through the provisioning script.
+The provisioning script (`scripts/provision-facility.ts`) **always seeds the `module-enabled` extensions with `facilityType.defaultEnabledModules`** when creating the `emr-settings` Organization, so a freshly-provisioned facility starts in the third state with the expected modules. The "no extensions" fallback exists for dev/test scenarios where the Organization gets created without going through the provisioning script.
 
-**Default-safe semantics:** every layer can be missing without crashing. A facility with no `emr-settings` Organization and no country profile artifacts still produces a `ResolvedConfig` with `country: 'HN'` (default), `flavor: 'clinic'` (default), and `modules: clinicFlavor.defaultEnabledModules`.
+**Default-safe semantics:** every layer can be missing without crashing. A facility with no `emr-settings` Organization and no country profile artifacts still produces a `ResolvedConfig` with `country: 'HN'` (default), `facilityType: 'clinic'` (default), and `modules: clinicFacilityType.defaultEnabledModules`.
 
 Resolution runs once at app boot via `useConfig()`, cached in context, re-runs on `emr-config-changed` event.
 
@@ -311,7 +311,7 @@ Rollback: re-publish a prior `Library.version` to the master Project and re-sync
 Args (interactive prompts ≤5):
 - Facility name
 - Country code (defaults to `HN`)
-- Flavor (defaults to `clinic`)
+- FacilityType (defaults to `clinic`)
 - Admin user email
 - (optional) initial timezone
 
@@ -321,9 +321,9 @@ Behavior:
    - Allow facility admin to read all of own Project.
    - Allow facility admin to write `Organization` (specifically the `emr-settings` resource), `Patient`, `Encounter`, etc., as their role permits.
    - **Deny** facility admin write access to `Library`, `Questionnaire`, `Measure`, `CodeSystem`, `ValueSet`, and the country-profile `Basic` resource.
-3. Create `emr-settings` `Organization` with extensions: `country`, `flavor`, default `module-enabled` for each `flavor.defaultEnabledModules`.
+3. Create `emr-settings` `Organization` with extensions: `country`, `facility-type`, default `module-enabled` for each `facilityType.defaultEnabledModules`.
 4. Run country profile sync into the new Project.
-5. Apply catalog seeds from `flavor.catalogSeeds` (note templates, etc.).
+5. Apply catalog seeds from `facilityType.catalogSeeds` (note templates, etc.).
 6. Create the admin user, assign to the Project with admin role.
 7. Print the facility Project ID and admin login URL.
 
@@ -335,8 +335,8 @@ Idempotent on re-run: if the Project already exists, refuse with a clear error r
 |---|---|---|
 | Country profile (master Project) | Operator | Operator |
 | Country profile (per-facility copy) | Everyone in facility Project | Operator (via sync). Facility admin: read-only, enforced by AccessPolicy. |
-| Flavor (code) | Everyone | Operator (code change + release) |
-| Facility Config (`Organization` extensions) | Everyone in facility Project | Facility admin (within flavor ceiling) + Operator |
+| FacilityType (code) | Everyone | Operator (code change + release) |
+| Facility Config (`Organization` extensions) | Everyone in facility Project | Facility admin (within facility-type ceiling) + Operator |
 | Per-encounter charge status | Provider, front desk, billing role | Provider, front desk; role-gated. Operator override after `ChargeItem` exists. |
 | Free Clinic Mode toggle | Everyone in facility Project | Admin role; toggle lives on admin settings page |
 
@@ -383,7 +383,7 @@ useConfig(): ResolvedConfig
   // on the `emr-config-changed` event.
 
 useModule(id: ModuleId): { enabled: boolean; settings: ModuleSettings }
-  // Convenience for one module. enabled = false if the module is outside the flavor's
+  // Convenience for one module. enabled = false if the module is outside the facility-type's
   // availableModules OR if facility config has it disabled.
 
 useFeatureFlags(): FeatureFlags  // existing — UNCHANGED
@@ -429,10 +429,10 @@ UI gates that depend on both should check both: `config.modules.imaging.enabled 
 
 New section listing modules grouped into:
 
-- **Available modules** (those in the facility's flavor `availableModules`) — toggleable on/off.
+- **Available modules** (those in the facility's `FacilityType.availableModules`) — toggleable on/off.
 - **Hospital-only modules** (those outside the ceiling) — visible but disabled, with text:
 
-  > "Available in Hospital flavor only. Contact HopeEMR support to upgrade your facility."
+  > "Available in Hospital facility type only. Contact HopeEMR support to upgrade your facility."
 
 Visibility-of-unavailable rather than full hide is intentional: discoverability matters, and the message is the right answer to "can we get this?"
 
@@ -454,12 +454,12 @@ You are not yet live. Migration is essentially "build the layers in the right or
 
 ### Step 1 — Scaffolding (no user-visible change)
 
-- Add types: `CountryCode`, `FlavorId`, `ModuleId`, `ModuleSettings`, `CatalogSeeds`, `Flavor`, `CountryProfile`, `FacilityConfigData`, `ResolvedConfig`.
+- Add types: `CountryCode`, `FacilityTypeId`, `ModuleId`, `ModuleSettings`, `CatalogSeeds`, `FacilityType`, `CountryProfile`, `FacilityConfigData`, `ResolvedConfig`.
 - Add `resolveConfig()` with default-safe semantics.
 - Add `useConfig()`, `useModule()` hooks.
 - Add `<Module>`, `<RequireModule>` components.
-- Add `clinicFlavor` to `src/config/flavors/clinic.ts`.
-- Tests for the resolver covering: country only / country+flavor / country+flavor+facility / facility setting outside ceiling / facility setting inside ceiling / all layers missing.
+- Add `clinicFacilityType` to `src/config/facility-types/clinic.ts`.
+- Tests for the resolver covering: country only / country+facility-type / country+facility-type+facility / facility setting outside ceiling / facility setting inside ceiling / all layers missing.
 
 ### Step 2 — Per-Project plumbing
 
@@ -500,8 +500,8 @@ You are not yet live. Migration is essentially "build the layers in the right or
 - One Medplum deployment, one Project per facility.
 - `hopeemr-system` master Project for canonical country profile.
 - Honduras country profile resources (foundation only — content authored separately).
-- Clinic flavor (only flavor in phase 1).
-- Facility config via `emr-settings` Organization extensions: `country`, `flavor`, `module-enabled`, `module-setting`, `free-clinic-mode`.
+- Clinic facility type (only facility type in phase 1).
+- Facility config via `emr-settings` Organization extensions: `country`, `facility-type`, `module-enabled`, `module-setting`, `free-clinic-mode`.
 - `resolveConfig()` + `useConfig()` + `useModule()` + `<Module>` + `<RequireModule>`.
 - Two module toggles: Imaging, Departments/Beds.
 - Free Clinic Mode (admin toggle) + per-encounter charge status (extension on `Encounter`) + Provenance audit.
@@ -515,7 +515,7 @@ You are not yet live. Migration is essentially "build the layers in the right or
 
 ### 10.2 Not in phase 1 (deferred to later phases or never)
 
-- Hospital flavor and inpatient modules (deferred to phase 2 with Yojoa).
+- Hospital facility type and inpatient modules (deferred to phase 2 with Yojoa).
 - User-level personalization.
 - Module dependency graph and cross-module validation.
 - Versioned/scheduled config changes.
@@ -525,7 +525,7 @@ You are not yet live. Migration is essentially "build the layers in the right or
 - Runtime hot-reload of country profile.
 - Facility-level overrides of country profile artifacts.
 - A/B testing or rollout flag infrastructure.
-- Facility-flavor authoring or visualization UI.
+- Facility-type authoring or visualization UI.
 
 ### 10.3 Not in this spec (concurrent, separate specs)
 
@@ -560,8 +560,8 @@ These live in the universal core feature work that ships in parallel:
 
 The foundation is done when all of the following hold:
 
-1. A new facility can be provisioned end-to-end (Project + admin user + country profile + flavor + initial settings) by running one script and answering ≤5 prompts.
-2. A provisioned facility's app loads with the correct country profile, flavor, and default modules, with no manual configuration steps.
+1. A new facility can be provisioned end-to-end (Project + admin user + country profile + facility type + initial settings) by running one script and answering ≤5 prompts.
+2. A provisioned facility's app loads with the correct country profile, facility type, and default modules, with no manual configuration steps.
 3. Toggling the Imaging module off cleanly removes the imaging admin pages, the order-imaging button on encounters, the imaging tab/section on the patient view, and the imaging entries in the order menu. Toggling it back on restores all of them. Same behavior for Departments/Beds.
 4. Free Clinic Mode toggle defaults all newly-created encounters to `no-charge`. In-flight encounters are unaffected. The encounter creation flow explicitly tells the creator the default that was applied.
 5. A provider can mark a single visit `no-charge` regardless of facility mode, with a reason captured and a `Provenance` resource created.
@@ -569,12 +569,12 @@ The foundation is done when all of the following hold:
 7. The country profile sync script can update all assigned facilities without facility-side intervention. `--dry-run` mode previews changes per facility.
 8. Facility admin attempts to write a country profile artifact (e.g., `Library`, `Questionnaire`) are denied by Medplum `AccessPolicy`. Integration tests assert the denial.
 9. Offline: a facility that loses connectivity for the rest of a session continues operating with the last-resolved config; reconnect re-resolves correctly.
-10. Resolver test coverage hits every override scenario (country only / country+flavor / country+flavor+facility / facility setting outside ceiling / facility setting inside ceiling / all layers missing).
+10. Resolver test coverage hits every override scenario (country only / country+facility-type / country+facility-type+facility / facility setting outside ceiling / facility setting inside ceiling / all layers missing).
 11. Documentation in `CLAUDE.md` and `.wolf/cerebrum.md` covers the new patterns so future agent sessions do not re-invent the gating system.
 
 ## 13. Cross-cutting principles
 
-- **One source of truth per layer.** Country profile in the master Project. Flavor in code. Facility config in the Project's `emr-settings` Organization. No settings sprinkled across multiple resources.
+- **One source of truth per layer.** Country profile in the master Project. FacilityType in code. Facility config in the Project's `emr-settings` Organization. No settings sprinkled across multiple resources.
 - **Default-safe.** Every layer can be missing; resolver still produces a working config.
 - **Additive only.** No layer ever silently subtracts capability without an explicit toggle. Adding a country profile artifact never breaks a facility; toggling a module hides it without deleting data.
 - **Auditable.** Every facility-config change produces a `Provenance` (or equivalent versioned change). Important for the support conversation a year from now.
@@ -586,6 +586,6 @@ To be answered by the regulatory/clinical authoring track, not by foundation eng
 
 - Beyond the Honduran pregnancy form and the monthly diagnosis report, what other Ministry of Health regulatory artifacts must the Honduras profile carry? Candidates: vaccination card schedules, child growth standards, notifiable disease reporting, maternal/infant mortality registries.
 - What identifier rules does the Honduras profile carry (national ID format, patient identifier patterns)?
-- For the catalog seeds applied at Clinic-flavor provisioning: which note templates, lab panels, and formulary entries are the "default Clinic" set?
+- For the catalog seeds applied at Clinic-type provisioning: which note templates, lab panels, and formulary entries are the "default Clinic" set?
 
 These do not change the foundation design. They are content that the foundation loads.
