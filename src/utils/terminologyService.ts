@@ -22,7 +22,7 @@ export const CODING_SYSTEMS = {
   ICD10CM: 'http://hl7.org/fhir/sid/icd-10-cm',
   ICD10: 'http://hl7.org/fhir/sid/icd-10',
   SNOMED: 'http://snomed.info/sct',
-  CUSTOM: 'http://medplum.com/emr/custom-codes',
+  CUSTOM: 'http://hopeemr.com/fhir/CodeSystem/custom-codes',
 } as const;
 
 // Configuration storage key

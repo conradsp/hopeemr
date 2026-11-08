@@ -71,14 +71,14 @@ export function MedicationsTab({
 
   const getPrescriptionType = (request: MedicationRequest): string => {
     const type = request.extension?.find(
-      ext => ext.url === 'http://example.org/fhir/StructureDefinition/prescription-type'
+      ext => ext.url === 'http://hopeemr.com/fhir/StructureDefinition/prescription-type'
     )?.valueString;
     return type === 'internal' ? t('pharmacy.internal') : t('pharmacy.external');
   };
 
   const isInternal = (request: MedicationRequest): boolean => {
     const type = request.extension?.find(
-      ext => ext.url === 'http://example.org/fhir/StructureDefinition/prescription-type'
+      ext => ext.url === 'http://hopeemr.com/fhir/StructureDefinition/prescription-type'
     )?.valueString;
     return type === 'internal';
   };

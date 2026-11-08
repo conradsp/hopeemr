@@ -179,7 +179,7 @@ export function OrdersTab({ serviceRequests }: OrdersTabProps): JSX.Element {
     const labTests = await getLabTests(medplum);
     const matchingTest = labTests.find(
       (def) => {
-        const defCode = def.identifier?.find(id => id.system === 'http://medplum.com/emr/lab-test')?.value;
+        const defCode = def.identifier?.find(id => id.system === 'http://hopeemr.com/fhir/identifier/lab-test')?.value;
         const defTitle = def.title || def.code?.text;
         return defCode === testCode || defTitle === sr.code?.coding?.[0]?.display || defTitle === sr.code?.text;
       }

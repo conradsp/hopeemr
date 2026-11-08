@@ -55,7 +55,7 @@ export function InventoryPage(): JSX.Element {
         const inventory = await getMedicationInventory(medplum, med.id!);
         const currentStock = inventory?.packaging?.quantity?.value || 0;
         const reorderLevel = inventory?.extension?.find(
-          e => e.url === 'http://example.org/fhir/StructureDefinition/reorder-level'
+          e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/reorder-level'
         )?.valueInteger || 10;
         
         let status: 'in-stock' | 'low-stock' | 'out-of-stock' = 'in-stock';
@@ -90,16 +90,16 @@ export function InventoryPage(): JSX.Element {
       quantity: item.currentStock,
       reorderLevel: item.reorderLevel,
       reorderQuantity: inv?.extension?.find(
-        e => e.url === 'http://example.org/fhir/StructureDefinition/reorder-quantity'
+        e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/reorder-quantity'
       )?.valueInteger || 50,
       expirationDate: inv?.extension?.find(
-        e => e.url === 'http://example.org/fhir/StructureDefinition/expiration-date'
+        e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/expiration-date'
       )?.valueDate || '',
       lotNumber: inv?.extension?.find(
-        e => e.url === 'http://example.org/fhir/StructureDefinition/lot-number'
+        e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/lot-number'
       )?.valueString || '',
       location: inv?.extension?.find(
-        e => e.url === 'http://example.org/fhir/StructureDefinition/storage-location'
+        e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/storage-location'
       )?.valueString || '',
     });
     setModalOpen(true);

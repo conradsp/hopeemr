@@ -94,7 +94,7 @@ export function DepartmentsPage(): JSX.Element {
           ...editingDepartment,
           name: formData.name,
           identifier: [{
-            system: 'http://example.org/department-codes',
+            system: 'http://hopeemr.com/fhir/CodeSystem/department',
             value: formData.code,
           }],
           type: [{

@@ -75,7 +75,7 @@ export function EditNoteTemplateModal({ opened, onClose, template }: EditNoteTem
         description: formData.description,
         identifier: template?.identifier || [
           {
-            system: 'http://medplum.com/note-templates',
+            system: 'http://hopeemr.com/fhir/identifier/note-template',
             value: `custom-${Date.now()}`,
           },
         ],

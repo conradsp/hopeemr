@@ -217,7 +217,7 @@ export function QuickRegisterModal({
           ? {
               tag: [
                 {
-                  system: 'http://medplum.com/patient-registration',
+                  system: 'http://hopeemr.com/fhir/identifier/patient-registration',
                   code: 'incomplete',
                   display: 'Incomplete Registration',
                 },

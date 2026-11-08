@@ -10,7 +10,7 @@ export interface DiagnosticProviderDefinition {
   website?: string;
 }
 
-const DIAGNOSTIC_PROVIDER_IDENTIFIER_SYSTEM = 'http://medplum.com/emr/diagnostic-provider';
+const DIAGNOSTIC_PROVIDER_IDENTIFIER_SYSTEM = 'http://hopeemr.com/fhir/identifier/diagnostic-provider';
 
 /**
  * Default diagnostic providers

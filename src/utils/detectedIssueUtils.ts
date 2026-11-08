@@ -209,7 +209,7 @@ export function buildDetectedIssueResource(
   if (encounter.id) {
     detectedIssue.extension = [
       {
-        url: 'http://medplum.com/fhir/StructureDefinition/encounter-reference',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/encounter-reference',
         valueReference: {
           reference: `Encounter/${encounter.id}`,
         },

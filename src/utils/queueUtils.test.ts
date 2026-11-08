@@ -263,7 +263,7 @@ describe('queueUtils', () => {
           code: {
             coding: [
               {
-                system: 'http://medplum.com/fhir/CodeSystem/task-code',
+                system: 'http://hopeemr.com/fhir/CodeSystem/task-code',
                 code,
               },
             ],
@@ -282,7 +282,7 @@ describe('queueUtils', () => {
         code: {
           coding: [
             {
-              system: 'http://medplum.com/fhir/CodeSystem/task-code',
+              system: 'http://hopeemr.com/fhir/CodeSystem/task-code',
               code: 'unknown-code',
             },
           ],
@@ -315,7 +315,7 @@ describe('queueUtils', () => {
         code: {
           coding: [
             {
-              system: 'http://medplum.com/fhir/CodeSystem/task-code',
+              system: 'http://hopeemr.com/fhir/CodeSystem/task-code',
               code: 'lab-review',
               display: 'Lab Review',
             },
@@ -347,7 +347,7 @@ describe('queueUtils', () => {
         code: {
           coding: [
             {
-              system: 'http://medplum.com/fhir/CodeSystem/task-code',
+              system: 'http://hopeemr.com/fhir/CodeSystem/task-code',
               code: 'follow-up',
             },
           ],
@@ -376,7 +376,7 @@ describe('queueUtils', () => {
         code: {
           coding: [
             {
-              system: 'http://medplum.com/fhir/CodeSystem/task-code',
+              system: 'http://hopeemr.com/fhir/CodeSystem/task-code',
               code: 'call-patient',
             },
           ],
@@ -402,7 +402,7 @@ describe('queueUtils', () => {
         code: {
           coding: [
             {
-              system: 'http://medplum.com/fhir/CodeSystem/task-code',
+              system: 'http://hopeemr.com/fhir/CodeSystem/task-code',
               code: 'imaging-review',
               display: 'Review Imaging Results',
             },

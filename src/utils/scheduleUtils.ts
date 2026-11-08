@@ -46,7 +46,7 @@ export async function createSchedule(
       {
         coding: [
           {
-            system: 'http://medplum.com/appointment-types',
+            system: 'http://hopeemr.com/fhir/CodeSystem/appointment-type',
             code: appointmentType,
             display: type?.display || appointmentType,
           },

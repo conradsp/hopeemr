@@ -11,7 +11,7 @@ import { UserRole, Permission, ROLE_PERMISSIONS } from './permissions';
 // FHIR EXTENSIONS
 // ============================================================================
 
-const USER_ROLES_EXTENSION_URL = 'http://example.org/fhir/StructureDefinition/user-roles';
+const USER_ROLES_EXTENSION_URL = 'http://hopeemr.com/fhir/StructureDefinition/user-roles';
 
 // ============================================================================
 // ROLE MANAGEMENT

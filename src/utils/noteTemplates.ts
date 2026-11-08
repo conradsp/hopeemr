@@ -12,7 +12,7 @@ export const SOAP_TEMPLATE: Questionnaire = {
   status: 'active',
   title: 'SOAP Note',
   description: 'Subjective, Objective, Assessment, and Plan documentation',
-  identifier: [{ system: 'http://medplum.com/note-templates', value: 'soap-note' }],
+  identifier: [{ system: 'http://hopeemr.com/fhir/identifier/note-template', value: 'soap-note' }],
   item: [
     {
       linkId: 'subjective',
@@ -47,7 +47,7 @@ export const H_AND_P_TEMPLATE: Questionnaire = {
   status: 'active',
   title: 'History & Physical',
   description: 'Complete history and physical examination documentation',
-  identifier: [{ system: 'http://medplum.com/note-templates', value: 'h-and-p' }],
+  identifier: [{ system: 'http://hopeemr.com/fhir/identifier/note-template', value: 'h-and-p' }],
   item: [
     {
       linkId: 'chief-complaint',
@@ -118,7 +118,7 @@ export const PROGRESS_NOTE_TEMPLATE: Questionnaire = {
   status: 'active',
   title: 'Progress Note',
   description: 'Daily progress note for ongoing care',
-  identifier: [{ system: 'http://medplum.com/note-templates', value: 'progress-note' }],
+  identifier: [{ system: 'http://hopeemr.com/fhir/identifier/note-template', value: 'progress-note' }],
   item: [
     {
       linkId: 'interval-history',
@@ -152,7 +152,7 @@ export const CONSULTATION_TEMPLATE: Questionnaire = {
   status: 'active',
   title: 'Consultation Note',
   description: 'Specialist consultation documentation',
-  identifier: [{ system: 'http://medplum.com/note-templates', value: 'consultation' }],
+  identifier: [{ system: 'http://hopeemr.com/fhir/identifier/note-template', value: 'consultation' }],
   item: [
     {
       linkId: 'reason-for-consult',
@@ -198,7 +198,7 @@ export const PROCEDURE_NOTE_TEMPLATE: Questionnaire = {
   status: 'active',
   title: 'Procedure Note',
   description: 'Documentation for procedures performed',
-  identifier: [{ system: 'http://medplum.com/note-templates', value: 'procedure-note' }],
+  identifier: [{ system: 'http://hopeemr.com/fhir/identifier/note-template', value: 'procedure-note' }],
   item: [
     {
       linkId: 'procedure-name',
@@ -260,7 +260,7 @@ export const DISCHARGE_SUMMARY_TEMPLATE: Questionnaire = {
   status: 'active',
   title: 'Discharge Summary',
   description: 'Hospital discharge documentation',
-  identifier: [{ system: 'http://medplum.com/note-templates', value: 'discharge-summary' }],
+  identifier: [{ system: 'http://hopeemr.com/fhir/identifier/note-template', value: 'discharge-summary' }],
   item: [
     {
       linkId: 'admission-date',
