@@ -398,7 +398,6 @@ class SyncManagerClass {
             resourceId,
             cachedVersion: cachedVersionId,
             serverVersion: serverVersionId,
-            localChanges: JSON.stringify(item.resource).substring(0, 500), // Truncated for logging
             resolution: 'server-wins',
           });
 
