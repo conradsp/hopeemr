@@ -3,6 +3,7 @@ import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
+import globals from 'globals';
 
 export default [
   js.configs.recommended,
@@ -18,50 +19,9 @@ export default [
         },
       },
       globals: {
-        // Browser globals
-        window: 'readonly',
-        document: 'readonly',
-        navigator: 'readonly',
-        console: 'readonly',
-        fetch: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        localStorage: 'readonly',
-        sessionStorage: 'readonly',
-        alert: 'readonly',
-        crypto: 'readonly',
-        IDBKeyRange: 'readonly',
+        ...globals.browser,
+        // TypeScript ambient namespaces referenced in type positions
         NodeJS: 'readonly',
-        // Additional browser globals
-        URL: 'readonly',
-        URLSearchParams: 'readonly',
-        btoa: 'readonly',
-        atob: 'readonly',
-        performance: 'readonly',
-        FormData: 'readonly',
-        Blob: 'readonly',
-        File: 'readonly',
-        FileReader: 'readonly',
-        Image: 'readonly',
-        Event: 'readonly',
-        CustomEvent: 'readonly',
-        HTMLElement: 'readonly',
-        HTMLDivElement: 'readonly',
-        HTMLInputElement: 'readonly',
-        HTMLTextAreaElement: 'readonly',
-        HTMLSelectElement: 'readonly',
-        HTMLButtonElement: 'readonly',
-        HTMLFormElement: 'readonly',
-        confirm: 'readonly',
-        prompt: 'readonly',
-        MutationObserver: 'readonly',
-        ResizeObserver: 'readonly',
-        IntersectionObserver: 'readonly',
-        requestAnimationFrame: 'readonly',
-        cancelAnimationFrame: 'readonly',
-        // React types (for JSX.Element usage)
         JSX: 'readonly',
         React: 'readonly',
       },

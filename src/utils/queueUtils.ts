@@ -42,7 +42,7 @@ const QUEUE_STATUS_SYSTEM = 'http://medplum.com/fhir/CodeSystem/queue-status';
 const CHECKIN_METHOD_SYSTEM = 'http://medplum.com/fhir/CodeSystem/checkin-method';
 const TRIAGE_LEVEL_EXTENSION = 'http://medplum.com/fhir/StructureDefinition/triage-level';
 const CHIEF_COMPLAINT_EXTENSION = 'http://medplum.com/fhir/StructureDefinition/chief-complaint';
-const COMPLAINT_SENSITIVITY_EXTENSION = 'http://medplum.com/fhir/StructureDefinition/complaint-sensitivity';
+export const COMPLAINT_SENSITIVITY_EXTENSION = 'http://medplum.com/fhir/StructureDefinition/complaint-sensitivity';
 const CHECKIN_METHOD_EXTENSION = 'http://medplum.com/fhir/StructureDefinition/checkin-method';
 
 /**

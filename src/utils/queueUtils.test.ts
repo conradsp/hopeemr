@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { MockClient } from '@medplum/mock';
 import type { Patient, Location, Practitioner, Task, Encounter, Appointment } from '@medplum/fhirtypes';
 import {
+  COMPLAINT_SENSITIVITY_EXTENSION,
   createQueueEntry,
   claimNextPatient,
   updateTriageLevel,
@@ -164,7 +165,7 @@ describe('queueUtils', () => {
         intent: 'order',
         extension: [
           {
-            url: 'http://medplum.com/complaint-sensitivity',
+            url: COMPLAINT_SENSITIVITY_EXTENSION,
             valueCode: 'private',
           },
         ],

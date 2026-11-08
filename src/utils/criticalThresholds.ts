@@ -16,13 +16,15 @@ function generateAlertId(): string {
  * Critical thresholds for vital signs
  * Based on LOW-RESOURCE-PROVIDER-RECOMMENDATIONS.md
  *
- * These thresholds represent values that require immediate attention:
- * - Blood Pressure: > 180/120 (hypertensive crisis) or < 90/60 (hypotension)
- * - Temperature: > 102.2°F (39°C) or < 95°F (35°C)
- * - Heart Rate: > 120 (tachycardia) or < 50 (bradycardia)
- * - Respiratory Rate: > 30 (tachypnea) or < 10 (bradypnea)
- * - Oxygen Saturation: < 90% (hypoxia)
- * - Blood Glucose: < 70 (hypoglycemia) or > 400 (severe hyperglycemia)
+ * These thresholds represent values that require immediate attention.
+ * Boundaries are inclusive: a value exactly at a threshold triggers an alert.
+ * Adult ranges only. Pending clinical sign-off (units, age bands, boundary rule).
+ * - Blood Pressure: >= 180/120 (hypertensive crisis) or <= 90/60 (hypotension)
+ * - Temperature: >= 102.2°F (39°C) or <= 95°F (35°C)
+ * - Heart Rate: >= 120 (tachycardia) or <= 50 (bradycardia)
+ * - Respiratory Rate: >= 30 (tachypnea) or <= 10 (bradypnea)
+ * - Oxygen Saturation: <= 90% (hypoxia)
+ * - Blood Glucose: <= 70 (hypoglycemia) or >= 400 (severe hyperglycemia)
  */
 export const CRITICAL_THRESHOLDS: Record<VitalType, CriticalThreshold> = {
   bloodPressureSystolic: {
