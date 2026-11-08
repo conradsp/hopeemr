@@ -52,7 +52,7 @@ describe('criticalThresholds', () => {
         bloodPressureDiastolic: '80',
         heartRate: '70',
         respiratoryRate: '16',
-        temperature: '98.6',
+        temperature: '37',
         oxygenSaturation: '98',
       };
 
@@ -160,7 +160,7 @@ describe('criticalThresholds', () => {
     it('should detect critical high temperature (hyperthermia)', () => {
       const vitals: VitalsData = {
         ...emptyVitals,
-        temperature: '104',
+        temperature: '40',
       };
 
       const result = evaluateVitalsForCriticalAlerts(vitals);
@@ -173,7 +173,7 @@ describe('criticalThresholds', () => {
     it('should detect critical low temperature (hypothermia)', () => {
       const vitals: VitalsData = {
         ...emptyVitals,
-        temperature: '94',
+        temperature: '34',
       };
 
       const result = evaluateVitalsForCriticalAlerts(vitals);

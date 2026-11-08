@@ -20,7 +20,7 @@ function generateAlertId(): string {
  * Boundaries are inclusive: a value exactly at a threshold triggers an alert.
  * Adult ranges only. Pending clinical sign-off (units, age bands, boundary rule).
  * - Blood Pressure: >= 180/120 (hypertensive crisis) or <= 90/60 (hypotension)
- * - Temperature: >= 102.2°F (39°C) or <= 95°F (35°C)
+ * - Temperature: >= 39°C or <= 35°C
  * - Heart Rate: >= 120 (tachycardia) or <= 50 (bradycardia)
  * - Respiratory Rate: >= 30 (tachypnea) or <= 10 (bradypnea)
  * - Oxygen Saturation: <= 90% (hypoxia)
@@ -62,9 +62,9 @@ export const CRITICAL_THRESHOLDS: Record<VitalType, CriticalThreshold> = {
   temperature: {
     vitalType: 'temperature',
     loincCode: '8310-5',
-    criticalHigh: 102.2, // 39°C in Fahrenheit
-    criticalLow: 95, // 35°C in Fahrenheit
-    unit: '°F',
+    criticalHigh: 39,
+    criticalLow: 35,
+    unit: '°C',
     severity: 'high',
   },
   oxygenSaturation: {
