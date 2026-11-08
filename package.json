@@ -13,7 +13,10 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "migrate:beds": "node scripts/migrate-bed-operational-status.mjs",
-    "migrate:beds:dry": "node scripts/migrate-bed-operational-status.mjs --dry-run"
+    "migrate:beds:dry": "node scripts/migrate-bed-operational-status.mjs --dry-run",
+    "policies:setup": "tsx scripts/setup-access-policies.ts",
+    "policies:setup:dry": "tsx scripts/setup-access-policies.ts --dry-run",
+    "policies:test": "tsx scripts/test-access-policies.ts"
   },
   "prettier": {
     "printWidth": 120,
@@ -61,6 +64,7 @@
     "postcss": "8.5.6",
     "postcss-preset-mantine": "1.18.0",
     "rimraf": "6.0.1",
+    "tsx": "^4.23.15",
     "typescript": "5.8.3",
     "vite": "^7.3.0",
     "vite-plugin-pwa": "^1.2.0",

@@ -30,3 +30,28 @@ jobs:
         run: npm run build
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
+
+  access-policies:
+    # Proves the Medplum server enforces every role's AccessPolicy (Phase 0 Gate 1)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Start Medplum
+        run: docker compose -f .github/medplum-ci.compose.yml up -d --wait --wait-timeout 600
+      - name: Create test project and admin client
+        run: |
+          creds="$(npx tsx scripts/dev-bootstrap-test-project.ts)"
+          echo "$creds" | sed "s/^export //; s/'//g" >> "$GITHUB_ENV"
+      - name: Apply role policies
+        run: npm run policies:setup
+      - name: Verify enforcement
+        run: npm run policies:test
+      - name: Medplum logs on failure
+        if: failure()
+        run: docker compose -f .github/medplum-ci.compose.yml logs --tail=200 medplum-server
