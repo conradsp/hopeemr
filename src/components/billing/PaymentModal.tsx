@@ -112,7 +112,8 @@ export function PaymentModal({ opened, onClose, patientId, encounterId }: Paymen
         <DateTimePicker
           label={t('billing.paymentDate')}
           value={date}
-          onChange={(value) => setDate(value || new Date())}
+          // Mantine 8 emits local 'YYYY-MM-DD HH:mm:ss'; the 'T' form parses as local time in every browser
+          onChange={(value) => setDate(value ? new Date(value.replace(' ', 'T')) : new Date())}
           required
         />
 
