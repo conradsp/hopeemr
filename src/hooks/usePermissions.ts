@@ -1,11 +1,13 @@
 /**
  * React Hooks for Permissions
- * 
- * Custom hooks for using permissions in React components
+ *
+ * Custom hooks for using permissions in React components.
+ * Roles come from the current ProjectMembership (see utils/permissionUtils.ts).
+ * These decide what UI to show; the server enforces the role AccessPolicies.
  */
 
 import { useMedplum } from '@medplum/react';
-import { Practitioner } from '@medplum/fhirtypes';
+import { Practitioner, ProjectMembership } from '@medplum/fhirtypes';
 import { useMemo } from 'react';
 import {
   getUserRoles,
@@ -32,77 +34,64 @@ export function useCurrentUser(): Practitioner | null {
   return null;
 }
 
-export function useMembership(): { admin?: boolean } | undefined {
+export function useMembership(): ProjectMembership | undefined {
   const medplum = useMedplum();
-  // Use the correct method to get membership from MedplumClient
-  const membership = medplum.getProjectMembership ? medplum.getProjectMembership() : undefined;
-  return membership;
+  return medplum.getProjectMembership();
 }
 
 export function useUserRoles(): UserRole[] {
-  const user = useCurrentUser();
   const membership = useMembership();
-  return useMemo(() => getUserRoles(user), [user, membership]);
+  return useMemo(() => getUserRoles(membership), [membership]);
 }
 
 export function useUserPermissions(): Permission[] {
-  const user = useCurrentUser();
   const membership = useMembership();
-  return useMemo(() => getUserPermissions(user, membership), [user, membership]);
+  return useMemo(() => getUserPermissions(membership), [membership]);
 }
 
 export function useHasPermission(permission: Permission): boolean {
-  const user = useCurrentUser();
   const membership = useMembership();
-  return useMemo(() => hasPermission(user, permission, membership), [user, permission, membership]);
+  return useMemo(() => hasPermission(permission, membership), [permission, membership]);
 }
 
 export function useHasAnyPermission(permissions: Permission[]): boolean {
-  const user = useCurrentUser();
   const membership = useMembership();
-  return useMemo(() => hasAnyPermission(user, permissions, membership), [user, permissions, membership]);
+  return useMemo(() => hasAnyPermission(permissions, membership), [permissions, membership]);
 }
 
 export function useHasAllPermissions(permissions: Permission[]): boolean {
-  const user = useCurrentUser();
   const membership = useMembership();
-  return useMemo(() => hasAllPermissions(user, permissions, membership), [user, permissions, membership]);
+  return useMemo(() => hasAllPermissions(permissions, membership), [permissions, membership]);
 }
 
 export function useHasRole(role: UserRole): boolean {
-  const user = useCurrentUser();
   const membership = useMembership();
-  return useMemo(() => hasRole(user, role, membership), [user, role, membership]);
+  return useMemo(() => hasRole(role, membership), [role, membership]);
 }
 
 export function useIsAdmin(): boolean {
-  const user = useCurrentUser();
   const membership = useMembership();
-  return useMemo(() => isUserAdmin(user, membership), [user, membership]);
+  return useMemo(() => isUserAdmin(membership), [membership]);
 }
 
 export function useCanAccessAdmin(): boolean {
-  const user = useCurrentUser();
   const membership = useMembership();
-  return useMemo(() => canAccessAdmin(user, membership), [user, membership]);
+  return useMemo(() => canAccessAdmin(membership), [membership]);
 }
 
 export function useCanAccessBilling(): boolean {
-  const user = useCurrentUser();
   const membership = useMembership();
-  return useMemo(() => canAccessBilling(user, membership), [user, membership]);
+  return useMemo(() => canAccessBilling(membership), [membership]);
 }
 
 export function useCanAccessScheduling(): boolean {
-  const user = useCurrentUser();
   const membership = useMembership();
-  return useMemo(() => canAccessScheduling(user, membership), [user, membership]);
+  return useMemo(() => canAccessScheduling(membership), [membership]);
 }
 
 export function useFeatureFlags(): FeatureFlags {
-  const user = useCurrentUser();
   const membership = useMembership();
-  return useMemo(() => getFeatureFlags(user, membership), [user, membership]);
+  return useMemo(() => getFeatureFlags(membership), [membership]);
 }
 
 export function useFeatureFlag(flag: keyof FeatureFlags): boolean {
@@ -114,19 +103,17 @@ export function useFeatureFlag(flag: keyof FeatureFlags): boolean {
  * Hook that returns permission checking utility
  */
 export function usePermissions() {
-  const user = useCurrentUser();
   const membership = useMembership();
 
   return useMemo(
     () => ({
-      hasPermission: (permission: Permission) => hasPermission(user, permission, membership),
-      hasAnyPermission: (permissions: Permission[]) => hasAnyPermission(user, permissions, membership),
-      hasAllPermissions: (permissions: Permission[]) => hasAllPermissions(user, permissions, membership),
-      hasRole: (role: UserRole) => hasRole(user, role, membership),
-      permissions: getUserPermissions(user, membership),
-      roles: getUserRoles(user),
+      hasPermission: (permission: Permission) => hasPermission(permission, membership),
+      hasAnyPermission: (permissions: Permission[]) => hasAnyPermission(permissions, membership),
+      hasAllPermissions: (permissions: Permission[]) => hasAllPermissions(permissions, membership),
+      hasRole: (role: UserRole) => hasRole(role, membership),
+      permissions: getUserPermissions(membership),
+      roles: getUserRoles(membership),
     }),
-    [user, membership]
+    [membership]
   );
 }
-

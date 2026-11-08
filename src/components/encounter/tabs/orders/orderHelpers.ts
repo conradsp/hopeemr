@@ -3,7 +3,9 @@ import { ServiceRequest, Observation, DocumentReference } from '@medplum/fhirtyp
 export function getOrderDocuments(order: ServiceRequest, documentReferences: DocumentReference[]): DocumentReference[] {
   if (!documentReferences) { return []; }
   const orderRef = order.id ? `ServiceRequest/${order.id}` : undefined;
-  return documentReferences.filter(doc => doc.context?.related?.some(rel => rel.reference === orderRef));
+  return documentReferences.filter(
+    doc => doc.status !== 'entered-in-error' && doc.context?.related?.some(rel => rel.reference === orderRef)
+  );
 }
 
 export function getOrderResults(order: ServiceRequest, allObservations: Observation[]): Observation[] {

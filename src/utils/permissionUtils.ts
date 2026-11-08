@@ -4,112 +4,72 @@
  * This file provides utilities for checking user permissions and roles.
  */
 
-import { Practitioner, PractitionerRole } from '@medplum/fhirtypes';
+import type { ProjectMembership } from '@medplum/fhirtypes';
 import { UserRole, Permission, ROLE_PERMISSIONS } from './permissions';
+import { isPolicyRole } from '../security/rolePolicies';
 
-// ============================================================================
-// FHIR EXTENSIONS
-// ============================================================================
-
-const USER_ROLES_EXTENSION_URL = 'http://hopeemr.com/fhir/StructureDefinition/user-roles';
+/** The parts of a ProjectMembership that determine a user's roles. */
+export type MembershipRoles = Pick<ProjectMembership, 'admin' | 'access'>;
 
 // ============================================================================
 // ROLE MANAGEMENT
 // ============================================================================
 
 /**
- * Get user roles from a Practitioner resource
- * @param practitioner - The Practitioner resource or null
+ * Get user roles from the current ProjectMembership.
+ * Admin comes from membership.admin; other roles from the role AccessPolicies in
+ * membership.access (policy.display carries the role code, see security/rolePolicies.ts).
+ * This drives the UI only; the server enforces the policies themselves.
+ * @param membership - The user's ProjectMembership
  * @returns Array of user roles
  */
-export function getUserRoles(practitioner: Practitioner | null): UserRole[] {
-  if (!practitioner) {
+export function getUserRoles(membership: MembershipRoles | null | undefined): UserRole[] {
+  if (!membership) {
     return [];
   }
-  const extension = practitioner.extension?.find(
-    (ext) => ext.url === USER_ROLES_EXTENSION_URL
-  );
-  if (!extension?.valueString) {
-    return [];
+  const roles: UserRole[] = (membership.access ?? [])
+    .map((entry) => entry.policy?.display)
+    .filter(isPolicyRole);
+  if (membership.admin === true) {
+    roles.unshift(UserRole.ADMIN);
   }
-  try {
-    const roles = JSON.parse(extension.valueString);
-    return Array.isArray(roles) ? roles : [];
-  } catch {
-    return [];
-  }
-}
-
-/**
- * Set user roles on a Practitioner resource
- * @param practitioner - The Practitioner resource
- * @param roles - Array of user roles to set
- * @returns The updated Practitioner resource
- */
-export function setUserRoles(practitioner: Practitioner, roles: UserRole[]): Practitioner {
-  const otherExtensions = practitioner.extension?.filter(
-    (ext) => ext.url !== USER_ROLES_EXTENSION_URL
-  ) || [];
-  
-  return {
-    ...practitioner,
-    extension: [
-      ...otherExtensions,
-      {
-        url: USER_ROLES_EXTENSION_URL,
-        valueString: JSON.stringify(roles),
-      },
-    ],
-  };
+  return Array.from(new Set(roles));
 }
 
 /**
  * Check if user has a specific role
- * @param practitioner - The Practitioner resource or null
  * @param role - The role to check
- * @param membership - The membership object
- * @param membership.admin - Whether the user is an admin
+ * @param membership - The user's ProjectMembership
  * @returns True if user has the role
  */
-export function hasRole(practitioner: Practitioner | null | undefined, role: UserRole, membership?: { admin?: boolean }): boolean {
+export function hasRole(role: UserRole, membership: MembershipRoles | null | undefined): boolean {
   if (membership?.admin === true) {
     return true;
   }
-  if (!practitioner) {
-    return false;
-  }
-  const roles = getUserRoles(practitioner);
-  return roles.includes(role);
+  return getUserRoles(membership).includes(role);
 }
 
 /**
  * Check if user has any of the specified roles
- * @param practitioner - The Practitioner resource or null
  * @param roles - Array of roles to check
- * @param membership - The membership object
- * @param membership.admin - Whether the user is an admin
+ * @param membership - The user's ProjectMembership
  * @returns True if user has any of the roles
  */
-export function hasAnyRole(practitioner: Practitioner | null | undefined, roles: UserRole[], membership?: { admin?: boolean }): boolean {
+export function hasAnyRole(roles: UserRole[], membership: MembershipRoles | null | undefined): boolean {
   if (membership?.admin === true) {
     return true;
   }
-  if (!practitioner) {
-    return false;
-  }
-  const userRoles = getUserRoles(practitioner);
+  const userRoles = getUserRoles(membership);
   return roles.some(role => userRoles.includes(role));
 }
 
 /**
  * Check if user is an admin
- * @param practitioner - The Practitioner resource or null
- * @param membership - The membership object
- * @param membership.admin - Whether the user is an admin
+ * @param membership - The user's ProjectMembership
  * @returns True if user is an admin
  */
-export function isUserAdmin(practitioner: Practitioner | null | undefined, membership?: { admin?: boolean }): boolean {
-  return membership?.admin === true || hasRole(practitioner, UserRole.ADMIN);
+export function isUserAdmin(membership: MembershipRoles | null | undefined): boolean {
+  return membership?.admin === true;
 }
 
 // ============================================================================
@@ -118,96 +78,50 @@ export function isUserAdmin(practitioner: Practitioner | null | undefined, membe
 
 /**
  * Get all permissions for a user based on their roles
- * @param practitioner - The Practitioner resource or null
- * @param membership - The membership object
- * @param membership.admin - Whether the user is an admin
+ * @param membership - The user's ProjectMembership
  * @returns Array of permissions
  */
-export function getUserPermissions(practitioner: Practitioner | null | undefined, membership?: { admin?: boolean }): Permission[] {
+export function getUserPermissions(membership: MembershipRoles | null | undefined): Permission[] {
   if (membership?.admin === true) {
-    // Return all permissions
     return Object.values(Permission);
   }
-  if (!practitioner) {
-    return [];
-  }
-  const roles = getUserRoles(practitioner);
   const permissions = new Set<Permission>();
-  roles.forEach(role => {
-    const rolePermissions = ROLE_PERMISSIONS[role] || [];
-    rolePermissions.forEach(permission => permissions.add(permission));
+  getUserRoles(membership).forEach(role => {
+    (ROLE_PERMISSIONS[role] || []).forEach(permission => permissions.add(permission));
   });
   return Array.from(permissions);
 }
 
 /**
  * Check if user has a specific permission
- * @param practitioner - The Practitioner resource or null
  * @param permission - The permission to check
- * @param membership - The membership object
- * @param membership.admin - Whether the user is an admin
+ * @param membership - The user's ProjectMembership
  * @returns True if user has the permission
  */
-export function hasPermission(
-  practitioner: Practitioner | null | undefined,
-  permission: Permission,
-  membership?: { admin?: boolean }
-): boolean {
-  if (membership?.admin === true) {
-    return true;
-  }
-  if (!practitioner) {
-    return false;
-  }
-  if (isUserAdmin(practitioner, membership)) {
-    return true;
-  }
-  const permissions = getUserPermissions(practitioner);
-  return permissions.includes(permission);
+export function hasPermission(permission: Permission, membership: MembershipRoles | null | undefined): boolean {
+  return getUserPermissions(membership).includes(permission);
 }
 
 /**
  * Check if user has all of the specified permissions
- * @param practitioner - The Practitioner resource or null
  * @param permissions - Array of permissions to check
- * @param membership - The membership object
- * @param membership.admin - Whether the user is an admin
+ * @param membership - The user's ProjectMembership
  * @returns True if user has all of the permissions
  */
-export function hasAllPermissions(
-  practitioner: Practitioner | null | undefined,
-  permissions: Permission[],
-  membership?: { admin?: boolean }
-): boolean {
-  if (membership?.admin === true) {
-    return true;
-  }
-  if (!practitioner) {
-    return false;
-  }
-  return permissions.every(permission => hasPermission(practitioner, permission, membership));
+export function hasAllPermissions(permissions: Permission[], membership: MembershipRoles | null | undefined): boolean {
+  const granted = getUserPermissions(membership);
+  return permissions.every(permission => granted.includes(permission));
 }
 
 /**
  * Check if user has any of the specified permissions
- * @param practitioner - The Practitioner resource or null
  * @param permissions - Array of permissions to check
- * @param membership - The membership object
- * @param membership.admin - Whether the user is an admin
+ * @param membership - The user's ProjectMembership
  * @returns True if user has any of the permissions
  */
-export function hasAnyPermission(
-  practitioner: Practitioner | null | undefined,
-  permissions: Permission[],
-  membership?: { admin?: boolean }
-): boolean {
-  if (membership?.admin === true) {
-    return true;
-  }
-  if (!practitioner) {
-    return false;
-  }
-  return permissions.some(permission => hasPermission(practitioner, permission, membership));
+export function hasAnyPermission(permissions: Permission[], membership: MembershipRoles | null | undefined): boolean {
+  const granted = getUserPermissions(membership);
+  return permissions.some(permission => granted.includes(permission));
 }
 
 // ============================================================================
@@ -216,13 +130,11 @@ export function hasAnyPermission(
 
 /**
  * Check if user can access admin routes
- * @param practitioner - The Practitioner resource or null
- * @param membership - The membership object
- * @param membership.admin - Whether the user is an admin
+ * @param membership - The user's ProjectMembership
  * @returns True if user can access admin routes
  */
-export function canAccessAdmin(practitioner: Practitioner | null | undefined, membership?: { admin?: boolean }): boolean {
-  return hasAnyPermission(practitioner, [
+export function canAccessAdmin(membership: MembershipRoles | null | undefined): boolean {
+  return hasAnyPermission([
     Permission.MANAGE_USERS,
     Permission.MANAGE_SETTINGS,
     Permission.MANAGE_MEDICATION_CATALOG,
@@ -240,24 +152,20 @@ export function canAccessAdmin(practitioner: Practitioner | null | undefined, me
 
 /**
  * Check if user can access billing
- * @param practitioner - The Practitioner resource or null
- * @param membership - The membership object
- * @param membership.admin - Whether the user is an admin
+ * @param membership - The user's ProjectMembership
  * @returns True if user can access billing
  */
-export function canAccessBilling(practitioner: Practitioner | null | undefined, membership?: { admin?: boolean }): boolean {
-  return hasPermission(practitioner, Permission.VIEW_BILLING, membership);
+export function canAccessBilling(membership: MembershipRoles | null | undefined): boolean {
+  return hasPermission(Permission.VIEW_BILLING, membership);
 }
 
 /**
  * Check if user can access scheduling
- * @param practitioner - The Practitioner resource or null
- * @param membership - The membership object
- * @param membership.admin - Whether the user is an admin
+ * @param membership - The user's ProjectMembership
  * @returns True if user can access scheduling
  */
-export function canAccessScheduling(practitioner: Practitioner | null | undefined, membership?: { admin?: boolean }): boolean {
-  return hasAnyPermission(practitioner, [
+export function canAccessScheduling(membership: MembershipRoles | null | undefined): boolean {
+  return hasAnyPermission([
     Permission.SCHEDULE_APPOINTMENTS,
     Permission.VIEW_APPOINTMENTS,
     Permission.MANAGE_SCHEDULES,
@@ -321,52 +229,52 @@ export interface FeatureFlags {
 /**
  * Get all feature flags for a user
  */
-export function getFeatureFlags(practitioner: Practitioner | null | undefined, membership?: { admin?: boolean }): FeatureFlags {
+export function getFeatureFlags(membership: MembershipRoles | null | undefined): FeatureFlags {
   return {
     // Navigation
-    canViewPatients: hasPermission(practitioner, Permission.VIEW_PATIENTS, membership),
-    canViewBilling: canAccessBilling(practitioner, membership),
-    canViewScheduling: canAccessScheduling(practitioner, membership),
-    canViewAdmin: canAccessAdmin(practitioner, membership),
+    canViewPatients: hasPermission(Permission.VIEW_PATIENTS, membership),
+    canViewBilling: canAccessBilling(membership),
+    canViewScheduling: canAccessScheduling(membership),
+    canViewAdmin: canAccessAdmin(membership),
     
     // Patient Actions
-    canCreatePatients: hasPermission(practitioner, Permission.CREATE_PATIENTS, membership),
-    canEditPatientDemographics: hasPermission(practitioner, Permission.EDIT_PATIENT_DEMOGRAPHICS, membership),
-    canCreateEncounters: hasPermission(practitioner, Permission.CREATE_ENCOUNTERS, membership),
+    canCreatePatients: hasPermission(Permission.CREATE_PATIENTS, membership),
+    canEditPatientDemographics: hasPermission(Permission.EDIT_PATIENT_DEMOGRAPHICS, membership),
+    canCreateEncounters: hasPermission(Permission.CREATE_ENCOUNTERS, membership),
     
     // Encounter Actions
-    canChartVitals: hasPermission(practitioner, Permission.CHART_VITALS, membership),
-    canCreateNotes: hasPermission(practitioner, Permission.CREATE_CLINICAL_NOTES, membership),
-    canPrescribeMedications: hasPermission(practitioner, Permission.PRESCRIBE_MEDICATIONS, membership),
-    canAdministerMedications: hasPermission(practitioner, Permission.ADMINISTER_MEDICATIONS, membership),
-    canOrderLabs: hasPermission(practitioner, Permission.ORDER_LABS, membership),
-    canOrderImaging: hasPermission(practitioner, Permission.ORDER_IMAGING, membership),
-    canAddDiagnoses: hasPermission(practitioner, Permission.ADD_DIAGNOSES, membership),
-    canAssignBeds: hasPermission(practitioner, Permission.ASSIGN_BEDS, membership),
+    canChartVitals: hasPermission(Permission.CHART_VITALS, membership),
+    canCreateNotes: hasPermission(Permission.CREATE_CLINICAL_NOTES, membership),
+    canPrescribeMedications: hasPermission(Permission.PRESCRIBE_MEDICATIONS, membership),
+    canAdministerMedications: hasPermission(Permission.ADMINISTER_MEDICATIONS, membership),
+    canOrderLabs: hasPermission(Permission.ORDER_LABS, membership),
+    canOrderImaging: hasPermission(Permission.ORDER_IMAGING, membership),
+    canAddDiagnoses: hasPermission(Permission.ADD_DIAGNOSES, membership),
+    canAssignBeds: hasPermission(Permission.ASSIGN_BEDS, membership),
     
     // Admin Actions
-    canManageUsers: hasPermission(practitioner, Permission.MANAGE_USERS, membership),
-    canManageSettings: hasPermission(practitioner, Permission.MANAGE_SETTINGS, membership),
-    canManageMedications: hasPermission(practitioner, Permission.MANAGE_MEDICATION_CATALOG, membership),
-    canManageInventory: hasPermission(practitioner, Permission.MANAGE_INVENTORY, membership),
-    canManageLabTests: hasPermission(practitioner, Permission.MANAGE_LAB_TESTS, membership),
-    canManageImagingTests: hasPermission(practitioner, Permission.MANAGE_IMAGING_TESTS, membership),
-    canManageBeds: hasPermission(practitioner, Permission.MANAGE_BEDS, membership),
-    canManageDepartments: hasPermission(practitioner, Permission.MANAGE_DEPARTMENTS, membership),
-    canManageNoteTemplates: hasPermission(practitioner, Permission.MANAGE_NOTE_TEMPLATES, membership),
-    canManageAppointmentTypes: hasPermission(practitioner, Permission.MANAGE_APPOINTMENT_TYPES, membership),
-    canManageSchedules: hasPermission(practitioner, Permission.MANAGE_SCHEDULES, membership),
-    canManageDiagnosisCodes: hasPermission(practitioner, Permission.MANAGE_DIAGNOSIS_CODES, membership),
+    canManageUsers: hasPermission(Permission.MANAGE_USERS, membership),
+    canManageSettings: hasPermission(Permission.MANAGE_SETTINGS, membership),
+    canManageMedications: hasPermission(Permission.MANAGE_MEDICATION_CATALOG, membership),
+    canManageInventory: hasPermission(Permission.MANAGE_INVENTORY, membership),
+    canManageLabTests: hasPermission(Permission.MANAGE_LAB_TESTS, membership),
+    canManageImagingTests: hasPermission(Permission.MANAGE_IMAGING_TESTS, membership),
+    canManageBeds: hasPermission(Permission.MANAGE_BEDS, membership),
+    canManageDepartments: hasPermission(Permission.MANAGE_DEPARTMENTS, membership),
+    canManageNoteTemplates: hasPermission(Permission.MANAGE_NOTE_TEMPLATES, membership),
+    canManageAppointmentTypes: hasPermission(Permission.MANAGE_APPOINTMENT_TYPES, membership),
+    canManageSchedules: hasPermission(Permission.MANAGE_SCHEDULES, membership),
+    canManageDiagnosisCodes: hasPermission(Permission.MANAGE_DIAGNOSIS_CODES, membership),
     
     // Billing Actions
-    canRecordPayments: hasPermission(practitioner, Permission.RECORD_PAYMENTS, membership),
-    canAdjustCharges: hasPermission(practitioner, Permission.ADJUST_CHARGES, membership),
+    canRecordPayments: hasPermission(Permission.RECORD_PAYMENTS, membership),
+    canAdjustCharges: hasPermission(Permission.ADJUST_CHARGES, membership),
 
     // Queue Management
-    canViewQueue: hasPermission(practitioner, Permission.VIEW_QUEUE, membership),
-    canCheckInPatients: hasPermission(practitioner, Permission.CREATE_QUEUE_ENTRIES, membership),
-    canClaimPatients: hasPermission(practitioner, Permission.CLAIM_QUEUE_PATIENTS, membership),
-    canUpdateTriage: hasPermission(practitioner, Permission.UPDATE_TRIAGE, membership),
+    canViewQueue: hasPermission(Permission.VIEW_QUEUE, membership),
+    canCheckInPatients: hasPermission(Permission.CREATE_QUEUE_ENTRIES, membership),
+    canClaimPatients: hasPermission(Permission.CLAIM_QUEUE_PATIENTS, membership),
+    canUpdateTriage: hasPermission(Permission.UPDATE_TRIAGE, membership),
   };
 }
 

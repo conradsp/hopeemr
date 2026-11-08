@@ -152,7 +152,8 @@ export function OrdersTab({ serviceRequests }: OrdersTabProps): JSX.Element {
 
     setDeletingImage(true);
     try {
-      await medplum.deleteResource('DocumentReference', pendingDeleteDoc.id);
+      // Clinical records are never hard-deleted; marking entered-in-error hides it and keeps history
+      await medplum.updateResource<DocumentReference>({ ...pendingDeleteDoc, status: 'entered-in-error' });
       notifications.show({ title: t('common.deleted', 'Deleted'), message: t('orders.imageDeleted', 'Image deleted'), color: 'green' });
       setRefreshKey(k => k + 1);
     } catch {

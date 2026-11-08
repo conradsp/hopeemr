@@ -453,6 +453,7 @@
   "users.manageRoles": "Gestionar roles",
   "users.manageRolesFor": "Gestionar roles para",
   "users.unknownUser": "Usuario desconocido",
+  "users.noAccountForRoles": "Esta persona aún no tiene cuenta de acceso. Invítela antes de asignar roles.",
   "users.assignRoles": "Asignar roles",
   "users.selectRolesDescription": "Seleccione uno o más roles para este usuario.",
   "users.permissionSummary": "Resumen de permisos",

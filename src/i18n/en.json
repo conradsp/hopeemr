@@ -448,6 +448,7 @@
   "users.manageRoles": "Manage Roles",
   "users.manageRolesFor": "Manage roles for",
   "users.unknownUser": "Unknown User",
+  "users.noAccountForRoles": "This person has no login account yet. Invite them before assigning roles.",
   "users.assignRoles": "Assign Roles",
   "users.selectRolesDescription": "Select one or more roles for this user.",
   "users.permissionSummary": "Permission Summary",
