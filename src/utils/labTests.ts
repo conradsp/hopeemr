@@ -23,7 +23,7 @@ export interface LabTestDefinition {
   price?: number;
 }
 
-const LAB_TEST_IDENTIFIER_SYSTEM = 'http://medplum.com/emr/lab-test';
+const LAB_TEST_IDENTIFIER_SYSTEM = 'http://hopeemr.com/fhir/identifier/lab-test';
 
 /**
  * Default lab tests catalog

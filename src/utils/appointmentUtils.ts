@@ -23,7 +23,7 @@ export async function bookAppointment(
   // Check if this is a combined slot (multiple slots combined for longer appointments)
   const combinedSlotIds: string[] = [];
   const combinedExtension = request.slot.meta?.extension?.find(
-    ext => ext.url === 'http://medplum.com/combined-slots'
+    ext => ext.url === 'http://hopeemr.com/fhir/StructureDefinition/combined-slots'
   );
   
   if (combinedExtension?.valueString) {

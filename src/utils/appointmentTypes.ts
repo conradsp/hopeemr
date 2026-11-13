@@ -107,7 +107,7 @@ export const DEFAULT_APPOINTMENT_TYPES: AppointmentTypeDefinition[] = [
   },
 ];
 
-const APPOINTMENT_TYPE_SYSTEM = 'http://medplum.com/appointment-types';
+const APPOINTMENT_TYPE_SYSTEM = 'http://hopeemr.com/fhir/CodeSystem/appointment-type';
 const VALUESET_ID = 'appointment-types-valueset';
 
 /**

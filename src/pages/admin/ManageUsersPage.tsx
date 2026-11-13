@@ -8,6 +8,7 @@ import { NewProviderModal } from '../../components/admin/NewProviderModal';
 import { EditUserRolesModal } from '../../components/admin/EditUserRolesModal';
 import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 import { getUserRoles } from '../../utils/permissionUtils';
+import { findMembershipForProfile } from '../../utils/userRoles';
 import { ROLE_LABELS } from '../../utils/permissions';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
@@ -28,6 +29,11 @@ export function ManageUsersPage(): JSX.Element {
   const [practitioners, practitionersLoading] = useSearchResources('Practitioner', {
     _count: '50',
     _sort: '-_lastUpdated',
+    _: refreshKey
+  });
+
+  const [memberships] = useSearchResources('ProjectMembership', {
+    _count: '100',
     _: refreshKey
   });
 
@@ -130,6 +136,7 @@ export function ManageUsersPage(): JSX.Element {
         opened={editRolesModalOpen} 
         onClose={handleRolesModalClose}
         practitioner={selectedPractitioner}
+        membership={selectedPractitioner ? findMembershipForProfile(memberships ?? [], selectedPractitioner) : undefined}
       />
       <ConfirmDialog
         opened={confirmDialogOpen}
@@ -202,7 +209,7 @@ export function ManageUsersPage(): JSX.Element {
                     const npi = practitioner.identifier?.find(
                       id => id.system === 'http://hl7.org/fhir/sid/us-npi'
                     )?.value;
-                    const roles = getUserRoles(practitioner);
+                    const roles = getUserRoles(findMembershipForProfile(memberships ?? [], practitioner));
 
                     return (
                       <Table.Tr key={practitioner.id}>

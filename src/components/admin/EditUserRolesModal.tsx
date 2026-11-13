@@ -1,10 +1,11 @@
-import { Modal, Button, Stack, Group, Text, Checkbox, Paper, Title, Badge, Divider } from '@mantine/core';
+import { Modal, Button, Stack, Group, Text, Checkbox, Paper, Title, Badge, Divider, Alert } from '@mantine/core';
 import { useMedplum } from '@medplum/react';
-import { Practitioner } from '@medplum/fhirtypes';
+import { Practitioner, ProjectMembership } from '@medplum/fhirtypes';
 import { JSX, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserRole, ROLE_PERMISSIONS } from '../../utils/permissions';
-import { getUserRoles, setUserRoles } from '../../utils/permissionUtils';
+import { getUserRoles } from '../../utils/permissionUtils';
+import { saveMembershipRoles } from '../../utils/userRoles';
 import { handleError, showSuccess } from '../../utils/errorHandling';
 import styles from './EditUserRolesModal.module.css';
 
@@ -12,20 +13,21 @@ interface EditUserRolesModalProps {
   opened: boolean;
   onClose: () => void;
   practitioner: Practitioner | null;
+  /** The practitioner's login membership; undefined if they have no account in this project */
+  membership: ProjectMembership | undefined;
 }
 
-export function EditUserRolesModal({ opened, onClose, practitioner }: EditUserRolesModalProps): JSX.Element {
+export function EditUserRolesModal({ opened, onClose, practitioner, membership }: EditUserRolesModalProps): JSX.Element {
   const { t } = useTranslation();
   const medplum = useMedplum();
   const [selectedRoles, setSelectedRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (practitioner && opened) {
-      const currentRoles = getUserRoles(practitioner);
-      setSelectedRoles(currentRoles);
+    if (opened) {
+      setSelectedRoles(getUserRoles(membership));
     }
-  }, [practitioner, opened]);
+  }, [membership, opened]);
 
   const handleRoleToggle = (role: UserRole): void => {
     setSelectedRoles(prev => {
@@ -38,12 +40,11 @@ export function EditUserRolesModal({ opened, onClose, practitioner }: EditUserRo
   };
 
   const handleSave = async (): Promise<void> => {
-    if (!practitioner) { return; }
+    if (!membership) { return; }
 
     setLoading(true);
     try {
-      const updatedPractitioner = setUserRoles(practitioner, selectedRoles);
-      await medplum.updateResource(updatedPractitioner);
+      await saveMembershipRoles(medplum, membership, selectedRoles);
       showSuccess(t('users.rolesUpdated'));
       onClose();
     } catch (error) {
@@ -79,6 +80,12 @@ export function EditUserRolesModal({ opened, onClose, practitioner }: EditUserRo
         </div>
 
         <Divider />
+
+        {!membership && (
+          <Alert color="yellow">
+            {t('users.noAccountForRoles', 'This person has no login account yet. Invite them before assigning roles.')}
+          </Alert>
+        )}
 
         <Title order={4}>{t('users.assignRoles')}</Title>
         <Text size="sm" c="dimmed">
@@ -135,7 +142,7 @@ export function EditUserRolesModal({ opened, onClose, practitioner }: EditUserRo
           <Button variant="subtle" onClick={onClose} disabled={loading}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={handleSave} loading={loading}>
+          <Button onClick={handleSave} loading={loading} disabled={!membership}>
             {t('common.save')}
           </Button>
         </Group>

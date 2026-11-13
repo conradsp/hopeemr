@@ -64,3 +64,6 @@ medplum.config.local.json
 # OS
 .DS_Store
 Thumbs.db
+
+# vite-plugin-pwa dev service worker output
+dev-dist/

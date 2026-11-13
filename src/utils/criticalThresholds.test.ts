@@ -52,7 +52,7 @@ describe('criticalThresholds', () => {
         bloodPressureDiastolic: '80',
         heartRate: '70',
         respiratoryRate: '16',
-        temperature: '98.6',
+        temperature: '37',
         oxygenSaturation: '98',
       };
 
@@ -160,7 +160,7 @@ describe('criticalThresholds', () => {
     it('should detect critical high temperature (hyperthermia)', () => {
       const vitals: VitalsData = {
         ...emptyVitals,
-        temperature: '104',
+        temperature: '40',
       };
 
       const result = evaluateVitalsForCriticalAlerts(vitals);
@@ -173,7 +173,7 @@ describe('criticalThresholds', () => {
     it('should detect critical low temperature (hypothermia)', () => {
       const vitals: VitalsData = {
         ...emptyVitals,
-        temperature: '94',
+        temperature: '34',
       };
 
       const result = evaluateVitalsForCriticalAlerts(vitals);
@@ -229,13 +229,28 @@ describe('criticalThresholds', () => {
       expect(vitalTypes).toContain('oxygenSaturation');
     });
 
-    it('should not trigger on borderline normal values', () => {
+    // Boundaries are inclusive (>= / <=). Pending clinical sign-off on the boundary rule.
+    it('should trigger on values exactly at the threshold', () => {
       const vitals: VitalsData = {
         ...emptyVitals,
-        bloodPressureSystolic: '180', // Exactly at threshold, not above
-        bloodPressureDiastolic: '120', // Exactly at threshold, not above
-        heartRate: '120', // Exactly at threshold, not above
-        oxygenSaturation: '90', // Exactly at threshold, not below
+        bloodPressureSystolic: '180',
+        bloodPressureDiastolic: '120',
+        heartRate: '120',
+        oxygenSaturation: '90',
+      };
+
+      const result = evaluateVitalsForCriticalAlerts(vitals);
+      expect(result.isValid).toBe(false);
+      expect(result.criticalAlerts).toHaveLength(4);
+    });
+
+    it('should not trigger on values just inside the thresholds', () => {
+      const vitals: VitalsData = {
+        ...emptyVitals,
+        bloodPressureSystolic: '179',
+        bloodPressureDiastolic: '119',
+        heartRate: '119',
+        oxygenSaturation: '91',
       };
 
       const result = evaluateVitalsForCriticalAlerts(vitals);

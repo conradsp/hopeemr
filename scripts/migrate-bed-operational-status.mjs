@@ -27,7 +27,7 @@
 
 import { MedplumClient } from '@medplum/core';
 
-const BED_STATUS_EXTENSION_URL = 'http://example.org/fhir/StructureDefinition/bed-status';
+const BED_STATUS_EXTENSION_URL = 'http://hopeemr.com/fhir/StructureDefinition/bed-status';
 const OPERATIONAL_STATUS_SYSTEM = 'http://terminology.hl7.org/CodeSystem/v2-0116';
 
 // Mirrors the pre-migration getBedStatusFromCode in src/utils/bedManagement.ts.

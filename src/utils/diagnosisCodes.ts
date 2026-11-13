@@ -1,7 +1,7 @@
 import { MedplumClient } from '@medplum/core';
 import { ValueSet, ValueSetExpansionContains } from '@medplum/fhirtypes';
 
-export const DIAGNOSIS_VALUESET_URL = 'http://medplum.com/emr/diagnosis-codes';
+export const DIAGNOSIS_VALUESET_URL = 'http://hopeemr.com/fhir/ValueSet/diagnosis-codes';
 
 // Common ICD-10 diagnoses to include by default
 const DEFAULT_ICD10_CODES = [

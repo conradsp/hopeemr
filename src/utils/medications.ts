@@ -139,7 +139,7 @@ export async function createPrescription(
     // Use extension to mark internal vs external
     extension: [
       {
-        url: 'http://example.org/fhir/StructureDefinition/prescription-type',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/prescription-type',
         valueString: prescription.isPrescriptionType,
       },
     ],
@@ -203,7 +203,7 @@ export async function administerMedication(
 
   // Update inventory for internal medications
   const isInternal = medicationRequest.extension?.find(
-    ext => ext.url === 'http://example.org/fhir/StructureDefinition/prescription-type'
+    ext => ext.url === 'http://hopeemr.com/fhir/StructureDefinition/prescription-type'
   )?.valueString === 'internal';
 
   if (isInternal && medicationRequest.medicationReference?.reference) {
@@ -316,29 +316,29 @@ export async function updateMedicationInventory(
     // Store additional info in extensions
     existing.extension = [
       {
-        url: 'http://example.org/fhir/StructureDefinition/reorder-level',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/reorder-level',
         valueInteger: reorderLevel,
       },
       {
-        url: 'http://example.org/fhir/StructureDefinition/reorder-quantity',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/reorder-quantity',
         valueInteger: reorderQuantity,
       },
     ];
     if (expirationDate) {
       existing.extension.push({
-        url: 'http://example.org/fhir/StructureDefinition/expiration-date',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/expiration-date',
         valueDate: expirationDate,
       });
     }
     if (lotNumber) {
       existing.extension.push({
-        url: 'http://example.org/fhir/StructureDefinition/lot-number',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/lot-number',
         valueString: lotNumber,
       });
     }
     if (location) {
       existing.extension.push({
-        url: 'http://example.org/fhir/StructureDefinition/storage-location',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/storage-location',
         valueString: location,
       });
     }
@@ -374,11 +374,11 @@ export async function updateMedicationInventory(
       },
       extension: [
         {
-          url: 'http://example.org/fhir/StructureDefinition/reorder-level',
+          url: 'http://hopeemr.com/fhir/StructureDefinition/reorder-level',
           valueInteger: reorderLevel,
         },
         {
-          url: 'http://example.org/fhir/StructureDefinition/reorder-quantity',
+          url: 'http://hopeemr.com/fhir/StructureDefinition/reorder-quantity',
           valueInteger: reorderQuantity,
         },
       ],
@@ -386,19 +386,19 @@ export async function updateMedicationInventory(
 
     if (expirationDate) {
       medKnowledge.extension?.push({
-        url: 'http://example.org/fhir/StructureDefinition/expiration-date',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/expiration-date',
         valueDate: expirationDate,
       });
     }
     if (lotNumber) {
       medKnowledge.extension?.push({
-        url: 'http://example.org/fhir/StructureDefinition/lot-number',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/lot-number',
         valueString: lotNumber,
       });
     }
     if (location) {
       medKnowledge.extension?.push({
-        url: 'http://example.org/fhir/StructureDefinition/storage-location',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/storage-location',
         valueString: location,
       });
     }
@@ -502,11 +502,11 @@ export async function initializeDefaultMedications(medplum: MedplumClient): Prom
       },
       extension: [
         {
-          url: 'http://example.org/fhir/StructureDefinition/medication-category',
+          url: 'http://hopeemr.com/fhir/StructureDefinition/medication-category',
           valueString: med.category,
         },
         {
-          url: 'http://example.org/fhir/StructureDefinition/medication-description',
+          url: 'http://hopeemr.com/fhir/StructureDefinition/medication-description',
           valueString: med.description,
         },
       ],

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { MockClient } from '@medplum/mock';
 import type { Patient, Location, Practitioner, Task, Encounter, Appointment } from '@medplum/fhirtypes';
 import {
+  COMPLAINT_SENSITIVITY_EXTENSION,
   createQueueEntry,
   claimNextPatient,
   updateTriageLevel,
@@ -164,7 +165,7 @@ describe('queueUtils', () => {
         intent: 'order',
         extension: [
           {
-            url: 'http://medplum.com/complaint-sensitivity',
+            url: COMPLAINT_SENSITIVITY_EXTENSION,
             valueCode: 'private',
           },
         ],
@@ -262,7 +263,7 @@ describe('queueUtils', () => {
           code: {
             coding: [
               {
-                system: 'http://medplum.com/fhir/CodeSystem/task-code',
+                system: 'http://hopeemr.com/fhir/CodeSystem/task-code',
                 code,
               },
             ],
@@ -281,7 +282,7 @@ describe('queueUtils', () => {
         code: {
           coding: [
             {
-              system: 'http://medplum.com/fhir/CodeSystem/task-code',
+              system: 'http://hopeemr.com/fhir/CodeSystem/task-code',
               code: 'unknown-code',
             },
           ],
@@ -314,7 +315,7 @@ describe('queueUtils', () => {
         code: {
           coding: [
             {
-              system: 'http://medplum.com/fhir/CodeSystem/task-code',
+              system: 'http://hopeemr.com/fhir/CodeSystem/task-code',
               code: 'lab-review',
               display: 'Lab Review',
             },
@@ -346,7 +347,7 @@ describe('queueUtils', () => {
         code: {
           coding: [
             {
-              system: 'http://medplum.com/fhir/CodeSystem/task-code',
+              system: 'http://hopeemr.com/fhir/CodeSystem/task-code',
               code: 'follow-up',
             },
           ],
@@ -375,7 +376,7 @@ describe('queueUtils', () => {
         code: {
           coding: [
             {
-              system: 'http://medplum.com/fhir/CodeSystem/task-code',
+              system: 'http://hopeemr.com/fhir/CodeSystem/task-code',
               code: 'call-patient',
             },
           ],
@@ -401,7 +402,7 @@ describe('queueUtils', () => {
         code: {
           coding: [
             {
-              system: 'http://medplum.com/fhir/CodeSystem/task-code',
+              system: 'http://hopeemr.com/fhir/CodeSystem/task-code',
               code: 'imaging-review',
               display: 'Review Imaging Results',
             },

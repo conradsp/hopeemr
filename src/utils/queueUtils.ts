@@ -37,13 +37,13 @@ import type {
  */
 
 // FHIR Coding Systems
-const QUEUE_TASK_CODE_SYSTEM = 'http://medplum.com/fhir/CodeSystem/task-code';
-const QUEUE_STATUS_SYSTEM = 'http://medplum.com/fhir/CodeSystem/queue-status';
-const CHECKIN_METHOD_SYSTEM = 'http://medplum.com/fhir/CodeSystem/checkin-method';
-const TRIAGE_LEVEL_EXTENSION = 'http://medplum.com/fhir/StructureDefinition/triage-level';
-const CHIEF_COMPLAINT_EXTENSION = 'http://medplum.com/fhir/StructureDefinition/chief-complaint';
-const COMPLAINT_SENSITIVITY_EXTENSION = 'http://medplum.com/fhir/StructureDefinition/complaint-sensitivity';
-const CHECKIN_METHOD_EXTENSION = 'http://medplum.com/fhir/StructureDefinition/checkin-method';
+const QUEUE_TASK_CODE_SYSTEM = 'http://hopeemr.com/fhir/CodeSystem/task-code';
+const QUEUE_STATUS_SYSTEM = 'http://hopeemr.com/fhir/CodeSystem/queue-status';
+const CHECKIN_METHOD_SYSTEM = 'http://hopeemr.com/fhir/CodeSystem/checkin-method';
+const TRIAGE_LEVEL_EXTENSION = 'http://hopeemr.com/fhir/StructureDefinition/triage-level';
+const CHIEF_COMPLAINT_EXTENSION = 'http://hopeemr.com/fhir/StructureDefinition/chief-complaint';
+export const COMPLAINT_SENSITIVITY_EXTENSION = 'http://hopeemr.com/fhir/StructureDefinition/complaint-sensitivity';
+const CHECKIN_METHOD_EXTENSION = 'http://hopeemr.com/fhir/StructureDefinition/checkin-method';
 
 /**
  * Create a queue entry (check in patient)
@@ -154,7 +154,7 @@ export async function createQueueEntry(
     meta: {
       tag: [
         {
-          system: 'http://medplum.com/security-tags',
+          system: 'http://hopeemr.com/fhir/CodeSystem/security-tag',
           code: 'queue-entry',
         },
       ],
@@ -234,7 +234,7 @@ export async function getQueue(
   const { location, provider, status = ['ready', 'in-progress'] } = options;
 
   const searchParams: Record<string, string> = {
-    code: 'http://medplum.com/fhir/CodeSystem/task-code|patient-queue-entry',
+    code: 'http://hopeemr.com/fhir/CodeSystem/task-code|patient-queue-entry',
     status: status.join(','),
     _sort: '-priority,_lastUpdated', // Priority DESC (stat first), then FIFO by last updated
     _count: '100',
@@ -649,7 +649,7 @@ export async function completeQueueEntryByEncounter(
 ): Promise<Task | null> {
   // First try to find Task by focus reference
   let tasks = await medplum.searchResources('Task', {
-    code: 'http://medplum.com/fhir/CodeSystem/task-code|patient-queue-entry',
+    code: 'http://hopeemr.com/fhir/CodeSystem/task-code|patient-queue-entry',
     focus: `Encounter/${encounterId}`,
     status: 'in-progress',
     _count: '1',
@@ -665,7 +665,7 @@ export async function completeQueueEntryByEncounter(
       if (patientRef) {
         // Find in-progress queue Tasks for this patient
         tasks = await medplum.searchResources('Task', {
-          code: 'http://medplum.com/fhir/CodeSystem/task-code|patient-queue-entry',
+          code: 'http://hopeemr.com/fhir/CodeSystem/task-code|patient-queue-entry',
           subject: patientRef,
           status: 'in-progress',
           _count: '1',
@@ -804,7 +804,7 @@ async function logQueueAudit(
     const auditEvent: AuditEvent = {
       resourceType: 'AuditEvent',
       type: {
-        system: 'http://medplum.com/audit-event-type',
+        system: 'http://hopeemr.com/fhir/CodeSystem/audit-event-type',
         code: event.action,
         display: event.action.replace(/-/g, ' '),
       },

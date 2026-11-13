@@ -152,7 +152,7 @@ export function BookAppointmentPage(): JSX.Element {
                         ...currentSlot.meta,
                         extension: [
                           {
-                            url: 'http://medplum.com/combined-slots',
+                            url: 'http://hopeemr.com/fhir/StructureDefinition/combined-slots',
                             valueString: JSON.stringify(consecutiveSlots.map(s => s.id))
                           }
                         ]

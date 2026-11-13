@@ -26,8 +26,8 @@ interface MedicationFormData {
 }
 
 const ALLOWED_EXTENSION_URLS = [
-  'http://example.org/fhir/StructureDefinition/medication-category',
-  'http://example.org/fhir/StructureDefinition/medication-description',
+  'http://hopeemr.com/fhir/StructureDefinition/medication-category',
+  'http://hopeemr.com/fhir/StructureDefinition/medication-description',
 ];
 
 function filterAllowedExtensions(extArr: any[] = []): any[] {
@@ -89,8 +89,8 @@ export function MedicationCatalogPage(): JSX.Element {
         unit: medication.amount?.numerator?.unit || 'mg',
         rxcui: medication.code?.coding?.find(c => c.system === 'http://www.nlm.nih.gov/research/umls/rxnorm')?.code || '',
         ndc: medication.code?.coding?.find(c => c.system === 'http://hl7.org/fhir/sid/ndc')?.code || '',
-        category: medication.extension?.find(e => e.url === 'http://example.org/fhir/StructureDefinition/medication-category')?.valueString || 'other',
-        description: medication.extension?.find(e => e.url === 'http://example.org/fhir/StructureDefinition/medication-description')?.valueString || '',
+        category: medication.extension?.find(e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/medication-category')?.valueString || 'other',
+        description: medication.extension?.find(e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/medication-description')?.valueString || '',
         price: getPriceFromResource(medication) || 0,
       });
     } else {
@@ -155,11 +155,11 @@ export function MedicationCatalogPage(): JSX.Element {
         },
         extension: [
           {
-            url: 'http://example.org/fhir/StructureDefinition/medication-category',
+            url: 'http://hopeemr.com/fhir/StructureDefinition/medication-category',
             valueString: formData.category,
           },
           {
-            url: 'http://example.org/fhir/StructureDefinition/medication-description',
+            url: 'http://hopeemr.com/fhir/StructureDefinition/medication-description',
             valueString: formData.description,
           },
         ],
@@ -438,8 +438,8 @@ export function MedicationCatalogPage(): JSX.Element {
                   </Table.Td>
                   <Table.Td>
                     <Badge color="blue">
-                      {t(`pharmacy.categories.${medication.extension?.find(e => e.url === 'http://example.org/fhir/StructureDefinition/medication-category')?.valueString}`) || 
-                       medication.extension?.find(e => e.url === 'http://example.org/fhir/StructureDefinition/medication-category')?.valueString}
+                      {t(`pharmacy.categories.${medication.extension?.find(e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/medication-category')?.valueString}`) || 
+                       medication.extension?.find(e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/medication-category')?.valueString}
                     </Badge>
                   </Table.Td>
                   <Table.Td>

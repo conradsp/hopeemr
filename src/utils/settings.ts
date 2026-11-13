@@ -13,15 +13,15 @@ export interface EMRSettings {
  * Extension URLs for workflow configuration
  */
 const WORKFLOW_EXTENSION_URLS = {
-  emphasis: 'http://medplum.com/emr/workflow-emphasis',
-  autoSyncAppointments: 'http://medplum.com/emr/auto-sync-appointments',
-  appointmentLeadTime: 'http://medplum.com/emr/appointment-lead-time',
-  showScheduledInWorkQueue: 'http://medplum.com/emr/show-scheduled-in-work-queue',
-  showQueueOnCalendar: 'http://medplum.com/emr/show-queue-on-calendar',
-  requireCheckIn: 'http://medplum.com/emr/require-check-in',
-  autoAdvance: 'http://medplum.com/emr/auto-advance',
-  enableWalkInSlots: 'http://medplum.com/emr/enable-walk-in-slots',
-  walkInSlotDuration: 'http://medplum.com/emr/walk-in-slot-duration',
+  emphasis: 'http://hopeemr.com/fhir/StructureDefinition/workflow-emphasis',
+  autoSyncAppointments: 'http://hopeemr.com/fhir/StructureDefinition/auto-sync-appointments',
+  appointmentLeadTime: 'http://hopeemr.com/fhir/StructureDefinition/appointment-lead-time',
+  showScheduledInWorkQueue: 'http://hopeemr.com/fhir/StructureDefinition/show-scheduled-in-work-queue',
+  showQueueOnCalendar: 'http://hopeemr.com/fhir/StructureDefinition/show-queue-on-calendar',
+  requireCheckIn: 'http://hopeemr.com/fhir/StructureDefinition/require-check-in',
+  autoAdvance: 'http://hopeemr.com/fhir/StructureDefinition/auto-advance',
+  enableWalkInSlots: 'http://hopeemr.com/fhir/StructureDefinition/enable-walk-in-slots',
+  walkInSlotDuration: 'http://hopeemr.com/fhir/StructureDefinition/walk-in-slot-duration',
 };
 
 const SETTINGS_ORG_IDENTIFIER = 'emr-settings';
@@ -84,7 +84,7 @@ export async function saveEMRSettings(medplum: MedplumClient, settings: EMRSetti
         resourceType: 'Organization',
         identifier: [
           {
-            system: 'http://medplum.com/emr',
+            system: 'http://hopeemr.com/fhir/identifier/settings',
             value: SETTINGS_ORG_IDENTIFIER,
           },
         ],
@@ -187,7 +187,7 @@ export async function saveWorkflowConfiguration(
         resourceType: 'Organization',
         identifier: [
           {
-            system: 'http://medplum.com/emr',
+            system: 'http://hopeemr.com/fhir/identifier/settings',
             value: SETTINGS_ORG_IDENTIFIER,
           },
         ],

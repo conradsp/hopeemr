@@ -4,6 +4,7 @@ import {
   getPendingSyncItems,
   getPendingSyncCount,
   updateSyncItemStatus,
+  markSyncItemPermanentlyFailed,
   clearCompletedSyncItems,
   getSyncItem,
   recoverOrphanedSyncItems,
@@ -91,6 +92,14 @@ class SyncQueueClass {
    */
   async markFailed(id: string, error: string): Promise<void> {
     await updateSyncItemStatus(id, 'failed', error);
+    this.emit('sync:item:error', { itemId: id, error });
+  }
+
+  /**
+   * Mark an item as failed with no further retries
+   */
+  async markPermanentlyFailed(id: string, error: string): Promise<void> {
+    await markSyncItemPermanentlyFailed(id, error);
     this.emit('sync:item:error', { itemId: id, error });
   }
 

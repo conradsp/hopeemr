@@ -14,7 +14,7 @@ export interface ImagingTestDefinition {
   price?: number;
 }
 
-const IMAGING_TEST_IDENTIFIER_SYSTEM = 'http://medplum.com/emr/imaging-test';
+const IMAGING_TEST_IDENTIFIER_SYSTEM = 'http://hopeemr.com/fhir/identifier/imaging-test';
 
 /**
  * Default imaging tests catalog

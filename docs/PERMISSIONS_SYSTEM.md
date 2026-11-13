@@ -1,4 +1,4 @@
-# Roles and Permissions System - Implementation Complete!
+# Roles and Permissions System
 
 ## Overview
 
@@ -172,21 +172,61 @@ function PatientActions() {
 }
 ```
 
-## How Roles Are Stored
+## How Roles Are Stored and Enforced
 
-Roles are stored as FHIR extensions on the Practitioner resource:
+There are two layers. The server layer is the security boundary; the client layer only decides
+which UI to show.
+
+| Layer | Where | Purpose |
+|-------|-------|---------|
+| Server | One Medplum `AccessPolicy` per role (`src/security/rolePolicies.ts`) | Refuses forbidden writes from any client, including direct API calls |
+| Client | `ROLE_PERMISSIONS` in `src/utils/permissions.ts` | Shows or hides buttons, menus and routes |
+
+Roles live on the user's `ProjectMembership`, which only project admins can edit:
 
 ```json
 {
-  "resourceType": "Practitioner",
-  "id": "123",
-  "extension": [
-    {
-      "url": "http://example.org/fhir/StructureDefinition/user-roles",
-      "valueString": "[\"provider\",\"admin\"]"
-    }
+  "resourceType": "ProjectMembership",
+  "admin": false,
+  "access": [
+    { "policy": { "reference": "AccessPolicy/abc", "display": "nurse" } },
+    { "policy": { "reference": "AccessPolicy/def", "display": "pharmacy" } }
   ]
 }
+```
+
+- **Admin** = `membership.admin = true`, no policy (full project access).
+- **Other roles** = one `access` entry per role. Medplum grants the union of the policies.
+- `policy.display` carries the role code so the app can read roles without extra requests.
+
+Policy rules (approved 2026-11-08, see
+`docs/superpowers/specs/2026-11-07-server-side-authorization-design.md`):
+
+- Every role can read all clinical data (open reads; read limits come in Phase 1).
+- Writes follow the role's write matrix. No clinical role can delete clinical records.
+- Charges: clinical roles can only create them; only Billing can change or remove them.
+- Practitioner, Organization, catalogs, policies and memberships are admin-only.
+
+### Setting up a facility
+
+Run once per facility Project, with an admin ClientApplication's credentials:
+
+```bash
+export MEDPLUM_BASE_URL=https://api.hopeemr.com/ MEDPLUM_CLIENT_ID=... MEDPLUM_CLIENT_SECRET=...
+npm run policies:setup:dry   # review
+npm run policies:setup       # apply (idempotent; re-run after changing rolePolicies.ts)
+```
+
+### Proving enforcement
+
+`npm run policies:test` signs in as each role (via temporary client apps) against a dev or
+scratch Project and checks every allowed/forbidden write against the real server. Run it after
+any change to `rolePolicies.ts`. For a local server:
+
+```bash
+docker compose -f docker-compose-emr.yml up -d postgres redis medplum-server
+eval "$(npx tsx scripts/dev-bootstrap-test-project.ts)"
+npm run policies:setup && npm run policies:test
 ```
 
 ## Admin Workflow
@@ -217,8 +257,8 @@ All admin routes are protected with the `RequireAdmin` component (implemented ea
 
 ### Component-Level Security
 - Buttons and actions are hidden if user lacks permission
-- API calls will still fail if unauthorized (server-side validation)
-- No sensitive data is exposed in the UI for unauthorized users
+- The server independently refuses writes outside the user's role policy (HTTP 403)
+- Offline writes rejected with 403 on sync are marked failed and not retried
 
 ### Best Practices
 1. Always check permissions before showing UI elements

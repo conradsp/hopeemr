@@ -1,4 +1,4 @@
-import { MedplumClient } from '@medplum/core';
+import { MedplumClient, OperationOutcomeError, getStatus } from '@medplum/core';
 import { Resource } from '@medplum/fhirtypes';
 import { SyncQueue } from './SyncQueue';
 import { saveLocalIdMapping, updateMetadata, cachePatient, cacheEncounter, cacheObservation, cacheMedicationRequest, cacheServiceRequest, cacheDocumentReference, deleteCachedPatient, getCachedVersionId } from '../db/operations';
@@ -43,6 +43,18 @@ class AsyncMutex {
   isLocked(): boolean {
     return this.locked;
   }
+}
+
+/**
+ * Errors the server will return again on every retry: authentication, authorization, and
+ * validation failures. Network errors and 5xx responses stay retryable.
+ */
+export function isPermanentSyncError(error: unknown): boolean {
+  if (!(error instanceof OperationOutcomeError)) {
+    return false;
+  }
+  const status = getStatus(error.outcome);
+  return status === 400 || status === 401 || status === 403 || status === 422;
 }
 
 /**
@@ -191,7 +203,10 @@ class SyncManagerClass {
           });
 
           // Check if we should retry
-          if (item.retryCount < item.maxRetries) {
+          if (isPermanentSyncError(error)) {
+            // The server refused the write (e.g. the user's role lacks permission); retrying cannot help
+            await SyncQueue.markPermanentlyFailed(item.id, `Rejected by server: ${errorMessage}`);
+          } else if (item.retryCount < item.maxRetries) {
             await SyncQueue.markFailed(item.id, errorMessage);
           } else {
             // Max retries exceeded - mark as permanently failed
@@ -383,7 +398,6 @@ class SyncManagerClass {
             resourceId,
             cachedVersion: cachedVersionId,
             serverVersion: serverVersionId,
-            localChanges: JSON.stringify(item.resource).substring(0, 500), // Truncated for logging
             resolution: 'server-wins',
           });
 

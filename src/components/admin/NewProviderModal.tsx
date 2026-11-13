@@ -1,6 +1,7 @@
 import { Modal, TextInput, Button, Group, Stack, Select, Textarea } from '@mantine/core';
 import { Practitioner, HumanName, ContactPoint, Address } from '@medplum/fhirtypes';
 import { useMedplum } from '@medplum/react';
+import { createReference } from '@medplum/core';
 import { IconUserPlus } from '@tabler/icons-react';
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -105,7 +106,7 @@ export function NewProviderModal({ opened, onClose }: NewProviderModalProps): JS
         ] : undefined,
       };
 
-      await medplum.createResource(practitioner);
+      const created = await medplum.createResource(practitioner);
       
       // Invite provider to set up their account
       if (data.email) {
@@ -119,6 +120,9 @@ export function NewProviderModal({ opened, onClose }: NewProviderModalProps): JS
                 firstName: data.firstName,
                 lastName: data.lastName,
                 email: data.email,
+                // Link the login to the Practitioner created above instead of creating a duplicate.
+                // Roles are assigned afterwards from Manage Users.
+                membership: { profile: createReference(created) },
               }
             );
           } catch (error) {

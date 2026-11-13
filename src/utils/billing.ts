@@ -51,7 +51,7 @@ export async function createChargeItem(
     status: 'billable',
     code: {
       coding: [{
-        system: 'http://example.org/billing-codes',
+        system: 'http://hopeemr.com/fhir/CodeSystem/billing-code',
         code,
         display: description,
       }],
@@ -73,7 +73,7 @@ export async function createChargeItem(
     },
     // Store service reference in extension
     extension: serviceReference ? [{
-      url: 'http://example.org/fhir/StructureDefinition/service-reference',
+      url: 'http://hopeemr.com/fhir/StructureDefinition/service-reference',
       valueReference: serviceReference,
     }] : undefined,
   };
@@ -318,11 +318,11 @@ export async function recordPayment(
 
   // Add payment to account extension
   const payments = account.extension?.filter(
-    ext => ext.url === 'http://example.org/fhir/StructureDefinition/payment'
+    ext => ext.url === 'http://hopeemr.com/fhir/StructureDefinition/payment'
   ) || [];
 
   payments.push({
-    url: 'http://example.org/fhir/StructureDefinition/payment',
+    url: 'http://hopeemr.com/fhir/StructureDefinition/payment',
     extension: [
       {
         url: 'amount',
@@ -352,7 +352,7 @@ export async function recordPayment(
 
   account.extension = [
     ...account.extension?.filter(
-      ext => ext.url !== 'http://example.org/fhir/StructureDefinition/payment'
+      ext => ext.url !== 'http://hopeemr.com/fhir/StructureDefinition/payment'
     ) || [],
     ...payments,
   ];
@@ -414,7 +414,7 @@ export async function getEncounterBillingSummary(
   // Extract payments for this encounter
   const payments: PaymentRecord[] = [];
   const paymentExtensions = account.extension?.filter(
-    ext => ext.url === 'http://example.org/fhir/StructureDefinition/payment'
+    ext => ext.url === 'http://hopeemr.com/fhir/StructureDefinition/payment'
   ) || [];
 
   for (const paymentExt of paymentExtensions) {
@@ -457,7 +457,7 @@ export async function getPatientBillingSummary(
   // Extract all payments
   const payments: PaymentRecord[] = [];
   const paymentExtensions = account.extension?.filter(
-    ext => ext.url === 'http://example.org/fhir/StructureDefinition/payment'
+    ext => ext.url === 'http://hopeemr.com/fhir/StructureDefinition/payment'
   ) || [];
 
   for (const paymentExt of paymentExtensions) {
@@ -488,7 +488,7 @@ export async function getPatientBillingSummary(
  */
 export function getPriceFromResource(resource: any): number | undefined {
   const priceExt = resource.extension?.find(
-    (ext: any) => ext.url === 'http://example.org/fhir/StructureDefinition/price'
+    (ext: any) => ext.url === 'http://hopeemr.com/fhir/StructureDefinition/price'
   );
   return priceExt?.valueMoney?.value;
 }
@@ -501,7 +501,7 @@ export function getPriceFromResource(resource: any): number | undefined {
  */
 export function setPriceOnResource(resource: any, price: number): any {
   const otherExtensions = resource.extension?.filter(
-    (ext: any) => ext.url !== 'http://example.org/fhir/StructureDefinition/price'
+    (ext: any) => ext.url !== 'http://hopeemr.com/fhir/StructureDefinition/price'
   ) || [];
 
   return {
@@ -509,7 +509,7 @@ export function setPriceOnResource(resource: any, price: number): any {
     extension: [
       ...otherExtensions,
       {
-        url: 'http://example.org/fhir/StructureDefinition/price',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/price',
         valueMoney: {
           value: price,
           currency: 'USD',

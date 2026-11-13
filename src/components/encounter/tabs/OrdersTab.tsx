@@ -152,7 +152,8 @@ export function OrdersTab({ serviceRequests }: OrdersTabProps): JSX.Element {
 
     setDeletingImage(true);
     try {
-      await medplum.deleteResource('DocumentReference', pendingDeleteDoc.id);
+      // Clinical records are never hard-deleted; marking entered-in-error hides it and keeps history
+      await medplum.updateResource<DocumentReference>({ ...pendingDeleteDoc, status: 'entered-in-error' });
       notifications.show({ title: t('common.deleted', 'Deleted'), message: t('orders.imageDeleted', 'Image deleted'), color: 'green' });
       setRefreshKey(k => k + 1);
     } catch {
@@ -179,7 +180,7 @@ export function OrdersTab({ serviceRequests }: OrdersTabProps): JSX.Element {
     const labTests = await getLabTests(medplum);
     const matchingTest = labTests.find(
       (def) => {
-        const defCode = def.identifier?.find(id => id.system === 'http://medplum.com/emr/lab-test')?.value;
+        const defCode = def.identifier?.find(id => id.system === 'http://hopeemr.com/fhir/identifier/lab-test')?.value;
         const defTitle = def.title || def.code?.text;
         return defCode === testCode || defTitle === sr.code?.coding?.[0]?.display || defTitle === sr.code?.text;
       }

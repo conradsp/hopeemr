@@ -201,9 +201,9 @@ export function RecordVitalsModal({ opened, onClose, encounter, patient, onSucce
         effectiveDateTime,
         valueQuantity: {
           value: parseFloat(vitals.temperature),
-          unit: '°F',
+          unit: '°C',
           system: 'http://unitsofmeasure.org',
-          code: '[degF]',
+          code: 'Cel',
         },
       });
     }
@@ -297,9 +297,9 @@ export function RecordVitalsModal({ opened, onClose, encounter, patient, onSucce
         effectiveDateTime,
         valueQuantity: {
           value: parseFloat(vitals.weight),
-          unit: 'lbs',
+          unit: 'kg',
           system: 'http://unitsofmeasure.org',
-          code: '[lb_av]',
+          code: 'kg',
         },
       });
     }
@@ -329,9 +329,9 @@ export function RecordVitalsModal({ opened, onClose, encounter, patient, onSucce
         effectiveDateTime,
         valueQuantity: {
           value: parseFloat(vitals.height),
-          unit: 'in',
+          unit: 'cm',
           system: 'http://unitsofmeasure.org',
-          code: '[in_i]',
+          code: 'cm',
         },
       });
     }
@@ -554,8 +554,8 @@ export function RecordVitalsModal({ opened, onClose, encounter, patient, onSucce
             <NumberInput
               label={t('recordVitals.temperature')}
               placeholder={t('recordVitals.placeholder.temperature')}
-              min={90}
-              max={110}
+              min={30}
+              max={45}
               decimalScale={1}
               value={vitals.temperature}
               onChange={(value) => setVitals({ ...vitals, temperature: value?.toString() || '' })}
@@ -587,7 +587,7 @@ export function RecordVitalsModal({ opened, onClose, encounter, patient, onSucce
               label={t('recordVitals.weight')}
               placeholder={t('recordVitals.placeholder.weight')}
               min={0}
-              max={1000}
+              max={500}
               decimalScale={1}
               value={vitals.weight}
               onChange={(value) => setVitals({ ...vitals, weight: value?.toString() || '' })}
@@ -596,7 +596,7 @@ export function RecordVitalsModal({ opened, onClose, encounter, patient, onSucce
               label={t('recordVitals.height')}
               placeholder={t('recordVitals.placeholder.height')}
               min={0}
-              max={100}
+              max={250}
               decimalScale={1}
               value={vitals.height}
               onChange={(value) => setVitals({ ...vitals, height: value?.toString() || '' })}

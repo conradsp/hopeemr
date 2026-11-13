@@ -206,7 +206,7 @@ export function EncounterHeader({ encounter, medplum, onStatusChange }: Encounte
                 <Text size="xs" c="dimmed">{t('beds.currentBed')}</Text>
                 {currentBed ? (
                   <Text size="sm" fw={500}>
-                    {currentBed.name} - Room {currentBed.extension?.find(e => e.url === 'http://example.org/fhir/StructureDefinition/room-number')?.valueString}
+                    {currentBed.name} - Room {currentBed.extension?.find(e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/room-number')?.valueString}
                   </Text>
                 ) : (
                   <Text size="sm" c="dimmed">{t('beds.noBedAssigned')}</Text>

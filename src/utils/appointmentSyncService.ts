@@ -20,8 +20,8 @@ import type { WorkflowConfiguration, AppointmentSyncStatus } from '../types/queu
  */
 
 // Extension URL for tracking sync status
-const SYNC_STATUS_EXTENSION = 'http://medplum.com/emr/queue-sync-status';
-const SYNC_TASK_EXTENSION = 'http://medplum.com/emr/queue-task-reference';
+const SYNC_STATUS_EXTENSION = 'http://hopeemr.com/fhir/StructureDefinition/queue-sync-status';
+const SYNC_TASK_EXTENSION = 'http://hopeemr.com/fhir/StructureDefinition/queue-task-reference';
 
 // Sync interval in milliseconds (5 minutes)
 const DEFAULT_SYNC_INTERVAL = 5 * 60 * 1000;
@@ -227,7 +227,7 @@ async function processAppointmentForSync(
     // Check if a queue task already exists for this appointment
     const existingTasks = await medplum.searchResources('Task', {
       'based-on': `Appointment/${appointmentId}`,
-      code: 'http://medplum.com/fhir/CodeSystem/task-code|patient-queue-entry',
+      code: 'http://hopeemr.com/fhir/CodeSystem/task-code|patient-queue-entry',
       _count: '1',
     });
 

@@ -496,17 +496,17 @@ export interface ProviderWorkQueueStats {
  * Task code URLs for different task types
  */
 export const TASK_CODE_URLS = {
-  queueEntry: 'http://medplum.com/fhir/CodeSystem/task-code|patient-queue-entry',
-  labReview: 'http://medplum.com/fhir/CodeSystem/task-code|lab-review',
-  imagingReview: 'http://medplum.com/fhir/CodeSystem/task-code|imaging-review',
-  callPatient: 'http://medplum.com/fhir/CodeSystem/task-code|call-patient',
-  referral: 'http://medplum.com/fhir/CodeSystem/task-code|referral',
-  prescription: 'http://medplum.com/fhir/CodeSystem/task-code|prescription',
-  priorAuth: 'http://medplum.com/fhir/CodeSystem/task-code|prior-auth',
-  documentReview: 'http://medplum.com/fhir/CodeSystem/task-code|document-review',
-  followUp: 'http://medplum.com/fhir/CodeSystem/task-code|follow-up',
-  consult: 'http://medplum.com/fhir/CodeSystem/task-code|consult',
-  other: 'http://medplum.com/fhir/CodeSystem/task-code|other',
+  queueEntry: 'http://hopeemr.com/fhir/CodeSystem/task-code|patient-queue-entry',
+  labReview: 'http://hopeemr.com/fhir/CodeSystem/task-code|lab-review',
+  imagingReview: 'http://hopeemr.com/fhir/CodeSystem/task-code|imaging-review',
+  callPatient: 'http://hopeemr.com/fhir/CodeSystem/task-code|call-patient',
+  referral: 'http://hopeemr.com/fhir/CodeSystem/task-code|referral',
+  prescription: 'http://hopeemr.com/fhir/CodeSystem/task-code|prescription',
+  priorAuth: 'http://hopeemr.com/fhir/CodeSystem/task-code|prior-auth',
+  documentReview: 'http://hopeemr.com/fhir/CodeSystem/task-code|document-review',
+  followUp: 'http://hopeemr.com/fhir/CodeSystem/task-code|follow-up',
+  consult: 'http://hopeemr.com/fhir/CodeSystem/task-code|consult',
+  other: 'http://hopeemr.com/fhir/CodeSystem/task-code|other',
 } as const;
 
 /**

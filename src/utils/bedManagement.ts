@@ -12,7 +12,7 @@ export const OPERATIONAL_STATUS_SYSTEM = 'http://terminology.hl7.org/CodeSystem/
 // HopeEMR-internal extension preserving the BedStatus literal. Necessary because
 // 'reserved' has no FHIR v2-0116 equivalent (closest standard code is 'O' Occupied,
 // but that loses the reserved-vs-occupied distinction the UI exposes).
-export const BED_STATUS_EXTENSION_URL = 'http://example.org/fhir/StructureDefinition/bed-status';
+export const BED_STATUS_EXTENSION_URL = 'http://hopeemr.com/fhir/StructureDefinition/bed-status';
 export type BedType = 'standard' | 'icu' | 'isolation' | 'bariatric' | 'pediatric' | 'maternity';
 export type DepartmentType = 'emergency' | 'icu' | 'surgery' | 'pediatrics' | 'maternity' | 'general' | 'cardiology' | 'oncology' | 'orthopedics' | 'psychiatry';
 
@@ -79,7 +79,7 @@ export async function createDepartment(
       }],
     }],
     identifier: [{
-      system: 'http://example.org/department-codes',
+      system: 'http://hopeemr.com/fhir/CodeSystem/department',
       value: data.code,
     }],
     description: data.description,
@@ -188,13 +188,13 @@ export async function createBed(
     },
     type: [{
       coding: [{
-        system: 'http://example.org/bed-types',
+        system: 'http://hopeemr.com/fhir/CodeSystem/bed-type',
         code: data.bedType,
         display: data.bedType,
       }],
     }],
     identifier: [{
-      system: 'http://example.org/bed-numbers',
+      system: 'http://hopeemr.com/fhir/identifier/bed-number',
       value: data.bedNumber,
     }],
     partOf: {
@@ -207,7 +207,7 @@ export async function createBed(
     },
     extension: [
       {
-        url: 'http://example.org/fhir/StructureDefinition/room-number',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/room-number',
         valueString: data.roomNumber,
       },
       {
@@ -282,7 +282,7 @@ export async function assignBedToEncounter(
     updatedEncounter.extension = [
       ...(updatedEncounter.extension || []),
       {
-        url: 'http://example.org/fhir/StructureDefinition/bed-assignment-notes',
+        url: 'http://hopeemr.com/fhir/StructureDefinition/bed-assignment-notes',
         valueString: notes,
       },
     ];

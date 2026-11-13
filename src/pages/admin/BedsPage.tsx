@@ -71,7 +71,7 @@ export function BedsPage(): JSX.Element {
       setEditingBed(bed);
       const deptId = bed.partOf?.reference?.split('/')[1] || '';
       const roomNumber = bed.extension?.find(
-        e => e.url === 'http://example.org/fhir/StructureDefinition/room-number'
+        e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/room-number'
       )?.valueString || '';
       
       setFormData({
@@ -108,7 +108,7 @@ export function BedsPage(): JSX.Element {
           ...editingBed,
           name: `Bed ${formData.bedNumber}`,
           identifier: [{
-            system: 'http://example.org/bed-numbers',
+            system: 'http://hopeemr.com/fhir/identifier/bed-number',
             value: formData.bedNumber,
           }],
           partOf: {
@@ -116,7 +116,7 @@ export function BedsPage(): JSX.Element {
           },
           type: [{
             coding: [{
-              system: 'http://example.org/bed-types',
+              system: 'http://hopeemr.com/fhir/CodeSystem/bed-type',
               code: formData.bedType,
               display: formData.bedType,
             }],
@@ -129,11 +129,11 @@ export function BedsPage(): JSX.Element {
           extension: setBedStatusExtension(
             [
               {
-                url: 'http://example.org/fhir/StructureDefinition/room-number',
+                url: 'http://hopeemr.com/fhir/StructureDefinition/room-number',
                 valueString: formData.roomNumber,
               },
               {
-                url: 'http://example.org/fhir/StructureDefinition/department-name',
+                url: 'http://hopeemr.com/fhir/StructureDefinition/department-name',
                 valueString: departments.find(d => d.id === formData.departmentId)?.name || '',
               },
             ],
@@ -365,7 +365,7 @@ export function BedsPage(): JSX.Element {
             <Table.Tbody>
               {filteredBeds.map((bed) => {
                 const roomNumber = bed.extension?.find(
-                  e => e.url === 'http://example.org/fhir/StructureDefinition/room-number'
+                  e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/room-number'
                 )?.valueString || '-';
                 const status = getBedStatusFromLocation(bed);
                 

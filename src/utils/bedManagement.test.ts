@@ -86,7 +86,7 @@ describe('bedManagement', () => {
     });
 
     it('preserves unrelated extensions', () => {
-      const room = { url: 'http://example.org/fhir/StructureDefinition/room-number', valueString: '101' };
+      const room = { url: 'http://hopeemr.com/fhir/StructureDefinition/room-number', valueString: '101' };
       const result = setBedStatusExtension([room], 'available');
       expect(result).toContainEqual(room);
       expect(result).toContainEqual({ url: BED_STATUS_EXTENSION_URL, valueCode: 'available' });

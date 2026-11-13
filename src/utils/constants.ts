@@ -54,7 +54,7 @@ export const VITAL_RANGES = {
   HEART_RATE: { min: 60, max: 100, unit: 'bpm' },
   BLOOD_PRESSURE_SYSTOLIC: { min: 90, max: 140, unit: 'mmHg' },
   BLOOD_PRESSURE_DIASTOLIC: { min: 60, max: 90, unit: 'mmHg' },
-  TEMPERATURE: { min: 97.0, max: 99.5, unit: '°F' },
+  TEMPERATURE: { min: 36.1, max: 37.5, unit: '°C' },
   RESPIRATORY_RATE: { min: 12, max: 20, unit: '/min' },
   OXYGEN_SATURATION: { min: 95, max: 100, unit: '%' },
 } as const;

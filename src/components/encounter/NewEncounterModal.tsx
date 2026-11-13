@@ -238,7 +238,7 @@ export function NewEncounterModal({ opened, onClose, patient }: NewEncounterModa
 
   const bedOptions = availableBeds.map(bed => ({
     value: bed.id || '',
-    label: `${bed.identifier?.[0]?.value} - Room ${bed.extension?.find(e => e.url === 'http://example.org/fhir/StructureDefinition/room-number')?.valueString}`,
+    label: `${bed.identifier?.[0]?.value} - Room ${bed.extension?.find(e => e.url === 'http://hopeemr.com/fhir/StructureDefinition/room-number')?.valueString}`,
   }));
 
   return (

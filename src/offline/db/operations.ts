@@ -340,7 +340,9 @@ export async function getPendingSyncItems(limit?: number): Promise<SyncQueueItem
 
   let cursor = await index.openCursor();
   while (cursor) {
-    if (cursor.value.status === 'pending' || cursor.value.status === 'failed') {
+    const { status, retryCount, maxRetries } = cursor.value;
+    // Failed items are retried until they reach maxRetries, then left for the user to see
+    if (status === 'pending' || (status === 'failed' && retryCount < maxRetries)) {
       items.push(cursor.value);
       if (limit && items.length >= limit) {
         break;
@@ -382,6 +384,20 @@ export async function updateSyncItemStatus(
     if (serverId) {
       item.serverId = serverId;
     }
+    await db.put('syncQueue', item);
+  }
+}
+
+/**
+ * Mark a sync item as failed with no further retries (e.g. the server refused it with 403)
+ */
+export async function markSyncItemPermanentlyFailed(id: string, error: string): Promise<void> {
+  const db = await getDB();
+  const item = await db.get('syncQueue', id);
+  if (item) {
+    item.status = 'failed';
+    item.error = error;
+    item.retryCount = item.maxRetries;
     await db.put('syncQueue', item);
   }
 }

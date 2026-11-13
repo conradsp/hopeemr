@@ -172,7 +172,7 @@ export function ProviderWorkQueuePage(): JSX.Element {
 
       // Load queue tasks assigned to me
       const queueTasks = await medplum.searchResources('Task', {
-        code: 'http://medplum.com/fhir/CodeSystem/task-code|patient-queue-entry',
+        code: 'http://hopeemr.com/fhir/CodeSystem/task-code|patient-queue-entry',
         owner: `Practitioner/${providerId}`,
         status: 'ready,in-progress',
         _sort: '-priority,_lastUpdated',
