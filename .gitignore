@@ -42,7 +42,6 @@ coverage/
 
 # Docker files
 docker-compose-emr.yml
-docker-compose-emr-https.yml
 docker-compose-emr-production.yml
 docker-compose-full-stack.yml
 
