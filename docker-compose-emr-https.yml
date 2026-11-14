@@ -134,6 +134,8 @@ services:
       MEDPLUM_DEFAULT_BOT_RUNTIME_VERSION: 'vmcontext'
       MEDPLUM_ALLOWED_ORIGINS: '${MEDPLUM_APP_URL:-https://hopeemr.com}'
       MEDPLUM_INTROSPECTION_ENABLED: 'false'
+      # Self-registration creates new users and projects; keep off except when bootstrapping a server
+      MEDPLUM_REGISTER_ENABLED: '${MEDPLUM_REGISTER_ENABLED:-false}'
       MEDPLUM_SHUTDOWN_TIMEOUT_MILLISECONDS: 30000
       MEDPLUM_LOG_LEVEL: 'warn'
 

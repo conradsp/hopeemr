@@ -16,7 +16,8 @@
     "migrate:beds:dry": "node scripts/migrate-bed-operational-status.mjs --dry-run",
     "policies:setup": "tsx scripts/setup-access-policies.ts",
     "policies:setup:dry": "tsx scripts/setup-access-policies.ts --dry-run",
-    "policies:test": "tsx scripts/test-access-policies.ts"
+    "policies:test": "tsx scripts/test-access-policies.ts",
+    "seed:sample": "tsx scripts/seed-sample-data.ts"
   },
   "prettier": {
     "printWidth": 120,
