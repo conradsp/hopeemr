@@ -4,12 +4,28 @@
  * This file provides utilities for checking user permissions and roles.
  */
 
-import type { ProjectMembership } from '@medplum/fhirtypes';
+import type { AccessPolicy, ProjectMembership } from '@medplum/fhirtypes';
 import { UserRole, Permission, ROLE_PERMISSIONS } from './permissions';
 import { isPolicyRole } from '../security/rolePolicies';
 
 /** The parts of a ProjectMembership that determine a user's roles. */
 export type MembershipRoles = Pick<ProjectMembership, 'admin' | 'access'>;
+
+/**
+ * The signed-in user's membership with its role policies filled in.
+ *
+ * Medplum 5 strips `access` from the membership it returns in /auth/me, but the session's
+ * compiled AccessPolicy lists the source policies (with their role display) in `basedOn`.
+ */
+export function withSessionRoles(
+  membership: ProjectMembership | undefined,
+  accessPolicy: AccessPolicy | undefined
+): ProjectMembership | undefined {
+  if (!membership || membership.access?.length || !accessPolicy?.basedOn?.length) {
+    return membership;
+  }
+  return { ...membership, access: accessPolicy.basedOn.map((policy) => ({ policy })) };
+}
 
 // ============================================================================
 // ROLE MANAGEMENT

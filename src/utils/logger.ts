@@ -19,7 +19,8 @@ class Logger {
   private minLevel: LogLevel;
 
   constructor() {
-    this.isDevelopment = import.meta.env.DEV;
+    // import.meta.env is undefined outside Vite (e.g. Node scripts run with tsx)
+    this.isDevelopment = import.meta.env?.DEV ?? false;
     this.minLevel = this.isDevelopment ? 'debug' : 'warn';
   }
 

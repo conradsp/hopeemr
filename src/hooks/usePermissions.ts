@@ -11,6 +11,7 @@ import { Practitioner, ProjectMembership } from '@medplum/fhirtypes';
 import { useMemo } from 'react';
 import {
   getUserRoles,
+  withSessionRoles,
   getUserPermissions,
   hasPermission,
   hasRole,
@@ -36,7 +37,9 @@ export function useCurrentUser(): Practitioner | null {
 
 export function useMembership(): ProjectMembership | undefined {
   const medplum = useMedplum();
-  return medplum.getProjectMembership();
+  const membership = medplum.getProjectMembership();
+  const accessPolicy = medplum.getAccessPolicy();
+  return useMemo(() => withSessionRoles(membership, accessPolicy), [membership, accessPolicy]);
 }
 
 export function useUserRoles(): UserRole[] {
